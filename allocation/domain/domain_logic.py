@@ -17,7 +17,7 @@ class Coil:
     ):
         self.reference = reference
         self.product_id = product_id
-        self.alailable_quantity = quantity
+        self.available_quantity = quantity
 
     def allocate(self, line: OrderLine):
-        self.alailable_quantity -= line.quantity
+        self.available_quantity -= line.quantity
