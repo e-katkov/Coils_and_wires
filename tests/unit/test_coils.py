@@ -32,3 +32,12 @@ def test_can_allocate_at_various_product_id(coil_product_id, line_product_id, re
     line = OrderLine('Заказ-002', line_product_id, 50)
 
     assert coil.can_allocate(line) is result
+
+
+def test_allocation_is_idempotent():
+    coil = Coil('Бухта-003', 'АВВГ_3х1,5', 140)
+    line = OrderLine('Заказ-003', 'АВВГ_3х1,5', 50)
+    coil.allocate(line)
+    coil.allocate(line)
+
+    assert coil.available_quantity == 90
