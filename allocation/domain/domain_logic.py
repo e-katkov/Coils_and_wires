@@ -9,15 +9,15 @@ class OrderLine:
 
 
 class Coil:
-    def __init__(
-            self,
-            reference: str,
-            product_id: str,
-            quantity: int
-    ):
+    def __init__(self, reference: str, product_id: str, quantity: int):
         self.reference = reference
         self.product_id = product_id
         self.available_quantity = quantity
 
     def allocate(self, line: OrderLine):
         self.available_quantity -= line.quantity
+
+    def can_allocate(self, line: OrderLine):
+        return (self.product_id == line.product_id) and (
+            self.available_quantity >= line.quantity)
+
