@@ -52,11 +52,18 @@ class Coil:
         return hash(self.reference)
 
 
+class OutOfStock(Exception):
+    pass
+
+
 def allocate_to_list_of_coils(line: OrderLine, coils: list[Coil]) -> str:
-    coil = next(c for c in sorted(coils) if (
-        c.can_allocate(line) and
-        ((c.available_quantity - line.quantity) >= c.recommended_balance or
-         (c.available_quantity - line.quantity) <= c.acceptable_loss)
-    ))
-    coil.allocate(line)
-    return coil.reference
+    try:
+        coil = next(c for c in sorted(coils) if (
+                c.can_allocate(line) and
+                ((c.available_quantity - line.quantity) >= c.recommended_balance or
+                 (c.available_quantity - line.quantity) <= c.acceptable_loss)
+        ))
+        coil.allocate(line)
+        return coil.reference
+    except StopIteration:
+        raise OutOfStock(f'Материала с ID {line.product_id} нет в наличии')

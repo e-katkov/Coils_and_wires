@@ -1,4 +1,6 @@
-from allocation.domain.domain_logic import Coil, OrderLine, allocate_to_list_of_coils
+import pytest
+
+from allocation.domain.domain_logic import Coil, OrderLine, allocate_to_list_of_coils, OutOfStock
 
 
 def test_prefers_smaller_coil():
@@ -57,3 +59,11 @@ def test_returns_allocated_coil_reference():
     )
 
     assert smaller_coil.reference == allocation
+
+
+def test_raise_out_of_stock_exception_if_cannot_allocate():
+    coil = Coil('Бухта-009', 'АВВГ_2х6', 10, 5, 1)
+    line = OrderLine('Заказ-014', 'АВВГ_2х6', 11)
+
+    with pytest.raises(OutOfStock, match='АВВГ_2х6'):
+        allocate_to_list_of_coils(line, [coil])
