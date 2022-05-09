@@ -41,3 +41,25 @@ def test_allocation_is_idempotent():
     coil.allocate(line)
 
     assert coil.available_quantity == 90
+
+
+def test_deallocate_allocated_line():
+    coil = Coil('Бухта-004', 'АВВГ_3х1,5', 110)
+    line = OrderLine('Заказ-004', 'АВВГ_3х1,5', 60)
+
+    coil.allocate(line)
+    previous_quantity = coil.available_quantity
+    coil.deallocate(line)
+    current_quantity = coil.available_quantity
+
+    assert previous_quantity == 50 and current_quantity == 110
+
+
+def test_deallocate_not_allocated_line():
+    coil = Coil('Бухта-004', 'АВВГ_3х1,5', 110)
+    line = OrderLine('Заказ-004', 'АВВГ_3х1,5', 60)
+
+    coil.deallocate(line)
+    current_quantity = coil.available_quantity
+
+    assert current_quantity == 110
