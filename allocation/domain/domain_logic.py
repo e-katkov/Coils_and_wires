@@ -16,11 +16,11 @@ class Coil:
         self._allocations: set[OrderLine] = set()
 
     @property
-    def allocated_quantity(self):
+    def allocated_quantity(self) -> int:
         return sum(line.quantity for line in self._allocations)
 
     @property
-    def available_quantity(self):
+    def available_quantity(self) -> int:
         return self._initial_quantity - self.allocated_quantity
 
     def can_allocate(self, line: OrderLine) -> bool:
@@ -31,8 +31,6 @@ class Coil:
         if self.can_allocate(line):
             self._allocations.add(line)
 
-    def deallocate(self, line:OrderLine):
+    def deallocate(self, line: OrderLine):
         if line in self._allocations:
             self._allocations.remove(line)
-
-
