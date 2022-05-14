@@ -21,16 +21,12 @@ class Coil(models.Model):
 
     @staticmethod
     def create_from_domain(domain_coil: domain_logic.Coil):
-        coil = Coil.objects.create(
+        Coil.objects.create(
             reference=domain_coil.reference,
             product_id=domain_coil.product_id,
             quantity=domain_coil._initial_quantity,
             recommended_balance=domain_coil.recommended_balance,
             acceptable_loss=domain_coil.acceptable_loss
-        )
-        coil.allocation_set.set(
-            Allocation.get_or_create_from_domain(coil, domain_line)
-            for domain_line in domain_coil._allocations
         )
 
     @staticmethod
@@ -62,9 +58,15 @@ class OrderLine(models.Model):
     @staticmethod
     def get_from_domain(domain_line: domain_logic.OrderLine):
         line = OrderLine.objects.get(order_id=domain_line.order_id,
-                                     product_id=domain_line.product_id,
-                                     quantity=domain_line.quantity)
+                                        product_id=domain_line.product_id,
+                                        quantity=domain_line.quantity)
         return line
+
+    @staticmethod
+    def create_from_domain(domain_line: domain_logic.OrderLine):
+        OrderLine.objects.create(order_id=domain_line.order_id,
+                                        product_id=domain_line.product_id,
+                                        quantity=domain_line.quantity)
 
 
 class Allocation(models.Model):
@@ -74,5 +76,5 @@ class Allocation(models.Model):
     @staticmethod
     def get_or_create_from_domain(coil, domain_line):
         line = OrderLine.get_from_domain(domain_line)
-        allocation, _ = Allocation.objects.get_or_create(coil=coil, line=line)
-        return allocation
+        allo, _ = Allocation.objects.get_or_create(coil=coil, line=line)
+        return allo
