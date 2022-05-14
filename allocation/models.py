@@ -74,7 +74,7 @@ class Allocation(models.Model):
     line = models.OneToOneField(OrderLine, on_delete=models.CASCADE)
 
     @staticmethod
-    def get_or_create_from_domain(coil, domain_line):
+    def get_or_create_from_domain(coil: Coil, domain_line: domain_logic.OrderLine):
         line = OrderLine.get_from_domain(domain_line)
         allo, _ = Allocation.objects.get_or_create(coil=coil, line=line)
         return allo
