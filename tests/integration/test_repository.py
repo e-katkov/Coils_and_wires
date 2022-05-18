@@ -21,8 +21,8 @@ def test_repository_saves_a_coil():
 
 @pytest.mark.django_db
 def test_repository_updates_a_coil():
-    line_1 = domain_logic.OrderLine('Заказ-030', 'АВВГ_2х6', 12)
-    line_2 = domain_logic.OrderLine('Заказ-031', 'АВВГ_2х6', 25)
+    line_1 = domain_logic.OrderLine('Заказ-030', 'Позиция-001', 'АВВГ_2х6', 12)
+    line_2 = domain_logic.OrderLine('Заказ-031', 'Позиция-001', 'АВВГ_2х6', 25)
     coil_a = domain_logic.Coil('Бухта-021', 'АВВГ_2х6', 120, 5, 1)
     coil_b = domain_logic.Coil('Бухта-021', 'АВВГ_2х6', 70, 6, 2)
 

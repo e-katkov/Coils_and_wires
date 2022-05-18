@@ -46,11 +46,13 @@ class Coil(models.Model):
 
 class OrderLine(models.Model):
     order_id = models.CharField(max_length=255)
+    line_item = models.CharField(max_length=255)
     product_id = models.CharField(max_length=255)
     quantity = models.IntegerField()
 
     def to_domain(self) -> domain_logic.OrderLine:
         line = domain_logic.OrderLine(order_id=self.order_id,
+                                      line_item=self.line_item,
                                       product_id=self.product_id,
                                       quantity=self.quantity)
         return line
@@ -58,15 +60,15 @@ class OrderLine(models.Model):
     @staticmethod
     def get_from_domain(domain_line: domain_logic.OrderLine):
         line = OrderLine.objects.get(order_id=domain_line.order_id,
-                                        product_id=domain_line.product_id,
-                                        quantity=domain_line.quantity)
+                                     line_item=domain_line.line_item)
         return line
 
     @staticmethod
     def create_from_domain(domain_line: domain_logic.OrderLine):
         OrderLine.objects.create(order_id=domain_line.order_id,
-                                        product_id=domain_line.product_id,
-                                        quantity=domain_line.quantity)
+                                 line_item=domain_line.line_item,
+                                 product_id=domain_line.product_id,
+                                 quantity=domain_line.quantity)
 
 
 class Allocation(models.Model):

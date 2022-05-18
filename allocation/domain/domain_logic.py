@@ -1,16 +1,25 @@
 from dataclasses import dataclass
 
 
-@dataclass(frozen=True)
 class OrderLine:
-    order_id: str
-    product_id: str
-    quantity: int
+    def __init__(self, order_id: str, line_item: str, product_id: str, quantity: int):
+        self.order_id = order_id
+        self.line_item = line_item
+        self.product_id = product_id
+        self.quantity = quantity
+
+    def __eq__(self, other) -> bool:
+        if not isinstance(other, OrderLine):
+            return False
+        return self.order_id == other.order_id and self.line_item == other.line_item
+
+    def __hash__(self):
+        return hash(self.order_id + self.line_item)
 
 
 class Coil:
-    def __init__(self, reference: str, product_id: str,
-                 quantity: int, recommended_balance: int, acceptable_loss: int):
+    def __init__(self, reference: str, product_id: str, quantity: int,
+                 recommended_balance: int, acceptable_loss: int):
         self.reference = reference
         self.product_id = product_id
         self._initial_quantity = quantity
@@ -66,4 +75,4 @@ def allocate_to_list_of_coils(line: OrderLine, coils: list[Coil]) -> str:
         coil.allocate(line)
         return coil.reference
     except StopIteration:
-        raise OutOfStock(f'Материала с ID {line.product_id} нет в наличии')
+        raise OutOfStock(f'Недостаточное количество материала с ID {line.product_id}')
