@@ -24,6 +24,10 @@ class AbstractCoilRepository(Protocol):
 
 class AbstractOrderLineRepository(Protocol):
     @staticmethod
+    def get(order_id: str, line_item: str) -> domain_logic.OrderLine:
+        raise NotImplementedError
+
+    @staticmethod
     def add(line: domain_logic.OrderLine) -> None:
         raise NotImplementedError
 
@@ -47,6 +51,10 @@ class DjangoCoilRepository:
 
 
 class DjangoOrderLineRepository:
+    @staticmethod
+    def get(order_id: str, line_item: str) -> domain_logic.OrderLine:
+        return django_models.OrderLine.objects.get(order_id=order_id, line_item=line_item).to_domain()
+
     @staticmethod
     def add(line: domain_logic.OrderLine) -> None:
         django_models.OrderLine.create_from_domain(line)

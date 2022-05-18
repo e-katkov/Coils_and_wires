@@ -58,7 +58,7 @@ def test_returns_allocated_coil_reference():
         line, [bigger_coil, smaller_coil, medium_coil]
     )
 
-    assert smaller_coil.reference == allocation
+    assert smaller_coil == allocation
 
 
 def test_raise_out_of_stock_exception_if_cannot_allocate():

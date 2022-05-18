@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 
 
 class OrderLine:
@@ -65,7 +64,7 @@ class OutOfStock(Exception):
     pass
 
 
-def allocate_to_list_of_coils(line: OrderLine, coils: list[Coil]) -> str:
+def allocate_to_list_of_coils(line: OrderLine, coils: list[Coil]) -> Coil:
     try:
         coil = next(c for c in sorted(coils) if (
                 c.can_allocate(line) and
@@ -73,6 +72,6 @@ def allocate_to_list_of_coils(line: OrderLine, coils: list[Coil]) -> str:
                  (c.available_quantity - line.quantity) <= c.acceptable_loss)
         ))
         coil.allocate(line)
-        return coil.reference
+        return coil
     except StopIteration:
         raise OutOfStock(f'Недостаточное количество материала с ID {line.product_id}')
