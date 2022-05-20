@@ -58,3 +58,7 @@ class DjangoOrderLineRepository:
     @staticmethod
     def add(line: domain_logic.OrderLine) -> None:
         django_models.OrderLine.create_from_domain(line)
+
+    @staticmethod
+    def list() -> list[domain_logic.OrderLine]:
+        return [line.to_domain() for line in django_models.OrderLine.objects.all()]

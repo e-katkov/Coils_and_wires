@@ -1,6 +1,8 @@
 from django.db import models
 
 from allocation.domain import domain_logic
+from allocation.exceptions.exceptions import DBCoilRecordAlreadyExist, DBCoilRecordDoesNotExist, \
+    DBOrderLineRecordDoesNotExist, DBOrderLineRecordAlreadyExist
 
 
 class Coil(models.Model):
@@ -21,27 +23,36 @@ class Coil(models.Model):
 
     @staticmethod
     def create_from_domain(domain_coil: domain_logic.Coil):
-        Coil.objects.create(
-            reference=domain_coil.reference,
-            product_id=domain_coil.product_id,
-            quantity=domain_coil._initial_quantity,
-            recommended_balance=domain_coil.recommended_balance,
-            acceptable_loss=domain_coil.acceptable_loss
-        )
+        if Coil.objects.filter(reference=domain_coil.reference):
+            raise DBCoilRecordAlreadyExist(
+                f'Запись с reference={domain_coil.reference} уже существует в таблице Coil базы данных'
+            )
+        else:
+            Coil.objects.create(reference=domain_coil.reference,
+                                product_id=domain_coil.product_id,
+                                quantity=domain_coil._initial_quantity,
+                                recommended_balance=domain_coil.recommended_balance,
+                                acceptable_loss=domain_coil.acceptable_loss)
 
     @staticmethod
     def update_from_domain(domain_coil: domain_logic.Coil):
-        coil = Coil.objects.get(reference=domain_coil.reference)
-        Coil.objects.filter(reference=domain_coil.reference).update(
-            product_id=domain_coil.product_id,
-            quantity=domain_coil._initial_quantity,
-            recommended_balance=domain_coil.recommended_balance,
-            acceptable_loss=domain_coil.acceptable_loss
-        )
-        coil.allocation_set.set(
-            Allocation.get_or_create_from_domain(coil, domain_line)
-            for domain_line in domain_coil._allocations
-        )
+        try:
+            coil = Coil.objects.get(reference=domain_coil.reference)
+        except Coil.DoesNotExist:
+            raise DBCoilRecordDoesNotExist(
+                f'Запись с reference={domain_coil.reference} отсутствует в таблице Coil базы данных'
+            )
+        else:
+            Coil.objects.filter(reference=domain_coil.reference).update(
+                product_id=domain_coil.product_id,
+                quantity=domain_coil._initial_quantity,
+                recommended_balance=domain_coil.recommended_balance,
+                acceptable_loss=domain_coil.acceptable_loss
+            )
+            coil.allocation_set.set(
+                Allocation.get_or_create_from_domain(coil, domain_line)
+                for domain_line in domain_coil._allocations
+            )
 
 
 class OrderLine(models.Model):
@@ -59,16 +70,30 @@ class OrderLine(models.Model):
 
     @staticmethod
     def get_from_domain(domain_line: domain_logic.OrderLine):
-        line = OrderLine.objects.get(order_id=domain_line.order_id,
+        try:
+            line = OrderLine.objects.get(order_id=domain_line.order_id,
                                      line_item=domain_line.line_item)
-        return line
+        except OrderLine.DoesNotExist:
+            raise DBOrderLineRecordDoesNotExist(
+                f'Запись с order_id={domain_line.order_id} и line_item={domain_line.line_item}'
+                f'отсутствует в таблице OrderLine базы данных'
+            )
+        else:
+            return line
 
     @staticmethod
     def create_from_domain(domain_line: domain_logic.OrderLine):
-        OrderLine.objects.create(order_id=domain_line.order_id,
-                                 line_item=domain_line.line_item,
-                                 product_id=domain_line.product_id,
-                                 quantity=domain_line.quantity)
+        if OrderLine.objects.filter(order_id=domain_line.order_id,
+                                 line_item=domain_line.line_item):
+            raise DBOrderLineRecordAlreadyExist(
+                f'Запись с order_id={domain_line.order_id} и line_item={domain_line.line_item}'
+                f'уже существует в таблице OrderLine базы данных'
+            )
+        else:
+            OrderLine.objects.create(order_id=domain_line.order_id,
+                                     line_item=domain_line.line_item,
+                                     product_id=domain_line.product_id,
+                                     quantity=domain_line.quantity)
 
 
 class Allocation(models.Model):
