@@ -65,5 +65,5 @@ def test_raise_out_of_stock_exception_if_cannot_allocate():
     coil = Coil('Бухта-009', 'АВВГ_2х6', 10, 5, 1)
     line = OrderLine('Заказ-014', 'Позиция-001', 'АВВГ_2х6', 11)
 
-    with pytest.raises(OutOfStock, match='АВВГ_2х6'):
+    with pytest.raises(OutOfStock):
         allocate_to_list_of_coils(line, [coil])

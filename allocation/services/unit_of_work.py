@@ -66,7 +66,7 @@ class DjangoOrderLineUnitOfWork:
         transaction.set_autocommit(False)
         return self
 
-    def __exit__(self):
+    def __exit__(self, *args):
         self.rollback()
         transaction.set_autocommit(True)
 

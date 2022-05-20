@@ -74,4 +74,4 @@ def allocate_to_list_of_coils(line: OrderLine, coils: list[Coil]) -> Coil:
         coil.allocate(line)
         return coil
     except StopIteration:
-        raise OutOfStock(f'Недостаточное количество материала с ID {line.product_id}')
+        raise OutOfStock(f'Недостаточное количество материала с product_id={line.product_id}')
