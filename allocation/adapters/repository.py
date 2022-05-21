@@ -6,30 +6,24 @@ from allocation import models as django_models
 
 class AbstractCoilRepository(Protocol):
     @staticmethod
-    def get(reference: str) -> domain_logic.Coil:
-        raise NotImplementedError
+    def get(reference: str) -> domain_logic.Coil: ...
 
     @staticmethod
-    def add(coil: domain_logic.Coil) -> None:
-        raise NotImplementedError
+    def add(coil: domain_logic.Coil) -> None: ...
 
     @staticmethod
-    def update(coil: domain_logic.Coil) -> None:
-        raise NotImplementedError
+    def update(coil: domain_logic.Coil) -> None: ...
 
     @staticmethod
-    def list() -> list[domain_logic.Coil]:
-        raise NotImplementedError
+    def list() -> list[domain_logic.Coil]: ...
 
 
 class AbstractOrderLineRepository(Protocol):
     @staticmethod
-    def get(order_id: str, line_item: str) -> domain_logic.OrderLine:
-        raise NotImplementedError
+    def get(order_id: str, line_item: str) -> domain_logic.OrderLine: ...
 
     @staticmethod
-    def add(line: domain_logic.OrderLine) -> None:
-        raise NotImplementedError
+    def add(line: domain_logic.OrderLine) -> None: ...
 
 
 class DjangoCoilRepository:
