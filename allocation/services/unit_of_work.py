@@ -8,37 +8,25 @@ from django.db import transaction
 class AbstractCoilUnitOfWork(Protocol):
     coil_repo: repository.AbstractCoilRepository
 
-    def __enter__(self) -> 'AbstractCoilUnitOfWork':
-        raise NotImplementedError
+    def __enter__(self) -> 'AbstractCoilUnitOfWork': ...
 
-    def __exit__(self, *args):
-        self.rollback()
+    def __exit__(self, *args): ...
 
-    @staticmethod
-    def commit():
-        raise NotImplementedError
+    def commit(self): ...
 
-    @staticmethod
-    def rollback():
-        raise NotImplementedError
+    def rollback(self): ...
 
 
 class AbstractOrderLineUnitOfWork(Protocol):
     line_repo: repository.AbstractOrderLineRepository
 
-    def __enter__(self) -> 'AbstractOrderLineUnitOfWork':
-        raise NotImplementedError
+    def __enter__(self) -> 'AbstractOrderLineUnitOfWork': ...
 
-    def __exit__(self, *args):
-        self.rollback()
+    def __exit__(self, *args): ...
 
-    @staticmethod
-    def commit():
-        raise NotImplementedError
+    def commit(self): ...
 
-    @staticmethod
-    def rollback():
-        raise NotImplementedError
+    def rollback(self): ...
 
 
 class DjangoCoilUnitOfWork:
@@ -51,12 +39,10 @@ class DjangoCoilUnitOfWork:
         self.rollback()
         transaction.set_autocommit(True)
 
-    @staticmethod
-    def commit():
+    def commit(self):
         transaction.commit()
 
-    @staticmethod
-    def rollback():
+    def rollback(self):
         transaction.rollback()
 
 
@@ -70,10 +56,8 @@ class DjangoOrderLineUnitOfWork:
         self.rollback()
         transaction.set_autocommit(True)
 
-    @staticmethod
-    def commit():
+    def commit(self):
         transaction.commit()
 
-    @staticmethod
-    def rollback():
+    def rollback(self):
         transaction.rollback()
