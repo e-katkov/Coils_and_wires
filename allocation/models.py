@@ -76,7 +76,7 @@ class OrderLine(models.Model):
         except OrderLine.DoesNotExist:
             raise DBOrderLineRecordDoesNotExist(
                 f'Запись с order_id={domain_line.order_id} и line_item={domain_line.line_item}'
-                f'отсутствует в таблице OrderLine базы данных'
+                f' отсутствует в таблице OrderLine базы данных'
             )
         else:
             return line
@@ -87,7 +87,7 @@ class OrderLine(models.Model):
                                  line_item=domain_line.line_item):
             raise DBOrderLineRecordAlreadyExist(
                 f'Запись с order_id={domain_line.order_id} и line_item={domain_line.line_item}'
-                f'уже существует в таблице OrderLine базы данных'
+                f' уже существует в таблице OrderLine базы данных'
             )
         else:
             OrderLine.objects.create(order_id=domain_line.order_id,
