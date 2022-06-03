@@ -1,3 +1,5 @@
+import json
+
 from pydantic import BaseModel, ValidationError, Field
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -19,7 +21,8 @@ class Coil(APIView):
         try:
             input_data = CoilBaseModel.parse_raw(request.data)
         except ValidationError as error:
-            return Response({"message": str(error)}, status=400)
+            output_data = json.dumps({"message": str(error)}, ensure_ascii=False)
+            return Response(data=output_data, status=400)
         try:
             services.add_coil(
                 input_data.reference,
@@ -30,8 +33,10 @@ class Coil(APIView):
                 unit_of_work.DjangoCoilUnitOfWork(),
             )
         except exceptions.DBCoilRecordAlreadyExist as error:
-            return Response({"message": str(error)}, status=400)
-        return Response({"message": "OK"}, status=200)
+            output_data = json.dumps({"message": str(error)}, ensure_ascii=False)
+            return Response(data=output_data, status=400)
+        output_data = json.dumps({"message": "OK"}, ensure_ascii=False)
+        return Response(data=output_data, status=200)
 
 
 class OrderLine(APIView):
