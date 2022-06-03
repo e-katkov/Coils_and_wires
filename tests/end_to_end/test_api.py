@@ -17,7 +17,7 @@ def test_add_a_coil():
 
 
 @pytest.mark.django_db(transaction=True)
-def test_adding_a_coil_is_idempotent():
+def test_add_a_coil_is_idempotent():
     data_1 = {"reference": 'Бухта-015', "product_id": "АВВГ_2х2,5",
               "quantity": 150, "recommended_balance": 10, "acceptable_loss": 2}
     data_2 = {"reference": 'Бухта-015', "product_id": "АВВГ_3х1,5",
@@ -35,10 +35,10 @@ def test_adding_a_coil_is_idempotent():
 
 
 @pytest.mark.django_db(transaction=True)
-def test_raise_validation_error():
+def test_add_a_coil_raise_validation_error():
     # reference имеет неверное имя, quantity и recommended_balance имеют отрицательные значения.
     # Итого три несоответствия CoilBaseModel
-    data = {"reference": 'Бухт-0020', "product_id": "АВВГ_2х2,5",
+    data = {"reference": 'Бухт-020', "product_id": "АВВГ_2х2,5",
             "quantity": -70, "recommended_balance": -10, "acceptable_loss": 2}
     client = APIClient()
 
