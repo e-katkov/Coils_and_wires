@@ -7,7 +7,7 @@ from allocation.services import services, unit_of_work
 
 
 class CoilBaseModel(BaseModel):
-    reference: str = Field(regex='Бухта')
+    reference: str = Field(regex='^Бухта')
     product_id: str
     quantity: int = Field(gt=0)
     recommended_balance: int = Field(gt=0)
@@ -18,8 +18,8 @@ class Coil(APIView):
     def post(self, request):
         try:
             input_data = CoilBaseModel.parse_raw(request.data)
-        except ValidationError as e:
-            return Response({"message": str(e)}, status=400)
+        except ValidationError as error:
+            return Response({"message": str(error)}, status=400)
         try:
             services.add_coil(
                 input_data.reference,
@@ -29,8 +29,8 @@ class Coil(APIView):
                 input_data.acceptable_loss,
                 unit_of_work.DjangoCoilUnitOfWork(),
             )
-        except exceptions.DBCoilRecordAlreadyExist as e:
-            return Response({"message": str(e)}, status=400)
+        except exceptions.DBCoilRecordAlreadyExist as error:
+            return Response({"message": str(error)}, status=400)
         return Response({"message": "OK"}, status=200)
 
 

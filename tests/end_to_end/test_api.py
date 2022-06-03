@@ -1,5 +1,5 @@
-import pytest
 import json
+import pytest
 
 from rest_framework.test import APIClient
 
@@ -36,7 +36,9 @@ def test_adding_a_coil_is_idempotent():
 
 @pytest.mark.django_db(transaction=True)
 def test_raise_validation_error():
-    data = {"reference": 'Бухты-0020', "product_id": "АВВГ_2х2,5",
+    # reference имеет неверное имя, quantity и recommended_balance имеют отрицательные значения.
+    # Итого три несоответствия CoilBaseModel
+    data = {"reference": 'Бухт-0020', "product_id": "АВВГ_2х2,5",
             "quantity": -70, "recommended_balance": -10, "acceptable_loss": 2}
     client = APIClient()
 
