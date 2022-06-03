@@ -16,6 +16,13 @@ class CoilBaseModel(BaseModel):
     acceptable_loss: int = Field(gt=0)
 
 
+class OrderLineBaseModel(BaseModel):
+    order_id: str = Field(regex='^Заказ')
+    line_item: str = Field(regex='^Позиция')
+    product_id: str
+    quantity: int = Field(gt=0)
+
+
 class Coil(APIView):
     def post(self, request):
         try:
@@ -40,4 +47,22 @@ class Coil(APIView):
 
 
 class OrderLine(APIView):
-    pass
+    def post(self, request):
+        try:
+            input_data = OrderLineBaseModel.parse_raw(request.data)
+        except ValidationError as error:
+            output_data = json.dumps({"message": str(error)}, ensure_ascii=False)
+            return Response(data=output_data, status=400)
+        try:
+            services.add_line(
+                input_data.order_id,
+                input_data.line_item,
+                input_data.product_id,
+                input_data.quantity,
+                unit_of_work.DjangoOrderLineUnitOfWork(),
+            )
+        except exceptions.DBOrderLineRecordAlreadyExist as error:
+            output_data = json.dumps({"message": str(error)}, ensure_ascii=False)
+            return Response(data=output_data, status=400)
+        output_data = json.dumps({"message": "OK"}, ensure_ascii=False)
+        return Response(data=output_data, status=200)
