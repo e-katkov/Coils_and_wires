@@ -72,6 +72,17 @@ class FakeOrderLineUnitOfWork:
         pass
 
 
+def test_get_coil():
+    uow = FakeCoilUnitOfWork()
+
+    services.add_coil('Бухта-015', 'АВВГ_3х1,5', 70, 10, 2, uow)
+    services.add_coil('Бухта-016', 'АВВГ_2х2,5', 200, 15, 3, uow)
+    coil = services.get_coil('Бухта-016', uow)
+
+    assert coil.product_id == 'АВВГ_2х2,5'
+    assert coil.recommended_balance == 15
+
+
 def test_add_coil():
     uow = FakeCoilUnitOfWork()
     services.add_coil('Бухта-040', 'АВВГ_2х2,5', 200, 15, 3, uow)

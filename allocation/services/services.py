@@ -2,6 +2,15 @@ from allocation.domain import domain_logic
 from allocation.services import unit_of_work
 
 
+def get_coil(
+        reference: str,
+        uow: unit_of_work.AbstractCoilUnitOfWork
+) -> domain_logic.Coil:
+    with uow:
+        coil = uow.coil_repo.get(reference)
+    return coil
+
+
 def add_coil(
         reference: str,
         product_id: str,

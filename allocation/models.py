@@ -54,6 +54,16 @@ class Coil(models.Model):
                 for domain_line in domain_coil._allocations
             )
 
+    @staticmethod
+    def get(reference: str):
+        try:
+            coil = Coil.objects.get(reference=reference)
+        except Coil.DoesNotExist:
+            raise DBCoilRecordDoesNotExist(
+                f'Запись с reference={reference} отсутствует в таблице Coil базы данных'
+            )
+        return coil
+
 
 class OrderLine(models.Model):
     order_id = models.CharField(max_length=255)

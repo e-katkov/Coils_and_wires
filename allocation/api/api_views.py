@@ -4,6 +4,7 @@ from pydantic import BaseModel, ValidationError, Field
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from allocation.domain.domain_logic import Coil
 from allocation.exceptions import exceptions
 from allocation.services import services, unit_of_work
 
@@ -21,6 +22,17 @@ class OrderLineBaseModel(BaseModel):
     line_item: str = Field(regex='^Позиция')
     product_id: str
     quantity: int = Field(gt=0)
+
+
+def serialize_coil_domain_instance_to_json(domain_instance: Coil) -> str:
+    model_instance = CoilBaseModel(
+        reference=domain_instance.reference,
+        product_id=domain_instance.product_id,
+        quantity=domain_instance._initial_quantity,
+        recommended_balance=domain_instance.recommended_balance,
+        acceptable_loss=domain_instance.acceptable_loss,
+    )
+    return model_instance.json(ensure_ascii=False)
 
 
 class Coil(APIView):
@@ -42,7 +54,7 @@ class Coil(APIView):
         except exceptions.DBCoilRecordAlreadyExist as error:
             output_data = json.dumps({"message": str(error)}, ensure_ascii=False)
             return Response(data=output_data, status=400)
-        output_data = json.dumps({"message": "OK"}, ensure_ascii=False)
+        output_data = json.dumps({"message": "OK"})
         return Response(data=output_data, status=200)
 
 
@@ -64,5 +76,24 @@ class OrderLine(APIView):
         except exceptions.DBOrderLineRecordAlreadyExist as error:
             output_data = json.dumps({"message": str(error)}, ensure_ascii=False)
             return Response(data=output_data, status=400)
-        output_data = json.dumps({"message": "OK"}, ensure_ascii=False)
+        output_data = json.dumps({"message": "OK"})
+        return Response(data=output_data, status=200)
+
+
+class CoilDetail(APIView):
+    def get(self, request, **kwargs):
+        reference = self.kwargs['reference']
+        try:
+            coil = services.get_coil(
+                reference,
+                unit_of_work.DjangoCoilUnitOfWork()
+            )
+        except exceptions.DBCoilRecordDoesNotExist as error:
+            output_data = json.dumps({"message": str(error)}, ensure_ascii=False)
+            return Response(data=output_data, status=400)
+        try:
+            output_data = serialize_coil_domain_instance_to_json(coil)
+        except ValidationError as error:
+            output_data = json.dumps({"message": str(error)}, ensure_ascii=False)
+            return Response(data=output_data, status=500)
         return Response(data=output_data, status=200)

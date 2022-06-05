@@ -29,7 +29,7 @@ class AbstractOrderLineRepository(Protocol):
 class DjangoCoilRepository:
     @staticmethod
     def get(reference: str) -> domain_logic.Coil:
-        return django_models.Coil.objects.get(reference=reference).to_domain()
+        return django_models.Coil.get(reference=reference).to_domain()
 
     @staticmethod
     def add(coil: domain_logic.Coil) -> None:
