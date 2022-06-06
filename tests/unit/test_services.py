@@ -72,28 +72,28 @@ class FakeOrderLineUnitOfWork:
         pass
 
 
-def test_get_coil():
+def test_get_a_coil():
     uow = FakeCoilUnitOfWork()
 
-    services.add_coil('Бухта-015', 'АВВГ_3х1,5', 70, 10, 2, uow)
-    services.add_coil('Бухта-016', 'АВВГ_2х2,5', 200, 15, 3, uow)
-    coil = services.get_coil('Бухта-016', uow)
+    services.add_a_coil('Бухта-015', 'АВВГ_3х1,5', 70, 10, 2, uow)
+    services.add_a_coil('Бухта-016', 'АВВГ_2х2,5', 200, 15, 3, uow)
+    coil = services.get_a_coil('Бухта-016', uow)
 
     assert coil.product_id == 'АВВГ_2х2,5'
     assert coil.recommended_balance == 15
 
 
-def test_add_coil():
+def test_add_a_coil():
     uow = FakeCoilUnitOfWork()
-    services.add_coil('Бухта-040', 'АВВГ_2х2,5', 200, 15, 3, uow)
+    services.add_a_coil('Бухта-040', 'АВВГ_2х2,5', 200, 15, 3, uow)
 
     assert uow.coil_repo.get('Бухта-040') is not None
     assert uow.committed
 
 
-def test_add_line():
+def test_add_a_line():
     uow = FakeOrderLineUnitOfWork()
-    services.add_line('Заказ-050', 'Позиция-001', 'АВВГ_2х6', 16, uow)
+    services.add_a_line('Заказ-050', 'Позиция-001', 'АВВГ_2х6', 16, uow)
 
     assert uow.line_repo.get('Заказ-050', 'Позиция-001') is not None
     assert uow.committed
@@ -102,9 +102,9 @@ def test_add_line():
 def test_allocate_returns_allocation():
     uow_coil = FakeCoilUnitOfWork()
     uow_line = FakeOrderLineUnitOfWork()
-    services.add_coil('Бухта-041', 'АВВГ_2х6', 70, 15, 3, uow_coil)
-    services.add_coil('Бухта-042', 'АВВГ_2х6', 50, 15, 3, uow_coil)
-    services.add_line('Заказ-051', 'Позиция-001', 'АВВГ_2х6', 16, uow_line)
+    services.add_a_coil('Бухта-041', 'АВВГ_2х6', 70, 15, 3, uow_coil)
+    services.add_a_coil('Бухта-042', 'АВВГ_2х6', 50, 15, 3, uow_coil)
+    services.add_a_line('Заказ-051', 'Позиция-001', 'АВВГ_2х6', 16, uow_line)
 
     result_coil = services.allocate('Заказ-051', 'Позиция-001', uow_line, uow_coil)
 

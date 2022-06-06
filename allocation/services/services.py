@@ -2,7 +2,7 @@ from allocation.domain import domain_logic
 from allocation.services import unit_of_work
 
 
-def get_coil(
+def get_a_coil(
         reference: str,
         uow: unit_of_work.AbstractCoilUnitOfWork
 ) -> domain_logic.Coil:
@@ -11,7 +11,7 @@ def get_coil(
     return coil
 
 
-def add_coil(
+def add_a_coil(
         reference: str,
         product_id: str,
         quantity: int,
@@ -24,7 +24,7 @@ def add_coil(
         uow.commit()
 
 
-def add_line(
+def add_a_line(
         order_id: str,
         line_item: str,
         product_id: str,

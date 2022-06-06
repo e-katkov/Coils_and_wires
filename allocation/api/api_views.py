@@ -43,7 +43,7 @@ class Coil(APIView):
             output_data = json.dumps({"message": str(error)}, ensure_ascii=False)
             return Response(data=output_data, status=400)
         try:
-            services.add_coil(
+            services.add_a_coil(
                 input_data.reference,
                 input_data.product_id,
                 input_data.quantity,
@@ -66,7 +66,7 @@ class OrderLine(APIView):
             output_data = json.dumps({"message": str(error)}, ensure_ascii=False)
             return Response(data=output_data, status=400)
         try:
-            services.add_line(
+            services.add_a_line(
                 input_data.order_id,
                 input_data.line_item,
                 input_data.product_id,
@@ -84,7 +84,7 @@ class CoilDetail(APIView):
     def get(self, request, **kwargs):
         reference = self.kwargs['reference']
         try:
-            coil = services.get_coil(
+            coil = services.get_a_coil(
                 reference,
                 unit_of_work.DjangoCoilUnitOfWork()
             )
