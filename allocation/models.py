@@ -22,6 +22,17 @@ class Coil(models.Model):
         return coil
 
     @staticmethod
+    def get(reference: str):
+        try:
+            coil = Coil.objects.get(reference=reference)
+        except Coil.DoesNotExist:
+            raise DBCoilRecordDoesNotExist(
+                f'Запись с reference={reference} отсутствует в таблице Coil базы данных'
+            )
+        else:
+            return coil
+
+    @staticmethod
     def create_from_domain(domain_coil: domain_logic.Coil):
         if Coil.objects.filter(reference=domain_coil.reference):
             raise DBCoilRecordAlreadyExist(
@@ -36,33 +47,17 @@ class Coil(models.Model):
 
     @staticmethod
     def update_from_domain(domain_coil: domain_logic.Coil):
-        try:
-            coil = Coil.objects.get(reference=domain_coil.reference)
-        except Coil.DoesNotExist:
-            raise DBCoilRecordDoesNotExist(
-                f'Запись с reference={domain_coil.reference} отсутствует в таблице Coil базы данных'
-            )
-        else:
-            Coil.objects.filter(reference=domain_coil.reference).update(
-                product_id=domain_coil.product_id,
-                quantity=domain_coil._initial_quantity,
-                recommended_balance=domain_coil.recommended_balance,
-                acceptable_loss=domain_coil.acceptable_loss
-            )
-            coil.allocation_set.set(
-                Allocation.get_or_create_from_domain(coil, domain_line)
-                for domain_line in domain_coil._allocations
-            )
-
-    @staticmethod
-    def get(reference: str):
-        try:
-            coil = Coil.objects.get(reference=reference)
-        except Coil.DoesNotExist:
-            raise DBCoilRecordDoesNotExist(
-                f'Запись с reference={reference} отсутствует в таблице Coil базы данных'
-            )
-        return coil
+        coil = Coil.get(reference=domain_coil.reference)
+        Coil.objects.filter(reference=domain_coil.reference).update(
+            product_id=domain_coil.product_id,
+            quantity=domain_coil._initial_quantity,
+            recommended_balance=domain_coil.recommended_balance,
+            acceptable_loss=domain_coil.acceptable_loss
+        )
+        coil.allocation_set.set(
+            Allocation.get_or_create_from_domain(coil, domain_line)
+            for domain_line in domain_coil._allocations
+        )
 
 
 class OrderLine(models.Model):
