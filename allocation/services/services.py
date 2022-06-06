@@ -24,6 +24,16 @@ def add_a_coil(
         uow.commit()
 
 
+def get_a_line(
+        order_id: str,
+        line_item: str,
+        uow: unit_of_work.AbstractOrderLineUnitOfWork
+) -> domain_logic.OrderLine:
+    with uow:
+        line = uow.line_repo.get(order_id, line_item)
+    return line
+
+
 def add_a_line(
         order_id: str,
         line_item: str,

@@ -74,13 +74,12 @@ class OrderLine(models.Model):
         return line
 
     @staticmethod
-    def get_from_domain(domain_line: domain_logic.OrderLine):
+    def get(order_id: str, line_item: str):
         try:
-            line = OrderLine.objects.get(order_id=domain_line.order_id,
-                                     line_item=domain_line.line_item)
+            line = OrderLine.objects.get(order_id=order_id, line_item=line_item)
         except OrderLine.DoesNotExist:
             raise DBOrderLineRecordDoesNotExist(
-                f'Запись с order_id={domain_line.order_id} и line_item={domain_line.line_item}'
+                f'Запись с order_id={order_id} и line_item={line_item}'
                 f' отсутствует в таблице OrderLine базы данных'
             )
         else:
@@ -107,6 +106,6 @@ class Allocation(models.Model):
 
     @staticmethod
     def get_or_create_from_domain(coil: Coil, domain_line: domain_logic.OrderLine):
-        line = OrderLine.get_from_domain(domain_line)
+        line = OrderLine.get(order_id=domain_line.order_id, line_item=domain_line.line_item)
         allo, _ = Allocation.objects.get_or_create(coil=coil, line=line)
         return allo

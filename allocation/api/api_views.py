@@ -4,7 +4,7 @@ from pydantic import BaseModel, ValidationError, Field
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from allocation.domain.domain_logic import Coil
+from allocation.domain.domain_logic import Coil, OrderLine
 from allocation.exceptions import exceptions
 from allocation.services import services, unit_of_work
 
@@ -31,6 +31,16 @@ def serialize_coil_domain_instance_to_json(domain_instance: Coil) -> str:
         quantity=domain_instance._initial_quantity,
         recommended_balance=domain_instance.recommended_balance,
         acceptable_loss=domain_instance.acceptable_loss,
+    )
+    return model_instance.json(ensure_ascii=False)
+
+
+def serialize_order_line_domain_instance_to_json(domain_instance: OrderLine) -> str:
+    model_instance = OrderLineBaseModel(
+        order_id=domain_instance.order_id,
+        line_item=domain_instance.line_item,
+        product_id=domain_instance.product_id,
+        quantity=domain_instance.quantity
     )
     return model_instance.json(ensure_ascii=False)
 
@@ -93,6 +103,27 @@ class CoilDetail(APIView):
             return Response(data=output_data, status=400)
         try:
             output_data = serialize_coil_domain_instance_to_json(coil)
+        except ValidationError as error:
+            output_data = json.dumps({"message": str(error)}, ensure_ascii=False)
+            return Response(data=output_data, status=500)
+        return Response(data=output_data, status=200)
+
+
+class OrderLineDetail(APIView):
+    def get(self, request, **kwargs):
+        order_id = self.kwargs['order_id']
+        line_item = self.kwargs['line_item']
+        try:
+            line = services.get_a_line(
+                order_id,
+                line_item,
+                unit_of_work.DjangoOrderLineUnitOfWork()
+            )
+        except exceptions.DBOrderLineRecordDoesNotExist as error:
+            output_data = json.dumps({"message": str(error)}, ensure_ascii=False)
+            return Response(data=output_data, status=400)
+        try:
+            output_data = serialize_order_line_domain_instance_to_json(line)
         except ValidationError as error:
             output_data = json.dumps({"message": str(error)}, ensure_ascii=False)
             return Response(data=output_data, status=500)

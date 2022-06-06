@@ -91,6 +91,17 @@ def test_add_a_coil():
     assert uow.committed
 
 
+def test_get_a_line():
+    uow = FakeOrderLineUnitOfWork()
+    services.add_a_line('Заказ-061', 'Позиция-001', 'АВВГ_2х6', 20, uow)
+    services.add_a_line('Заказ-061', 'Позиция-002', 'АВВГ_2х2,5', 25, uow)
+
+    line = services.get_a_line('Заказ-061', 'Позиция-002', uow)
+
+    assert line.line_item == 'Позиция-002'
+    assert line.product_id == 'АВВГ_2х2,5'
+
+
 def test_add_a_line():
     uow = FakeOrderLineUnitOfWork()
     services.add_a_line('Заказ-050', 'Позиция-001', 'АВВГ_2х6', 16, uow)
