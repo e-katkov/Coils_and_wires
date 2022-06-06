@@ -1,3 +1,4 @@
+from allocation.exceptions.exceptions import OutOfStock
 
 
 class OrderLine:
@@ -58,10 +59,6 @@ class Coil:
 
     def __hash__(self):
         return hash(self.reference)
-
-
-class OutOfStock(Exception):
-    pass
 
 
 def allocate_to_list_of_coils(line: OrderLine, coils: list[Coil]) -> Coil:
