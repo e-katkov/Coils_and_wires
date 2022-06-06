@@ -74,9 +74,9 @@ class FakeOrderLineUnitOfWork:
 
 def test_get_a_coil():
     uow = FakeCoilUnitOfWork()
-
     services.add_a_coil('Бухта-015', 'АВВГ_3х1,5', 70, 10, 2, uow)
     services.add_a_coil('Бухта-016', 'АВВГ_2х2,5', 200, 15, 3, uow)
+
     coil = services.get_a_coil('Бухта-016', uow)
 
     assert coil.product_id == 'АВВГ_2х2,5'
@@ -85,6 +85,7 @@ def test_get_a_coil():
 
 def test_add_a_coil():
     uow = FakeCoilUnitOfWork()
+
     services.add_a_coil('Бухта-040', 'АВВГ_2х2,5', 200, 15, 3, uow)
 
     assert uow.coil_repo.get('Бухта-040') is not None
@@ -104,6 +105,7 @@ def test_get_a_line():
 
 def test_add_a_line():
     uow = FakeOrderLineUnitOfWork()
+
     services.add_a_line('Заказ-050', 'Позиция-001', 'АВВГ_2х6', 16, uow)
 
     assert uow.line_repo.get('Заказ-050', 'Позиция-001') is not None
