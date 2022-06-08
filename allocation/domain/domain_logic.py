@@ -50,6 +50,16 @@ class Coil:
         if line in self._allocations:
             self._allocations.remove(line)
 
+    def reallocate(self, new_coil: 'Coil') -> set[OrderLine]:
+        sorted_line_list = sorted(self._allocations, key=lambda line: line.quantity)
+        reallocated_lines = set()
+        for line in sorted_line_list:
+            if new_coil.can_allocate(line):
+                new_coil.allocate(line)
+                reallocated_lines.add(line)
+        deallocated_lines = self._allocations - reallocated_lines
+        return deallocated_lines
+
     def __eq__(self, other) -> bool:
         if not isinstance(other, Coil):
             return False

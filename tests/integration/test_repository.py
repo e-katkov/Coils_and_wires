@@ -27,8 +27,8 @@ def test_repository_updates_a_coil():
     coil_b = domain_logic.Coil('Бухта-021', 'АВВГ_2х6', 70, 6, 2)
 
     # создание экземпляров репозиториев
-    repo_coil: repository.AbstractCoilRepository = repository.DjangoCoilRepository()
-    repo_line: repository.AbstractOrderLineRepository = repository.DjangoOrderLineRepository()
+    repo_coil = repository.DjangoCoilRepository()
+    repo_line = repository.DjangoOrderLineRepository()
     # добавление записей моделей Coil и OrderLine
     repo_coil.add(coil_a)
     repo_line.add(line_1)
