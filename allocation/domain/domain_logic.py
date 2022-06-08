@@ -36,8 +36,11 @@ class Coil:
         return self._initial_quantity - self.allocated_quantity
 
     def can_allocate(self, line: OrderLine) -> bool:
-        return (self.product_id == line.product_id) and (
-            self.available_quantity >= line.quantity)
+        result = (self.product_id == line.product_id) and (
+                ((self.available_quantity - line.quantity) >= self.recommended_balance) or
+                (self.acceptable_loss >= (self.available_quantity - line.quantity) >= 0)
+        )
+        return result
 
     def allocate(self, line: OrderLine):
         if self.can_allocate(line):
@@ -63,11 +66,7 @@ class Coil:
 
 def allocate_to_list_of_coils(line: OrderLine, coils: list[Coil]) -> Coil:
     try:
-        coil = next(c for c in sorted(coils) if (
-                c.can_allocate(line) and
-                ((c.available_quantity - line.quantity) >= c.recommended_balance or
-                 (c.available_quantity - line.quantity) <= c.acceptable_loss)
-        ))
+        coil = next(c for c in sorted(coils) if c.can_allocate(line))
         coil.allocate(line)
         return coil
     except StopIteration:
