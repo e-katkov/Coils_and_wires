@@ -10,7 +10,7 @@ def test_can_reallocate_enough_orderlines(dict_of_orderlines):
 
     reallocated_lines = coil.reallocate(new_coil)
 
-    assert reallocated_lines == coil._allocations
+    assert {line.quantity for line in reallocated_lines} == {line.quantity for line in coil._allocations}
 
 
 def test_cannot_reallocate_one_orderline(dict_of_orderlines):
@@ -22,7 +22,9 @@ def test_cannot_reallocate_one_orderline(dict_of_orderlines):
 
     reallocated_lines = coil.reallocate(new_coil)
 
-    assert reallocated_lines == coil._allocations - dict_of_orderlines['set_2']
+    assert {line.quantity for line in reallocated_lines} == {line.quantity for line in (
+            dict_of_orderlines['set_0'] | dict_of_orderlines['set_1']
+    )}
 
 
 def test_cannot_reallocate_two_orderlines(dict_of_orderlines):
@@ -34,4 +36,4 @@ def test_cannot_reallocate_two_orderlines(dict_of_orderlines):
 
     reallocated_lines = coil.reallocate(new_coil)
 
-    assert reallocated_lines == dict_of_orderlines['set_0']
+    assert {line.quantity for line in reallocated_lines} == {line.quantity for line in dict_of_orderlines['set_0']}
