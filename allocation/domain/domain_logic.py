@@ -1,3 +1,5 @@
+from copy import copy
+
 from allocation.exceptions.exceptions import OutOfStock
 
 
@@ -50,15 +52,12 @@ class Coil:
         if line in self._allocations:
             self._allocations.remove(line)
 
-    def reallocate(self, new_coil: 'Coil') -> set[OrderLine]:
-        sorted_line_list = sorted(self._allocations, key=lambda line: line.quantity)
-        reallocated_lines = set()
+    def reallocate(self, coil: 'Coil') -> set[OrderLine]:
+        new_coil = copy(coil)
+        sorted_line_list = sorted(self._allocations, key=lambda x: x.quantity)
         for line in sorted_line_list:
-            if new_coil.can_allocate(line):
-                new_coil.allocate(line)
-                reallocated_lines.add(line)
-        deallocated_lines = self._allocations - reallocated_lines
-        return deallocated_lines
+            new_coil.allocate(line)
+        return new_coil._allocations
 
     def __eq__(self, other) -> bool:
         if not isinstance(other, Coil):

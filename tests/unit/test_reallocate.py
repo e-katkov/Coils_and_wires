@@ -8,9 +8,9 @@ def test_can_reallocate_enough_orderlines(dict_of_orderlines):
     # ввиду чего будут размещены все OrderLines
     new_coil = Coil('Бухта-001', 'АВВГ_3х1,5', 80, 15, 3)
 
-    deallocated_lines = coil.reallocate(new_coil)
+    reallocated_lines = coil.reallocate(new_coil)
 
-    assert deallocated_lines == set()
+    assert reallocated_lines == coil._allocations
 
 
 def test_cannot_reallocate_one_orderline(dict_of_orderlines):
@@ -20,10 +20,9 @@ def test_cannot_reallocate_one_orderline(dict_of_orderlines):
     # ввиду чего не смогут быть размещены OrderLines из dict_of_orderlines['set_2']
     new_coil = Coil('Бухта-001', 'АВВГ_3х1,5', 60, 15, 2)
 
-    deallocated_lines = coil.reallocate(new_coil)
-    deallocated_lines_quantity_set = {line.quantity for line in deallocated_lines}
+    reallocated_lines = coil.reallocate(new_coil)
 
-    assert deallocated_lines_quantity_set == {line.quantity for line in dict_of_orderlines['set_2']}
+    assert reallocated_lines == coil._allocations - dict_of_orderlines['set_2']
 
 
 def test_cannot_reallocate_two_orderlines(dict_of_orderlines):
@@ -33,8 +32,6 @@ def test_cannot_reallocate_two_orderlines(dict_of_orderlines):
     # ввиду чего не смогут быть размещены OrderLines из dict_of_orderlines['set_1'] и dict_of_orderlines['set_2']
     new_coil = Coil('Бухта-001', 'АВВГ_3х1,5', 60, 17, 2)
 
-    deallocated_lines = coil.reallocate(new_coil)
-    deallocated_lines_quantity_set = {line.quantity for line in deallocated_lines}
+    reallocated_lines = coil.reallocate(new_coil)
 
-    assert deallocated_lines_quantity_set == {line.quantity for line in
-                                              (dict_of_orderlines['set_1'] | dict_of_orderlines['set_2'])}
+    assert reallocated_lines == dict_of_orderlines['set_0']
