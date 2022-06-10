@@ -1,3 +1,4 @@
+from copy import copy
 from typing import Protocol
 
 from allocation.domain import domain_logic
@@ -37,7 +38,11 @@ class DjangoCoilRepository:
 
     @staticmethod
     def update(coil: domain_logic.Coil) -> None:
-        django_models.Coil.update_from_domain(coil)
+        new_coil = copy(coil)
+        coil_from_db = django_models.Coil.get(reference=coil.reference).to_domain()
+        reallocated_lines = coil_from_db.reallocate(coil)
+        new_coil._allocations = reallocated_lines
+        django_models.Coil.update_from_domain(new_coil)
 
     @staticmethod
     def list() -> list[domain_logic.Coil]:
