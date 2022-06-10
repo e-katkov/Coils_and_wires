@@ -3,25 +3,22 @@ from allocation.services import services
 
 
 class FakeCoilRepository:
-    coils: set[domain_logic.Coil] = set()
+    def __init__(self):
+        self.coils: set[domain_logic.Coil] = set()
 
-    @staticmethod
-    def get(reference: str) -> domain_logic.Coil:
-        return next(c for c in FakeCoilRepository.coils if c.reference == reference)
+    def get(self, reference: str) -> domain_logic.Coil:
+        return next(c for c in self.coils if c.reference == reference)
 
-    @staticmethod
-    def add(coil: domain_logic.Coil) -> None:
-        FakeCoilRepository.coils.add(coil)
+    def add(self, coil: domain_logic.Coil) -> None:
+        self.coils.add(coil)
 
-    @staticmethod
-    def update(coil: domain_logic.Coil) -> None:
-        discard_coil = next(c for c in FakeCoilRepository.coils if c.reference == coil.reference)
-        FakeCoilRepository.coils.discard(discard_coil)
-        FakeCoilRepository.coils.add(coil)
+    def update(self, coil: domain_logic.Coil) -> None:
+        discard_coil = next(c for c in self.coils if c.reference == coil.reference)
+        self.coils.discard(discard_coil)
+        self.coils.add(coil)
 
-    @staticmethod
-    def list() -> list[domain_logic.Coil]:
-        return list(FakeCoilRepository.coils)
+    def list(self) -> list[domain_logic.Coil]:
+        return list(self.coils)
 
 
 class FakeCoilUnitOfWork:
@@ -43,15 +40,14 @@ class FakeCoilUnitOfWork:
 
 
 class FakeOrderLineRepository:
-    lines: set[domain_logic.OrderLine] = set()
+    def __init__(self):
+        self.lines: set[domain_logic.OrderLine] = set()
 
-    @staticmethod
-    def get(order_id: str, line_item: str) -> domain_logic.OrderLine:
-        return next(l for l in FakeOrderLineRepository.lines if l.order_id == order_id and l.line_item == line_item)
+    def get(self, order_id: str, line_item: str) -> domain_logic.OrderLine:
+        return next(line for line in self.lines if line.order_id == order_id and line.line_item == line_item)
 
-    @staticmethod
-    def add(line: domain_logic.OrderLine) -> None:
-        FakeOrderLineRepository.lines.add(line)
+    def add(self, line: domain_logic.OrderLine) -> None:
+        self.lines.add(line)
 
 
 class FakeOrderLineUnitOfWork:
