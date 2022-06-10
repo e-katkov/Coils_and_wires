@@ -18,7 +18,7 @@ class Coil(models.Model):
                                  quantity=self.quantity,
                                  recommended_balance=self.recommended_balance,
                                  acceptable_loss=self.acceptable_loss)
-        coil._allocations = set(a.line.to_domain() for a in self.allocation_set.all())
+        coil.allocations = set(a.line.to_domain() for a in self.allocation_set.all())
         return coil
 
     @staticmethod
@@ -41,7 +41,7 @@ class Coil(models.Model):
         else:
             Coil.objects.create(reference=domain_coil.reference,
                                 product_id=domain_coil.product_id,
-                                quantity=domain_coil._initial_quantity,
+                                quantity=domain_coil.initial_quantity,
                                 recommended_balance=domain_coil.recommended_balance,
                                 acceptable_loss=domain_coil.acceptable_loss)
 
@@ -50,13 +50,13 @@ class Coil(models.Model):
         coil = Coil.get(reference=domain_coil.reference)
         Coil.objects.filter(reference=domain_coil.reference).update(
             product_id=domain_coil.product_id,
-            quantity=domain_coil._initial_quantity,
+            quantity=domain_coil.initial_quantity,
             recommended_balance=domain_coil.recommended_balance,
             acceptable_loss=domain_coil.acceptable_loss
         )
         Allocation.objects.filter(coil=coil).delete()
         coil.allocation_set.set(Allocation.get_or_create_from_domain(coil, domain_line)
-                                for domain_line in domain_coil._allocations)
+                                for domain_line in domain_coil.allocations)
 
 
 class OrderLine(models.Model):

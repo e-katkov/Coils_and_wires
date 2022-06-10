@@ -24,18 +24,18 @@ class Coil:
                  recommended_balance: int, acceptable_loss: int):
         self.reference = reference
         self.product_id = product_id
-        self._initial_quantity = quantity
+        self.initial_quantity = quantity
         self.recommended_balance = recommended_balance
         self.acceptable_loss = acceptable_loss
-        self._allocations: set[OrderLine] = set()
+        self.allocations: set[OrderLine] = set()
 
     @property
     def allocated_quantity(self) -> int:
-        return sum(line.quantity for line in self._allocations)
+        return sum(line.quantity for line in self.allocations)
 
     @property
     def available_quantity(self) -> int:
-        return self._initial_quantity - self.allocated_quantity
+        return self.initial_quantity - self.allocated_quantity
 
     def can_allocate(self, line: OrderLine) -> bool:
         result = (self.product_id == line.product_id) and (
@@ -46,18 +46,18 @@ class Coil:
 
     def allocate(self, line: OrderLine):
         if self.can_allocate(line):
-            self._allocations.add(line)
+            self.allocations.add(line)
 
     def deallocate(self, line: OrderLine):
-        if line in self._allocations:
-            self._allocations.remove(line)
+        if line in self.allocations:
+            self.allocations.remove(line)
 
     def reallocate(self, coil: 'Coil') -> set[OrderLine]:
         new_coil = copy(coil)
-        sorted_line_list = sorted(self._allocations, key=lambda x: x.quantity)
+        sorted_line_list = sorted(self.allocations, key=lambda x: x.quantity)
         for line in sorted_line_list:
             new_coil.allocate(line)
-        return new_coil._allocations
+        return new_coil.allocations
 
     def __eq__(self, other) -> bool:
         if not isinstance(other, Coil):

@@ -14,7 +14,7 @@ def test_repository_saves_a_coil():
 
     assert saved_coil.reference == coil.reference
     assert saved_coil.product_id == coil.product_id
-    assert saved_coil._initial_quantity == coil._initial_quantity
+    assert saved_coil.initial_quantity == coil.initial_quantity
     assert saved_coil.recommended_balance == coil.recommended_balance
     assert saved_coil.acceptable_loss == coil.acceptable_loss
 
@@ -45,7 +45,7 @@ def test_repository_updates_a_coil():
     # полученная запись модели Coil
     saved_coil = repo_coil.get(reference='Бухта-021')
 
-    assert {line.quantity for line in saved_coil._allocations} == {line_1.quantity, line_2.quantity}
+    assert {line.quantity for line in saved_coil.allocations} == {line_1.quantity, line_2.quantity}
 
 
 @pytest.mark.django_db

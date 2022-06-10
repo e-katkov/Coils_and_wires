@@ -28,7 +28,7 @@ def serialize_coil_domain_instance_to_json(domain_instance: Coil) -> str:
     model_instance = CoilBaseModel(
         reference=domain_instance.reference,
         product_id=domain_instance.product_id,
-        quantity=domain_instance._initial_quantity,
+        quantity=domain_instance.initial_quantity,
         recommended_balance=domain_instance.recommended_balance,
         acceptable_loss=domain_instance.acceptable_loss,
     )

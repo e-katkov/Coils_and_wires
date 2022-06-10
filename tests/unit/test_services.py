@@ -94,7 +94,7 @@ def test_update_a_coil():
 
     services.update_a_coil('Бухта-051', 'АВВГ_2х2,5', 120, 12, 3, uow)
 
-    assert uow.coil_repo.get('Бухта-051')._initial_quantity == 120
+    assert uow.coil_repo.get('Бухта-051').initial_quantity == 120
     assert uow.committed
 
 

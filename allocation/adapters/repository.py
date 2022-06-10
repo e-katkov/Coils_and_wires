@@ -32,7 +32,7 @@ class DjangoCoilRepository:
         new_coil = copy(coil)
         coil_from_db = django_models.Coil.get(reference=coil.reference).to_domain()
         reallocated_lines = coil_from_db.reallocate(coil)
-        new_coil._allocations = reallocated_lines
+        new_coil.allocations = reallocated_lines
         django_models.Coil.update_from_domain(new_coil)
 
     def list(self) -> list[domain_logic.Coil]:
