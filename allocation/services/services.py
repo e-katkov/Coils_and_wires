@@ -24,6 +24,19 @@ def add_a_coil(
         uow.commit()
 
 
+def update_a_coil(
+        reference: str,
+        product_id: str,
+        quantity: int,
+        recommended_balance: int,
+        acceptable_loss: int,
+        uow: unit_of_work.AbstractCoilUnitOfWork
+):
+    with uow:
+        uow.coil_repo.update(domain_logic.Coil(reference, product_id, quantity, recommended_balance, acceptable_loss))
+        uow.commit()
+
+
 def get_a_line(
         order_id: str,
         line_item: str,
