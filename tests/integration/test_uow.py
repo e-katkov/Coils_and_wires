@@ -20,7 +20,7 @@ def test_uow_saves_a_coil():
 
     assert saved_coil.reference == data['reference']
     assert saved_coil.product_id == data['product_id']
-    assert saved_coil._initial_quantity == data['quantity']
+    assert saved_coil.initial_quantity == data['quantity']
     assert saved_coil.recommended_balance == data['recommended_balance']
     assert saved_coil.acceptable_loss == data['acceptable_loss']
 
