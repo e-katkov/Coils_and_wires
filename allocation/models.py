@@ -54,10 +54,9 @@ class Coil(models.Model):
             recommended_balance=domain_coil.recommended_balance,
             acceptable_loss=domain_coil.acceptable_loss
         )
-        coil.allocation_set.set(
-            Allocation.get_or_create_from_domain(coil, domain_line)
-            for domain_line in domain_coil._allocations
-        )
+        Allocation.objects.filter(coil=coil).delete()
+        coil.allocation_set.set(Allocation.get_or_create_from_domain(coil, domain_line)
+                                for domain_line in domain_coil._allocations)
 
 
 class OrderLine(models.Model):
