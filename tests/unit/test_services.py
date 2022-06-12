@@ -124,11 +124,10 @@ def test_allocate_returns_allocation():
     services.add_a_coil('Бухта-041', 'АВВГ_2х6', 70, 15, 3, uow_coil)
     services.add_a_coil('Бухта-042', 'АВВГ_2х6', 50, 15, 3, uow_coil)
     services.add_a_line('Заказ-051', 'Позиция-001', 'АВВГ_2х6', 16, uow_line)
+    services.add_a_line('Заказ-051', 'Позиция-002', 'АВВГ_2х6', 10, uow_line)
 
-    result_coil = services.allocate('Заказ-051', 'Позиция-001', uow_line, uow_coil)
+    services.allocate('Заказ-051', 'Позиция-001', uow_line, uow_coil)
+    result_coil = services.allocate('Заказ-051', 'Позиция-002', uow_line, uow_coil)
 
     assert result_coil.reference == 'Бухта-042'
-    assert result_coil.available_quantity == 34
-    #во множестве coils находится coil со значением reference='Бухта-041',
-    # у которого не произошло уменьшение available_quantity после размещения/аллокации
-    assert next(c for c in uow_coil.coil_repo.coils if c.reference == 'Бухта-041').available_quantity == 70
+    assert result_coil.available_quantity == 24
