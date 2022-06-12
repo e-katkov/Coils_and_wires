@@ -64,13 +64,15 @@ def allocate(
         line_item: str,
         uow_line: unit_of_work.AbstractOrderLineUnitOfWork,
         uow_coil: unit_of_work.AbstractCoilUnitOfWork
-):
+) -> domain_logic.Coil:
     with uow_line:
         line = uow_line.line_repo.get(order_id, line_item)
     with uow_coil:
         list_of_coils = uow_coil.coil_repo.list()
-        coil = domain_logic.allocate_to_list_of_coils(line=line, coils=list_of_coils)
-        uow_coil.coil_repo.update(coil)
-        result_coil = coil
+        allocation_coil = domain_logic.allocate_to_list_of_coils(line=line, coils=list_of_coils)
+        db_coil = uow_coil.coil_repo.get(reference=allocation_coil.reference)
+        db_coil.allocations.add(line)
+        uow_coil.coil_repo.update(db_coil)
+        result_coil = db_coil
         uow_coil.commit()
     return result_coil
