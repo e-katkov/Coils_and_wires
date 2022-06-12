@@ -15,6 +15,7 @@ class CoilBaseModel(BaseModel):
     quantity: int = Field(gt=0)
     recommended_balance: int = Field(gt=0)
     acceptable_loss: int = Field(gt=0)
+    allocations: list = []
 
 
 class OrderLineBaseModel(BaseModel):
@@ -31,6 +32,8 @@ def serialize_coil_domain_instance_to_json(domain_instance: Coil) -> str:
         quantity=domain_instance.initial_quantity,
         recommended_balance=domain_instance.recommended_balance,
         acceptable_loss=domain_instance.acceptable_loss,
+        allocations=[serialize_order_line_domain_instance_to_json(line) \
+                     for line in domain_instance.allocations],
     )
     return model_instance.json(ensure_ascii=False)
 
