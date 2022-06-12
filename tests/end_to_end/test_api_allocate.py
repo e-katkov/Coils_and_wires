@@ -23,11 +23,13 @@ def test_allocate_a_line(three_coils_and_lines):
     # Ожидается, что orderlines должны быть размещены в coil, у которого reference='Бухта-031'
     response = client.get('/v1/coils/Бухта-031')
     output_coil = json.loads(response.data)
-    # множество из значений order_id размещенных orderlines для полученного output_coil
-    output_allocated_lines_order_ids = {json.loads(line)['order_id'] for line in output_coil['allocations']}
+    # множество из кортежей (order_id, line_item) размещенных orderlines для полученного output_coil
+    allocated_lines_order_id_and_line_item = \
+        {(json.loads(line)['order_id'], json.loads(line)['line_item']) for line in output_coil['allocations']}
 
     assert output_coil['reference'] == 'Бухта-031'
-    assert output_allocated_lines_order_ids == {line['order_id'] for line in three_coils_and_lines['three_lines']}
+    assert allocated_lines_order_id_and_line_item == \
+           {(line['order_id'], line['line_item']) for line in three_coils_and_lines['three_lines']}
 
 
 @pytest.mark.django_db(transaction=True)
@@ -50,8 +52,9 @@ def test_allocate_a_line_is_idempotent(three_coils_and_lines):
     # Ожидается, что orderlines должны быть размещены в coil, у которого reference='Бухта-031'
     response = client.get('/v1/coils/Бухта-031')
     output_coil = json.loads(response.data)
-    # множество из значений order_id размещенных orderlines для полученного output_coil
-    output_allocated_lines_order_ids = {json.loads(line)['order_id'] for line in output_coil['allocations']}
+    # множество из кортежей (order_id, line_item) размещенных orderlines для полученного output_coil
+    allocated_lines_order_id_and_line_item = \
+        {(json.loads(line)['order_id'], json.loads(line)['line_item']) for line in output_coil['allocations']}
     # Получение значений coil, для которых не должно было произойти размещение
     response_medium_coil = client.get('/v1/coils/Бухта-032')
     output_medium_coil = json.loads(response_medium_coil.data)
@@ -59,7 +62,8 @@ def test_allocate_a_line_is_idempotent(three_coils_and_lines):
     output_bigger_coil = json.loads(response_bigger_coil.data)
 
     assert output_coil['reference'] == 'Бухта-031'
-    assert output_allocated_lines_order_ids == {line['order_id'] for line in three_coils_and_lines['three_lines']}
+    assert allocated_lines_order_id_and_line_item == \
+           {(line['order_id'], line['line_item']) for line in three_coils_and_lines['three_lines']}
     assert output_medium_coil['allocations'] == []
     assert output_bigger_coil['allocations'] == []
 

@@ -73,12 +73,13 @@ def test_get_a_coil():
 
     response = client.get(f"/v1/coils/{coil_data['reference']}")
     output_coil = json.loads(response.data)
-    # множество из значений order_id размещенных (allocated) orderlines для полученного output_coil
-    output_allocated_lines_order_ids = {json.loads(line)['order_id'] for line in output_coil['allocations']}
+    # множество из кортежей (order_id, line_item) размещенных orderlines для полученного output_coil
+    allocated_lines_order_id_and_line_item = \
+        {(json.loads(line)['order_id'], json.loads(line)['line_item']) for line in output_coil['allocations']}
 
     assert output_coil['reference'] == 'Бухта-021'
     assert output_coil['quantity'] == 220
-    assert output_allocated_lines_order_ids == {line_data['order_id']}
+    assert allocated_lines_order_id_and_line_item == {(line_data['order_id'], line_data['line_item'])}
     assert response.status_code == 200
 
 
