@@ -131,3 +131,28 @@ class OrderLineDetail(APIView):
             output_data = json.dumps({"message": str(error)}, ensure_ascii=False)
             return Response(data=output_data, status=500)
         return Response(data=output_data, status=200)
+
+
+class Allocate(APIView):
+    def post(self, request):
+        try:
+            input_data = OrderLineBaseModel.parse_raw(request.data)
+        except ValidationError as error:
+            output_data = json.dumps({"message": str(error)}, ensure_ascii=False)
+            return Response(data=output_data, status=400)
+        try:
+            coil = services.allocate(
+                input_data.order_id,
+                input_data.line_item,
+                unit_of_work.DjangoOrderLineUnitOfWork(),
+                unit_of_work.DjangoCoilUnitOfWork(),
+            )
+        except (exceptions.DBOrderLineRecordDoesNotExist, exceptions.OutOfStock) as error:
+            output_data = json.dumps({"message": str(error)}, ensure_ascii=False)
+            return Response(data=output_data, status=400)
+        try:
+            output_data = serialize_coil_domain_instance_to_json(coil)
+        except ValidationError as error:
+            output_data = json.dumps({"message": str(error)}, ensure_ascii=False)
+            return Response(data=output_data, status=500)
+        return Response(data=output_data, status=200)
