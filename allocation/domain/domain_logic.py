@@ -74,6 +74,10 @@ class Coil:
 
 
 def allocate_to_list_of_coils(line: OrderLine, coils: list[Coil]) -> Coil:
+    for c in coils:
+        for o in c.allocations:
+            if o.order_id == line.order_id and o.line_item == line.line_item:
+                return c
     try:
         coil = next(c for c in sorted(coils) if c.can_allocate(line))
         coil.allocate(line)
