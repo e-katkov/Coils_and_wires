@@ -21,7 +21,7 @@ def test_repository_saves_a_coil():
 
 @pytest.mark.django_db
 def test_repository_updates_a_coil():
-    old_coil = Coil('Бухта-021', 'АВВГ_2х6', 120, 10, 1)
+    coil = Coil('Бухта-021', 'АВВГ_2х6', 120, 10, 1)
     line_1 = OrderLine('Заказ-031', 'Позиция-001', 'АВВГ_2х6', 30)
     line_2 = OrderLine('Заказ-032', 'Позиция-001', 'АВВГ_2х6', 35)
     line_3 = OrderLine('Заказ-033', 'Позиция-001', 'АВВГ_2х6', 40)
@@ -29,23 +29,18 @@ def test_repository_updates_a_coil():
     repo_coil = repository.DjangoCoilRepository()
     repo_line = repository.DjangoOrderLineRepository()
     # добавление записей моделей Coil и OrderLine в базу данных
-    repo_coil.add(old_coil)
+    repo_coil.add(coil)
     repo_line.add(line_1)
     repo_line.add(line_2)
     repo_line.add(line_3)
     # размещение OrderLines
-    old_coil.allocate(line_1)
-    old_coil.allocate(line_2)
-    old_coil.allocate(line_3)
-    repo_coil.update(old_coil)
+    coil.allocate(line_1)
+    coil.allocate(line_2)
+    coil.allocate(line_3)
 
-    # обновление в базе данных записи модели Coil
-    new_coil = Coil('Бухта-021', 'АВВГ_2х6', 80, 10, 1)
-    repo_coil.update(new_coil)
-    # полученная запись модели Coil
-    saved_coil = repo_coil.get(reference='Бухта-021')
+    repo_coil.update(coil)
 
-    assert {line.quantity for line in saved_coil.allocations} == {line_1.quantity, line_2.quantity}
+    assert {line.quantity for line in coil.allocations} == {line_1.quantity, line_2.quantity, line_3.quantity}
 
 
 @pytest.mark.django_db

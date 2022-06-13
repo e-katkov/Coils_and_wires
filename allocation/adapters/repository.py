@@ -1,4 +1,3 @@
-from copy import copy
 from typing import Protocol
 
 from allocation.domain import domain_logic
@@ -29,11 +28,7 @@ class DjangoCoilRepository:
         django_models.Coil.create_from_domain(coil)
 
     def update(self, coil: domain_logic.Coil) -> None:
-        new_coil = copy(coil)
-        coil_from_db = django_models.Coil.get(reference=coil.reference).to_domain()
-        reallocated_lines = coil_from_db.reallocate(coil)
-        new_coil.allocations = reallocated_lines
-        django_models.Coil.update_from_domain(new_coil)
+        django_models.Coil.update_from_domain(coil)
 
     def list(self) -> list[domain_logic.Coil]:
         return [coil.to_domain() for coil in django_models.Coil.objects.all()]
