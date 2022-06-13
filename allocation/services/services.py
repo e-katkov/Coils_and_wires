@@ -20,7 +20,8 @@ def add_a_coil(
         uow: unit_of_work.AbstractCoilUnitOfWork
 ):
     with uow:
-        uow.coil_repo.add(domain_logic.Coil(reference, product_id, quantity, recommended_balance, acceptable_loss))
+        coil = domain_logic.Coil(reference, product_id, quantity, recommended_balance, acceptable_loss)
+        uow.coil_repo.add(coil)
         uow.commit()
 
 
@@ -55,7 +56,8 @@ def add_a_line(
         uow: unit_of_work.AbstractOrderLineUnitOfWork
 ):
     with uow:
-        uow.line_repo.add(domain_logic.OrderLine(order_id, line_item, product_id, quantity))
+        line = domain_logic.OrderLine(order_id, line_item, product_id, quantity)
+        uow.line_repo.add(line)
         uow.commit()
 
 
