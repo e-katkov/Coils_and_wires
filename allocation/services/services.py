@@ -32,10 +32,16 @@ def update_a_coil(
         recommended_balance: int,
         acceptable_loss: int,
         uow: unit_of_work.AbstractCoilUnitOfWork
-):
+) -> set[domain_logic.OrderLine]:
     with uow:
-        uow.coil_repo.update(domain_logic.Coil(reference, product_id, quantity, recommended_balance, acceptable_loss))
+        input_coil = domain_logic.Coil(reference, product_id, quantity, recommended_balance, acceptable_loss)
+        db_coil = uow.coil_repo.get(reference)
+        reallocated_lines = db_coil.reallocate(input_coil)
+        input_coil.allocations = reallocated_lines
+        uow.coil_repo.update(input_coil)
+        deallocated_lines = db_coil.allocations - reallocated_lines
         uow.commit()
+    return deallocated_lines
 
 
 def get_a_line(

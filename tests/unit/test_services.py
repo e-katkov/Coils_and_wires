@@ -89,13 +89,19 @@ def test_add_a_coil():
 
 
 def test_update_a_coil():
-    uow = FakeCoilUnitOfWork()
-    services.add_a_coil('Бухта-051', 'АВВГ_2х2,5', 150, 12, 3, uow)
+    uow_coil = FakeCoilUnitOfWork()
+    uow_line = FakeOrderLineUnitOfWork()
+    services.add_a_coil('Бухта-051', 'АВВГ_2х2,5', 100, 20, 3, uow_coil)
+    services.add_a_line('Заказ-052', 'Позиция-002', 'АВВГ_2х2,5', 40, uow_line)
+    services.add_a_line('Заказ-053', 'Позиция-001', 'АВВГ_2х2,5', 35, uow_line)
+    services.allocate('Заказ-052', 'Позиция-002', uow_line, uow_coil)
+    services.allocate('Заказ-053', 'Позиция-001', uow_line, uow_coil)
 
-    services.update_a_coil('Бухта-051', 'АВВГ_2х2,5', 120, 12, 3, uow)
+    deallocated_lines = services.update_a_coil('Бухта-051', 'АВВГ_2х2,5', 80, 20, 3, uow_coil)
 
-    assert uow.coil_repo.get('Бухта-051').initial_quantity == 120
-    assert uow.committed
+    assert uow_coil.coil_repo.get('Бухта-051').allocated_quantity == 35
+    assert {(line.order_id, line.line_item) for line in deallocated_lines} == {('Заказ-052', 'Позиция-002')}
+    assert uow_coil.committed
 
 
 def test_get_a_line():
