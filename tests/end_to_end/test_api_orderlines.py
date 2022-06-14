@@ -104,9 +104,9 @@ def test_get_a_line_raise_validation_error():
                  "product_id": 'АВВГ_2х6', "quantity": -12}
     uow = unit_of_work.DjangoOrderLineUnitOfWork()
     with uow:
-        coil = domain_logic.OrderLine(line_data['order_id'], line_data['line_item'],
+        line = domain_logic.OrderLine(line_data['order_id'], line_data['line_item'],
                                       line_data['product_id'], line_data['quantity'])
-        uow.line_repo.add(coil)
+        uow.line_repo.add(line)
         uow.commit()
     client = APIClient()
 
