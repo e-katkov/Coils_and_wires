@@ -86,7 +86,7 @@ def test_allocate_a_line_raise_input_validation_error():
 
 @pytest.mark.django_db(transaction=True)
 def test_allocate_a_line_raise_output_validation_error():
-    # запись добавляется в базу данных с помощью UnitOfWork.
+    # Добавление coil в базу данных с помощью UnitOfWork.
     # Запись имеет ошибки в reference и recommended_balance,
     # Итого два несоответствия CoilBaseModel
     coil_data = {'reference': 'Бухт-035', 'product_id': 'АВВГ_2х6',

@@ -23,7 +23,7 @@ def test_add_a_line():
 
 @pytest.mark.django_db(transaction=True)
 def test_add_a_line_is_idempotent():
-    # line_data имеют заведомо одинаковые значения order_id и line_item
+    # orderline имеют одинаковые значения order_id и line_item
     line_data_1 = {"order_id": 'Заказ-021', "line_item": "Позиция-001",
                    "product_id": 'АВВГ_2х6', "quantity": 20}
     line_data_2 = {"order_id": 'Заказ-021', "line_item": "Позиция-001",
@@ -79,7 +79,7 @@ def test_get_a_line():
 
 
 @pytest.mark.django_db(transaction=True)
-def test_get_a_line_raise_not_exist_error():
+def test_get_a_line_raise_not_exist_exception():
     line_data = {"order_id": 'Заказ-009', "line_item": "Позиция-005",
                  "product_id": 'АВВГ_2х6', "quantity": 12}
     client = APIClient()
@@ -98,7 +98,7 @@ def test_get_a_line_raise_not_exist_error():
 
 @pytest.mark.django_db(transaction=True)
 def test_get_a_line_raise_validation_error():
-    # запись добавляется в базу данных с помощью UnitOfWork
+    # Добавление orderline в базу данных с помощью UnitOfWork
     # запись имеет ошибку в quantity, т.е. одно несоответствие OrderLineBaseModel
     line_data = {"order_id": 'Заказ-011', "line_item": "Позиция-001",
                  "product_id": 'АВВГ_2х6', "quantity": -12}

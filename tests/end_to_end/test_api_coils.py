@@ -23,6 +23,7 @@ def test_add_a_coil():
 
 @pytest.mark.django_db(transaction=True)
 def test_add_a_coil_is_idempotent():
+    # coil имеют одинаковые значения reference
     coil_data_1 = {"reference": 'Бухта-015', "product_id": "АВВГ_2х2,5",
                    "quantity": 150, "recommended_balance": 10, "acceptable_loss": 2}
     coil_data_2 = {"reference": 'Бухта-015', "product_id": "АВВГ_3х1,5",
@@ -59,7 +60,7 @@ def test_add_a_coil_raise_validation_error():
 @pytest.mark.django_db(transaction=True)
 def test_get_a_coil():
     client = APIClient()
-    # Добавление coil_data в базу данных с помощью post запроса
+    # Добавление coil в базу данных с помощью post запроса
     coil_data = {"reference": 'Бухта-021', "product_id": "АВВГ_2х2,5",
                  "quantity": 220, "recommended_balance": 12, "acceptable_loss": 3}
     input_coil_data = json.dumps(coil_data, ensure_ascii=False)
@@ -84,7 +85,7 @@ def test_get_a_coil():
 
 
 @pytest.mark.django_db(transaction=True)
-def test_get_a_coil_raise_not_exist_error():
+def test_get_a_coil_raise_not_exist_exception():
     coil_data = {"reference": 'Бухта-023', "product_id": "АВВГ_2х2,5",
                  "quantity": 170, "recommended_balance": 12, "acceptable_loss": 3}
     client = APIClient()
