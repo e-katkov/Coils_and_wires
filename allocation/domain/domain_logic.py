@@ -1,4 +1,4 @@
-from copy import copy
+from copy import deepcopy
 
 from allocation.exceptions.exceptions import OutOfStock
 
@@ -53,7 +53,7 @@ class Coil:
             self.allocations.remove(line)
 
     def reallocate(self, coil: 'Coil') -> set[OrderLine]:
-        new_coil = copy(coil)
+        new_coil = deepcopy(coil)
         sorted_line_list = sorted(self.allocations, key=lambda x: x.quantity)
         for line in sorted_line_list:
             new_coil.allocate(line)
