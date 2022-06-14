@@ -111,6 +111,30 @@ class CoilDetail(APIView):
             return Response(data=output_data, status=500)
         return Response(data=output_data, status=200)
 
+    def put(self, request, **kwargs):
+        reference = self.kwargs['reference']
+        try:
+            input_data = CoilBaseModel.parse_raw(request.data)
+        except ValidationError as error:
+            output_data = json.dumps({"message": str(error)}, ensure_ascii=False)
+            return Response(data=output_data, status=400)
+        try:
+            deallocated_lines = services.update_a_coil(
+                reference,
+                input_data.product_id,
+                input_data.quantity,
+                input_data.recommended_balance,
+                input_data.acceptable_loss,
+                unit_of_work.DjangoCoilUnitOfWork(),
+            )
+        except exceptions.DBCoilRecordDoesNotExist as error:
+            output_data = json.dumps({"message": str(error)}, ensure_ascii=False)
+            return Response(data=output_data, status=400)
+        serialized_deallocated_lines = \
+            [serialize_order_line_domain_instance_to_json(line) for line in deallocated_lines]
+        output_data = json.dumps(serialized_deallocated_lines, ensure_ascii=False)
+        return Response(data=output_data, status=200)
+
 
 class OrderLineDetail(APIView):
     def get(self, request, **kwargs):
