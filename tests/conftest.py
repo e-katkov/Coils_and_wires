@@ -18,17 +18,17 @@ def dict_of_orderlines():
 
 @pytest.fixture
 def three_coils_and_lines():
-    smaller_coil = {"reference": 'Бухта-031', "product_id": "АВВГ_2х6",
+    smaller_coil = {"reference": "Бухта-031", "product_id": "АВВГ_2х6",
                     "quantity": 95, "recommended_balance": 10, "acceptable_loss": 3}
-    medium_coil = {"reference": 'Бухта-032', "product_id": "АВВГ_2х6",
+    medium_coil = {"reference": "Бухта-032", "product_id": "АВВГ_2х6",
                    "quantity": 105, "recommended_balance": 7, "acceptable_loss": 3}
-    bigger_coil = {"reference": 'Бухта-033', "product_id": "АВВГ_2х6",
+    bigger_coil = {"reference": "Бухта-033", "product_id": "АВВГ_2х6",
                    "quantity": 120, "recommended_balance": 15, "acceptable_loss": 3}
-    line_1 = {"order_id": 'Заказ-031', "line_item": "Позиция-005",
-              "product_id": 'АВВГ_2х6', "quantity": 35}
-    line_2 = {"order_id": 'Заказ-032', "line_item": "Позиция-004",
-              "product_id": 'АВВГ_2х6', "quantity": 30}
-    line_3 = {"order_id": 'Заказ-033', "line_item": "Позиция-002",
-              "product_id": 'АВВГ_2х6', "quantity": 10}
+    line_1 = {"order_id": "Заказ-031", "line_item": "Позиция-005",
+              "product_id": "АВВГ_2х6", "quantity": 35}
+    line_2 = {"order_id": "Заказ-032", "line_item": "Позиция-004",
+              "product_id": "АВВГ_2х6", "quantity": 30}
+    line_3 = {"order_id": "Заказ-033", "line_item": "Позиция-002",
+              "product_id": "АВВГ_2х6", "quantity": 10}
     return {'three_coils': [medium_coil, smaller_coil, bigger_coil],
             'three_lines': [line_1, line_3, line_2]}

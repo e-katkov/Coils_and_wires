@@ -72,7 +72,7 @@ def test_allocate_a_line_is_idempotent(three_coils_and_lines):
 def test_allocate_a_line_raise_input_validation_error():
     # order_id имеет неверное имя, quantity имеет отрицательные значение.
     # Итого два несоответствия OrderLineBaseModel
-    line = {"order_id": 'Закfз-034', "line_item": "Позиция-002",
+    line = {"order_id": "Закfз-034", "line_item": "Позиция-002",
               "product_id": 'АВВГ_2х6', "quantity": -20}
     client = APIClient()
     input_data = json.dumps(line, ensure_ascii=False)
@@ -99,8 +99,8 @@ def test_allocate_a_line_raise_output_validation_error():
         uow.commit()
     # Добавление orderline в базу данных с помощью post запроса
     client = APIClient()
-    line_data = {"order_id": 'Заказ-036', "line_item": "Позиция-001",
-                 "product_id": 'АВВГ_2х6', "quantity": 85}
+    line_data = {"order_id": "Заказ-036", "line_item": "Позиция-001",
+                 "product_id": "АВВГ_2х6", "quantity": 85}
     input_line_data = json.dumps(line_data, ensure_ascii=False)
     client.post('/v1/orderlines', data=input_line_data, format='json')
 
@@ -120,8 +120,8 @@ def test_allocate_a_line_raise_out_of_stock_exception(three_coils_and_lines):
         client.post('/v1/coils', data=input_coil_data, format='json')
     # Добавление orderline в базу данных с помощью post запроса
     # Orderline имеет заведомо большую величину quantity
-    line_data = {"order_id": 'Заказ-035', "line_item": "Позиция-002",
-                 "product_id": 'АВВГ_2х6', "quantity": 600}
+    line_data = {"order_id": "Заказ-035", "line_item": "Позиция-002",
+                 "product_id": "АВВГ_2х6", "quantity": 600}
     input_line_data = json.dumps(line_data, ensure_ascii=False)
     client.post('/v1/orderlines', data=input_line_data, format='json')
 
@@ -140,8 +140,8 @@ def test_allocate_a_line_raise_not_exist_exception(three_coils_and_lines):
         input_coil_data = json.dumps(coil_data, ensure_ascii=False)
         client.post('/v1/coils', data=input_coil_data, format='json')
     # Создание orderline без добавления в базу данных
-    line_data = {"order_id": 'Заказ-036', "line_item": "Позиция-004",
-                 "product_id": 'АВВГ_2х6', "quantity": 20}
+    line_data = {"order_id": "Заказ-036", "line_item": "Позиция-004",
+                 "product_id": "АВВГ_2х6", "quantity": 20}
     input_line_data = json.dumps(line_data, ensure_ascii=False)
 
     response = client.post('/v1/allocate', data=input_line_data, format='json')
