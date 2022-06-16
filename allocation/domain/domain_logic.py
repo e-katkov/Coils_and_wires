@@ -50,7 +50,7 @@ class Coil:
 
     def deallocate(self, line: OrderLine):
         if line in self.allocations:
-            self.allocations.remove(line)
+            self.allocations.discard(line)
 
     def reallocate(self, coil: 'Coil') -> set[OrderLine]:
         new_coil = deepcopy(coil)

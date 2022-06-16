@@ -24,7 +24,6 @@ def test_repository_updates_a_coil():
     coil = Coil('Бухта-021', 'АВВГ_2х6', 120, 10, 1)
     line_1 = OrderLine('Заказ-031', 'Позиция-001', 'АВВГ_2х6', 30)
     line_2 = OrderLine('Заказ-032', 'Позиция-001', 'АВВГ_2х6', 35)
-    line_3 = OrderLine('Заказ-033', 'Позиция-001', 'АВВГ_2х6', 40)
     # создание экземпляров репозиториев
     repo_coil = repository.DjangoCoilRepository()
     repo_line = repository.DjangoOrderLineRepository()
@@ -32,21 +31,20 @@ def test_repository_updates_a_coil():
     repo_coil.add(coil)
     repo_line.add(line_1)
     repo_line.add(line_2)
-    repo_line.add(line_3)
     # размещение OrderLines
     coil.allocate(line_1)
     coil.allocate(line_2)
-    coil.allocate(line_3)
 
     repo_coil.update(coil)
+    update_coil = repo_coil.get(reference=coil.reference)
 
-    assert {line.quantity for line in coil.allocations} == {line_1.quantity, line_2.quantity, line_3.quantity}
+    assert {line.quantity for line in update_coil.allocations} == {line_1.quantity, line_2.quantity}
 
 
 @pytest.mark.django_db
 def test_repository_gets_a_list_of_coils():
-    coil_1 = Coil('Бухта-025', 'АВВГ_4х16', 120, 20, 5)
-    coil_2 = Coil('Бухта-026', 'АВВГ_2х6', 70, 6, 2)
+    coil_1 = Coil('Бухта-022', 'АВВГ_4х16', 120, 20, 5)
+    coil_2 = Coil('Бухта-023', 'АВВГ_2х6', 70, 6, 2)
     repo_coil = repository.DjangoCoilRepository()
     repo_coil.add(coil_1)
     repo_coil.add(coil_2)
