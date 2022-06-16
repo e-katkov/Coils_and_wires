@@ -98,6 +98,27 @@ class OrderLine(models.Model):
                                      product_id=domain_line.product_id,
                                      quantity=domain_line.quantity)
 
+    @staticmethod
+    def update_from_domain(domain_line: domain_logic.OrderLine):
+        OrderLine.get(order_id=domain_line.order_id, line_item=domain_line.line_item)
+        OrderLine.objects.filter(order_id=domain_line.order_id, line_item=domain_line.line_item).update(
+            product_id=domain_line.product_id,
+            quantity=domain_line.quantity,
+        )
+
+    @staticmethod
+    def get_an_allocation_coil(domain_line: domain_logic.OrderLine) -> domain_logic.Coil:
+        try:
+            allocation_record = Allocation.objects.get(
+                line__order_id=domain_line.order_id, line__line_item=domain_line.line_item
+            )
+        except Allocation.DoesNotExist:
+            fake_coil = domain_logic.Coil('fake', 'fake', 1, 1, 1)
+            return fake_coil
+        else:
+            real_coil = allocation_record.coil.to_domain()
+            return real_coil
+
 
 class Allocation(models.Model):
     coil = models.ForeignKey(Coil, on_delete=models.CASCADE)
