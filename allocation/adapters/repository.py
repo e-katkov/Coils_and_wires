@@ -19,6 +19,12 @@ class AbstractOrderLineRepository(Protocol):
 
     def add(self, line: domain_logic.OrderLine) -> None: ...
 
+    def update(self, line: domain_logic.OrderLine) -> None: ...
+
+    def get_an_allocation_coil(self, line: domain_logic.OrderLine) -> domain_logic.Coil: ...
+
+    def list(self) -> list[domain_logic.OrderLine]: ...
+
 
 class DjangoCoilRepository:
     def get(self, reference: str) -> domain_logic.Coil:
@@ -40,6 +46,12 @@ class DjangoOrderLineRepository:
 
     def add(self, line: domain_logic.OrderLine) -> None:
         django_models.OrderLine.create_from_domain(line)
+
+    def update(self, line: domain_logic.OrderLine) -> None:
+        django_models.OrderLine.update_from_domain(line)
+
+    def get_an_allocation_coil(self, line: domain_logic.OrderLine) -> domain_logic.Coil:
+        return django_models.OrderLine.get_an_allocation_coil(line)
 
     def list(self) -> list[domain_logic.OrderLine]:
         return [line.to_domain() for line in django_models.OrderLine.objects.all()]

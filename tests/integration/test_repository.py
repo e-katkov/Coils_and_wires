@@ -54,3 +54,57 @@ def test_repository_gets_a_list_of_coils():
     list_of_coils = repo_coil.list()
 
     assert list_of_coils == [coil_1, coil_2]
+
+
+@pytest.mark.django_db
+def test_repository_updates_a_line():
+    # создание экземпляра репозитория
+    repo = repository.DjangoOrderLineRepository()
+    # добавление coil в базу данных
+    old_line = OrderLine('Заказ-033', 'Позиция-003', 'АВВГ_2х2,5', 25)
+    repo.add(old_line)
+    # создание экземпляра orderline доменной модели
+    new_line = OrderLine('Заказ-033', 'Позиция-003', 'АВВГ_2х6', 20)
+
+    repo.update(new_line)
+    update_line = repo.get(order_id=old_line.order_id, line_item=old_line.line_item)
+
+    assert update_line.product_id == new_line.product_id
+    assert update_line.quantity == new_line.quantity
+
+
+@pytest.mark.django_db
+def test_repository_gets_a_real_allocation_coil():
+    # создание экземпляров репозиториев
+    repo_line = repository.DjangoOrderLineRepository()
+    repo_coil = repository.DjangoCoilRepository()
+    # добавление coil и orderline в базу данных
+    line = OrderLine('Заказ-034', 'Позиция-002', 'АВВГ_4х16', 35)
+    repo_line.add(line)
+    coil = Coil('Бухта-024', 'АВВГ_4х16', 150, 25, 5)
+    repo_coil.add(coil)
+    # размещение orderLine
+    coil.allocate(line)
+    repo_coil.update(coil)
+
+    output_coil = repo_line.get_an_allocation_coil(line)
+
+    assert output_coil.reference == coil.reference
+    assert output_coil.available_quantity == coil.initial_quantity - line.quantity
+
+
+@pytest.mark.django_db
+def test_repository_gets_a_fake_allocation_coil():
+    # создание экземпляров репозиториев
+    repo_line = repository.DjangoOrderLineRepository()
+    repo_coil = repository.DjangoCoilRepository()
+    # добавление coil и orderline в базу данных
+    line = OrderLine('Заказ-034', 'Позиция-002', 'АВВГ_4х16', 35)
+    repo_line.add(line)
+    coil = Coil('Бухта-024', 'АВВГ_4х16', 150, 25, 5)
+    repo_coil.add(coil)
+
+    output_coil = repo_line.get_an_allocation_coil(line)
+
+    assert output_coil.reference == 'fake'
+    assert output_coil.product_id == 'fake'
