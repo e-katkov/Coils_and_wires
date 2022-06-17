@@ -58,6 +58,11 @@ class Coil(models.Model):
         coil.allocation_set.set(Allocation.get_or_create_from_domain(coil, domain_line)
                                 for domain_line in domain_coil.allocations)
 
+    @staticmethod
+    def delete(reference: str):
+        Coil.get(reference=reference)
+        Coil.objects.filter(reference=reference).delete()
+
 
 class OrderLine(models.Model):
     order_id = models.CharField(max_length=255)
@@ -87,7 +92,7 @@ class OrderLine(models.Model):
     @staticmethod
     def create_from_domain(domain_line: domain_logic.OrderLine):
         if OrderLine.objects.filter(order_id=domain_line.order_id,
-                                 line_item=domain_line.line_item):
+                                    line_item=domain_line.line_item):
             raise DBOrderLineRecordAlreadyExist(
                 f'Запись с order_id={domain_line.order_id} и line_item={domain_line.line_item}'
                 f' уже существует в таблице OrderLine базы данных'
