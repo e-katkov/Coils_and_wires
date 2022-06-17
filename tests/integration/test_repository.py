@@ -40,6 +40,18 @@ def test_repository_updates_a_coil():
 
     assert {line.quantity for line in update_coil.allocations} == {line_1.quantity, line_2.quantity}
 
+@pytest.mark.django_db
+def test_repository_delete_a_coil():
+    coil = Coil('Бухта-021', 'АВВГ_2х2,5', 150, 5, 1)
+    # создание экземпляров репозитория
+    repo_coil = repository.DjangoCoilRepository()
+    # добавление coil в базу данных
+    repo_coil.add(coil)
+
+    repo_coil.delete(reference=coil.reference)
+
+    assert repo_coil.list() == []
+
 
 @pytest.mark.django_db
 def test_repository_gets_a_list_of_coils():

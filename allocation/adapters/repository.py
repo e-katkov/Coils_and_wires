@@ -11,6 +11,8 @@ class AbstractCoilRepository(Protocol):
 
     def update(self, coil: domain_logic.Coil) -> None: ...
 
+    def delete(self, reference: str) -> None: ...
+
     def list(self) -> list[domain_logic.Coil]: ...
 
 
@@ -35,6 +37,9 @@ class DjangoCoilRepository:
 
     def update(self, coil: domain_logic.Coil) -> None:
         django_models.Coil.update_from_domain(coil)
+
+    def delete(self, reference: str) -> None:
+        django_models.Coil.delete(reference)
 
     def list(self) -> list[domain_logic.Coil]:
         return [coil.to_domain() for coil in django_models.Coil.objects.all()]
