@@ -10,7 +10,7 @@ from allocation.services import services, unit_of_work
 
 
 class CoilBaseModel(BaseModel):
-    reference: str = Field(regex='^Бухта')
+    reference: str = Field(regex='^(Бухта|fake)')
     product_id: str
     quantity: int = Field(gt=0)
     recommended_balance: int = Field(gt=0)
@@ -151,6 +151,33 @@ class OrderLineDetail(APIView):
             return Response(data=output_data, status=400)
         try:
             output_data = serialize_order_line_domain_instance_to_json(line)
+        except ValidationError as error:
+            output_data = json.dumps({"message": str(error)}, ensure_ascii=False)
+            return Response(data=output_data, status=500)
+        return Response(data=output_data, status=200)
+
+    def put(self, request, **kwargs):
+        order_id = self.kwargs['order_id']
+        line_item = self.kwargs['line_item']
+        try:
+            input_data = OrderLineBaseModel.parse_raw(request.data)
+        except ValidationError as error:
+            output_data = json.dumps({"message": str(error)}, ensure_ascii=False)
+            return Response(data=output_data, status=400)
+        try:
+            allocation_coil = services.update_a_line(
+                order_id,
+                line_item,
+                input_data.product_id,
+                input_data.quantity,
+                unit_of_work.DjangoOrderLineUnitOfWork(),
+                unit_of_work.DjangoCoilUnitOfWork(),
+            )
+        except exceptions.DBOrderLineRecordDoesNotExist as error:
+            output_data = json.dumps({"message": str(error)}, ensure_ascii=False)
+            return Response(data=output_data, status=400)
+        try:
+            output_data = serialize_coil_domain_instance_to_json(allocation_coil)
         except ValidationError as error:
             output_data = json.dumps({"message": str(error)}, ensure_ascii=False)
             return Response(data=output_data, status=500)
