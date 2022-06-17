@@ -188,3 +188,49 @@ def test_update_a_coil_raise_not_exist_exception():
     assert output_data['message'] == \
            f"Запись с reference={incorrect_coil_data['reference']} отсутствует в таблице Coil базы данных"
     assert response.status_code == 400
+
+
+@pytest.mark.django_db(transaction=True)
+def test_delete_a_coil(three_coils_and_lines):
+    client = APIClient()
+    # Добавление coil в базу данных с помощью post запроса
+    coil_data = {"reference": "Бухта-038", "product_id": "АВВГ_2х6",
+                   "quantity": 85, "recommended_balance": 10, "acceptable_loss": 3}
+    input_coil_data = json.dumps(coil_data, ensure_ascii=False)
+    client.post('/v1/coils', data=input_coil_data, format='json')
+    # Добавление orderlines в базу данных и дальнейшее размещение (allocation) с помощью post запросов
+    for line_data in three_coils_and_lines['three_lines']:
+        input_line_data = json.dumps(line_data, ensure_ascii=False)
+        client.post('/v1/orderlines', data=input_line_data, format='json')
+        client.post('/v1/allocate', data=input_line_data, format='json')
+
+    # Удаление coil
+    response = client.delete(f"/v1/coils/{coil_data['reference']}")
+    output_data = json.loads(response.data)
+    deallocated_lines_order_id_and_line_item = \
+        {(json.loads(line)['order_id'], json.loads(line)['line_item']) for line in output_data}
+
+    assert deallocated_lines_order_id_and_line_item == \
+           {("Заказ-031", "Позиция-005"), ("Заказ-032", "Позиция-004"), ("Заказ-033", "Позиция-002")}
+    assert response.status_code == 200
+
+
+@pytest.mark.django_db(transaction=True)
+def test_delete_a_coil_raise_not_exist_exception():
+    client = APIClient()
+    # Добавление coil в базу данных с помощью post запроса
+    coil_data = {"reference": 'Бухта-039', "product_id": "АВВГ_2х2,5",
+                 "quantity": 200, "recommended_balance": 10, "acceptable_loss": 2}
+    client = APIClient()
+    input_coil_data = json.dumps(coil_data, ensure_ascii=False)
+    client.post('/v1/coils', data=input_coil_data, format='json')
+    # wrong_reference - это reference несуществующего в базе данных coil
+    wrong_reference = 'Бухта-002'
+
+    # Удаление coil
+    response = client.delete(f"/v1/coils/{wrong_reference}")
+    output_data = json.loads(response.data)
+
+    assert output_data['message'] == \
+           f"Запись с reference={wrong_reference} отсутствует в таблице Coil базы данных"
+    assert response.status_code == 400

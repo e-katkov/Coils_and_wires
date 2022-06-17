@@ -135,6 +135,21 @@ class CoilDetail(APIView):
         output_data = json.dumps(serialized_deallocated_lines, ensure_ascii=False)
         return Response(data=output_data, status=200)
 
+    def delete(self, request, **kwargs):
+        reference = self.kwargs['reference']
+        try:
+            deallocated_lines = services.delete_a_coil(
+                reference,
+                unit_of_work.DjangoCoilUnitOfWork(),
+            )
+        except exceptions.DBCoilRecordDoesNotExist as error:
+            output_data = json.dumps({"message": str(error)}, ensure_ascii=False)
+            return Response(data=output_data, status=400)
+        serialized_deallocated_lines = \
+            [serialize_order_line_domain_instance_to_json(line) for line in deallocated_lines]
+        output_data = json.dumps(serialized_deallocated_lines, ensure_ascii=False)
+        return Response(data=output_data, status=200)
+
 
 class OrderLineDetail(APIView):
     def get(self, request, **kwargs):
