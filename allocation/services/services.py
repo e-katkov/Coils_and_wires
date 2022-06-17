@@ -123,9 +123,6 @@ def allocate(
     with uow_coil:
         list_of_coils = uow_coil.coil_repo.list()
         allocation_coil = domain_logic.allocate_to_list_of_coils(line=line, coils=list_of_coils)
-        db_coil = uow_coil.coil_repo.get(reference=allocation_coil.reference)
-        db_coil.allocations.add(line)
-        uow_coil.coil_repo.update(db_coil)
-        result_coil = db_coil
+        uow_coil.coil_repo.update(allocation_coil)
         uow_coil.commit()
-    return result_coil
+    return allocation_coil
