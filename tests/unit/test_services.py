@@ -13,8 +13,8 @@ class FakeCoilRepository:
         self.coils.add(coil)
 
     def update(self, coil: domain_logic.Coil) -> None:
-        discard_coil = next(c for c in self.coils if c.reference == coil.reference)
-        self.coils.discard(discard_coil)
+        discarded_coil = next(c for c in self.coils if c.reference == coil.reference)
+        self.coils.discard(discarded_coil)
         self.coils.add(coil)
 
     def delete(self, reference: str) -> set[domain_logic.OrderLine]:

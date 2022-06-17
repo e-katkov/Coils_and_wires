@@ -206,7 +206,7 @@ def test_put_a_line_raise_not_exist_exception():
                    "product_id": 'АВВГ_2х2,5', "quantity": 15}
     input_coil_data_1 = json.dumps(line_data_1, ensure_ascii=False)
     client.post('/v1/orderlines', data=input_coil_data_1, format='json')
-    # wrong_line_item - это line_item несуществующей orderline
+    # wrong_line_item - это line_item несуществующей в базе данных orderline
     wrong_line_item = "Позиция-004"
 
     # Обновление orderline в базе данных с помощью post запроса
