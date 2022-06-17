@@ -17,6 +17,12 @@ class FakeCoilRepository:
         self.coils.discard(discard_coil)
         self.coils.add(coil)
 
+    def delete(self, reference: str) -> set[domain_logic.OrderLine]:
+        discarded_coil = next(c for c in self.coils if c.reference == reference)
+        deallocated_lines = discarded_coil.allocations
+        self.coils.discard(discarded_coil)
+        return deallocated_lines
+
     def list(self) -> list[domain_logic.Coil]:
         return list(self.coils)
 
@@ -101,6 +107,22 @@ def test_update_a_coil():
 
     assert uow_coil.coil_repo.get('Бухта-051').allocated_quantity == 35
     assert {(line.order_id, line.line_item) for line in deallocated_lines} == {('Заказ-052', 'Позиция-002')}
+    assert uow_coil.committed
+
+
+def test_delete_a_coil():
+    # Создание "поддельных" классов UnitOfWork
+    uow_coil = FakeCoilUnitOfWork()
+    uow_line = FakeOrderLineUnitOfWork()
+    # Создание coil
+    services.add_a_coil('Бухта-052', 'АВВГ_2х6', 150, 20, 5, uow_coil)
+    # Создание и размещение orderline
+    services.add_a_line('Заказ-054', 'Позиция-002', 'АВВГ_2х6', 50, uow_line)
+    services.allocate('Заказ-054', 'Позиция-002', uow_line, uow_coil)
+
+    deallocated_lines = services.delete_a_coil('Бухта-052', uow_coil)
+
+    assert {(line.order_id, line.line_item) for line in deallocated_lines} == {('Заказ-054', 'Позиция-002')}
     assert uow_coil.committed
 
 

@@ -44,6 +44,21 @@ def update_a_coil(
     return deallocated_lines
 
 
+def delete_a_coil(
+        reference: str,
+        uow: unit_of_work.AbstractCoilUnitOfWork,
+) -> set[domain_logic.OrderLine]:
+    with uow:
+        # Определение coil, которую необходимо удалить
+        coil = uow.coil_repo.get(reference)
+        # Получение множества orderlines, которые перестанут быть размещенными после удаления coil
+        deallocated_lines = coil.allocations
+        # Удаление coil
+        uow.coil_repo.delete(reference)
+        uow.commit()
+        return deallocated_lines
+
+
 def get_a_line(
         order_id: str,
         line_item: str,
