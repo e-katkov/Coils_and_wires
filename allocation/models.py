@@ -124,6 +124,11 @@ class OrderLine(models.Model):
             real_coil = allocation_record.coil.to_domain()
             return real_coil
 
+    @staticmethod
+    def delete(order_id: str, line_item: str):
+        OrderLine.get(order_id=order_id, line_item=line_item)
+        OrderLine.objects.filter(order_id=order_id, line_item=line_item).delete()
+
 
 class Allocation(models.Model):
     coil = models.ForeignKey(Coil, on_delete=models.CASCADE)
