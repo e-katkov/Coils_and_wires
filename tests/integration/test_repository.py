@@ -6,10 +6,14 @@ from allocation.domain.domain_logic import Coil, OrderLine
 
 @pytest.mark.django_db
 def test_repository_saves_a_coil():
-    coil = Coil('Бухта-020', 'АВВГ_3х1,5', 120, 5, 1)
+    # Создание экземпляра репозитория
     repo = repository.DjangoCoilRepository()
+    # Создание экземпляра coil
+    coil = Coil('Бухта-020', 'АВВГ_3х1,5', 120, 5, 1)
 
+    # Добавление coil в базу данных
     repo.add(coil)
+    # Получение из базы данных добавленного coil
     saved_coil = repo.get(reference='Бухта-020')
 
     assert saved_coil.reference == coil.reference
@@ -21,61 +25,68 @@ def test_repository_saves_a_coil():
 
 @pytest.mark.django_db
 def test_repository_updates_a_coil():
-    coil = Coil('Бухта-021', 'АВВГ_2х6', 120, 10, 1)
-    line_1 = OrderLine('Заказ-031', 'Позиция-001', 'АВВГ_2х6', 30)
-    line_2 = OrderLine('Заказ-032', 'Позиция-001', 'АВВГ_2х6', 35)
-    # создание экземпляров репозиториев
+    # Создание экземпляров репозиториев
     repo_coil = repository.DjangoCoilRepository()
     repo_line = repository.DjangoOrderLineRepository()
-    # добавление записей моделей Coil и OrderLine в базу данных
+    # Создание coil, orderlines и добавление их в базу данных
+    coil = Coil('Бухта-021', 'АВВГ_2х6', 120, 10, 1)
     repo_coil.add(coil)
+    line_1 = OrderLine('Заказ-031', 'Позиция-001', 'АВВГ_2х6', 30)
+    line_2 = OrderLine('Заказ-032', 'Позиция-001', 'АВВГ_2х6', 35)
     repo_line.add(line_1)
     repo_line.add(line_2)
-    # размещение OrderLines
+    # Размещение orderlines
     coil.allocate(line_1)
     coil.allocate(line_2)
 
+    # Обновление coil в базе данных
     repo_coil.update(coil)
     update_coil = repo_coil.get(reference=coil.reference)
 
     assert {line.quantity for line in update_coil.allocations} == {line_1.quantity, line_2.quantity}
 
+
 @pytest.mark.django_db
 def test_repository_delete_a_coil():
+    # Создание экземпляра репозитория
+    repo = repository.DjangoCoilRepository()
+    # Создание coil и добавление его в базу данных
     coil = Coil('Бухта-021', 'АВВГ_2х2,5', 150, 5, 1)
-    # создание экземпляров репозитория
-    repo_coil = repository.DjangoCoilRepository()
-    # добавление coil в базу данных
-    repo_coil.add(coil)
+    repo.add(coil)
 
-    repo_coil.delete(reference=coil.reference)
+    # Удаление coil
+    repo.delete(reference=coil.reference)
 
-    assert repo_coil.list() == []
+    assert repo.list() == []
 
 
 @pytest.mark.django_db
 def test_repository_gets_a_list_of_coils():
+    # Создание экземпляра репозиотрия
+    repo = repository.DjangoCoilRepository()
+    # Создание coils и добавление их в базу данных
     coil_1 = Coil('Бухта-022', 'АВВГ_4х16', 120, 20, 5)
     coil_2 = Coil('Бухта-023', 'АВВГ_2х6', 70, 6, 2)
-    repo_coil = repository.DjangoCoilRepository()
-    repo_coil.add(coil_1)
-    repo_coil.add(coil_2)
+    repo.add(coil_1)
+    repo.add(coil_2)
 
-    list_of_coils = repo_coil.list()
+    # Получение списка имеющихся в базе данных coils
+    list_of_coils = repo.list()
 
     assert list_of_coils == [coil_1, coil_2]
 
 
 @pytest.mark.django_db
 def test_repository_updates_a_line():
-    # создание экземпляра репозитория
+    # Создание экземпляра репозитория
     repo = repository.DjangoOrderLineRepository()
-    # добавление coil в базу данных
+    # Создание orderline и добавление ее в базу данных
     old_line = OrderLine('Заказ-033', 'Позиция-003', 'АВВГ_2х2,5', 25)
     repo.add(old_line)
-    # создание экземпляра orderline доменной модели
+    # Создание нового экземпляра orderline
     new_line = OrderLine('Заказ-033', 'Позиция-003', 'АВВГ_2х6', 20)
 
+    # Обновление orderline
     repo.update(new_line)
     update_line = repo.get(order_id=old_line.order_id, line_item=old_line.line_item)
 
@@ -85,18 +96,19 @@ def test_repository_updates_a_line():
 
 @pytest.mark.django_db
 def test_repository_gets_a_real_allocation_coil():
-    # создание экземпляров репозиториев
+    # Создание экземпляров репозиториев
     repo_line = repository.DjangoOrderLineRepository()
     repo_coil = repository.DjangoCoilRepository()
-    # добавление coil и orderline в базу данных
+    # Создание coil, orderline и добавление их в базу данных
     line = OrderLine('Заказ-034', 'Позиция-002', 'АВВГ_4х16', 35)
     repo_line.add(line)
     coil = Coil('Бухта-024', 'АВВГ_4х16', 150, 25, 5)
     repo_coil.add(coil)
-    # размещение orderLine
+    # Размещение orderLine
     coil.allocate(line)
     repo_coil.update(coil)
 
+    # Получение coil, куда размещена orderline
     output_coil = repo_line.get_an_allocation_coil(line)
 
     assert output_coil.reference == coil.reference
@@ -105,15 +117,17 @@ def test_repository_gets_a_real_allocation_coil():
 
 @pytest.mark.django_db
 def test_repository_gets_a_fake_allocation_coil():
-    # создание экземпляров репозиториев
+    # Создание экземпляров репозиториев
     repo_line = repository.DjangoOrderLineRepository()
     repo_coil = repository.DjangoCoilRepository()
-    # добавление coil и orderline в базу данных
+    # Создание coil, orderline и добавление их в базу данных
     line = OrderLine('Заказ-034', 'Позиция-002', 'АВВГ_4х16', 35)
     repo_line.add(line)
     coil = Coil('Бухта-024', 'АВВГ_4х16', 150, 25, 5)
     repo_coil.add(coil)
 
+    # Получение coil, куда размещена orderline
+    # coil "поддельный", т.к. orderline не была размещена
     output_coil = repo_line.get_an_allocation_coil(line)
 
     assert output_coil.reference == 'fake'
