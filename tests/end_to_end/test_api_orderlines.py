@@ -255,3 +255,92 @@ def test_put_a_line_raise_output_validation_error():
 
     assert '1 validation error for CoilBaseModel' in output_data['message']
     assert response.status_code == 500
+
+
+@pytest.mark.django_db(transaction=True)
+def test_delete_a_line_returns_not_fake_coil(three_coils_and_lines):
+    client = APIClient()
+    # Добавление coils в базу данных с помощью post запросов
+    for coil_data in three_coils_and_lines['three_coils']:
+        input_coil_data = json.dumps(coil_data, ensure_ascii=False)
+        client.post('/v1/coils', data=input_coil_data, format='json')
+    # Добавление orderline в базу данных и дальнейшее размещение (allocation) с помощью post запроса
+    # Размещение будет выполнено в smaller_coil
+    line_data = {"order_id": "Заказ-022", "line_item": "Позиция-004",
+                 "product_id": "АВВГ_2х6", "quantity": 50}
+    input_line_data = json.dumps(line_data, ensure_ascii=False)
+    client.post('/v1/orderlines', data=input_line_data, format='json')
+    client.post('/v1/allocate', data=input_line_data, format='json')
+
+    # Удаление orderline
+    response = client.delete(f"/v1/orderlines/{line_data['order_id']}/{line_data['line_item']}")
+    output_data = json.loads(response.data)
+
+    assert output_data['reference'] == "Бухта-031"
+    assert response.status_code == 200
+
+
+@pytest.mark.django_db(transaction=True)
+def test_delete_a_line_returns_fake_coil(three_coils_and_lines):
+    client = APIClient()
+    # Добавление orderline в базу данных с помощью post запроса
+    # Размещение не будет выполнено, поэтому при удалении будет возвращен "поддельный" coil
+    line_data = {"order_id": "Заказ-023", "line_item": "Позиция-004",
+                 "product_id": "АВВГ_2х2,5", "quantity": 12}
+    input_line_data = json.dumps(line_data, ensure_ascii=False)
+    client.post('/v1/orderlines', data=input_line_data, format='json')
+
+    # Удаление orderline
+    response = client.delete(f"/v1/orderlines/{line_data['order_id']}/{line_data['line_item']}")
+    output_data = json.loads(response.data)
+
+    assert output_data['reference'] == 'fake'
+    assert response.status_code == 200
+
+
+@pytest.mark.django_db(transaction=True)
+def test_delete_a_line_raise_not_exist_exception():
+    client = APIClient()
+    # Добавление orderline в базу данных с помощью post запроса
+    line_data = {"order_id": "Заказ-024", "line_item": "Позиция-003",
+                 "product_id": "АВВГ_2х2,5", "quantity": 14}
+    input_coil_data = json.dumps(line_data, ensure_ascii=False)
+    client.post('/v1/orderlines', data=input_coil_data, format='json')
+    # wrong_order_id - это order_id несуществующей в базе данных orderline
+    wrong_order_id = "Позиция-002"
+
+    # Удаление orderline
+    # order_id в route имеет неверное значение - wrong_order_id
+    response = client.delete(f"/v1/orderlines/{wrong_order_id}/{line_data['line_item']}")
+    output_data = json.loads(response.data)
+
+    assert output_data['message'] == \
+           f"Запись с order_id={wrong_order_id} и line_item={line_data['line_item']}" \
+           f" отсутствует в таблице OrderLine базы данных"
+    assert response.status_code == 400
+
+
+@pytest.mark.django_db(transaction=True)
+def test_delete_a_line_raise_validation_error():
+    # Добавление coil в базу данных с помощью UnitOfWork
+    # запись имеет ошибку в acceptable_loss, т.е. одно несоответствие CoilBaseModel
+    uow = unit_of_work.DjangoCoilUnitOfWork()
+    with uow:
+        coil = domain_logic.Coil(reference='Бухта-027', product_id='АВВГ_2х2,5', quantity=150,
+                                 recommended_balance=12, acceptable_loss=-4)
+        uow.coil_repo.add(coil)
+        uow.commit()
+    client = APIClient()
+    # Добавление orderline в базу данных и дальнейшее размещение (allocation) с помощью post запроса
+    line_data = {"order_id": "Заказ-025", "line_item": "Позиция-004",
+                 "product_id": "АВВГ_2х2,5", "quantity": 15}
+    input_line_data = json.dumps(line_data, ensure_ascii=False)
+    client.post('/v1/orderlines', data=input_line_data, format='json')
+    client.post('/v1/allocate', data=input_line_data, format='json')
+
+    # Удаление orderline
+    response = client.delete(f"/v1/orderlines/{line_data['order_id']}/{line_data['line_item']}")
+    output_data = json.loads(response.data)
+
+    assert '1 validation error for CoilBaseModel' in output_data['message']
+    assert response.status_code == 500

@@ -198,6 +198,25 @@ class OrderLineDetail(APIView):
             return Response(data=output_data, status=500)
         return Response(data=output_data, status=200)
 
+    def delete(self, request, **kwargs):
+        order_id = self.kwargs['order_id']
+        line_item = self.kwargs['line_item']
+        try:
+            allocation_coil = services.delete_a_line(
+                order_id,
+                line_item,
+                unit_of_work.DjangoOrderLineUnitOfWork(),
+            )
+        except exceptions.DBOrderLineRecordDoesNotExist as error:
+            output_data = json.dumps({"message": str(error)}, ensure_ascii=False)
+            return Response(data=output_data, status=400)
+        try:
+            output_data = serialize_coil_domain_instance_to_json(allocation_coil)
+        except ValidationError as error:
+            output_data = json.dumps({"message": str(error)}, ensure_ascii=False)
+            return Response(data=output_data, status=500)
+        return Response(data=output_data, status=200)
+
 
 class Allocate(APIView):
     def post(self, request):
