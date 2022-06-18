@@ -25,6 +25,8 @@ class AbstractOrderLineRepository(Protocol):
 
     def get_an_allocation_coil(self, line: domain_logic.OrderLine) -> domain_logic.Coil: ...
 
+    def delete(self, order_id: str, line_item: str) -> None: ...
+
     def list(self) -> list[domain_logic.OrderLine]: ...
 
 
@@ -57,6 +59,9 @@ class DjangoOrderLineRepository:
 
     def get_an_allocation_coil(self, line: domain_logic.OrderLine) -> domain_logic.Coil:
         return django_models.OrderLine.get_an_allocation_coil(line)
+
+    def delete(self, order_id: str, line_item: str) -> None:
+        django_models.OrderLine.delete(order_id=order_id, line_item=line_item)
 
     def list(self) -> list[domain_logic.OrderLine]:
         return [line.to_domain() for line in django_models.OrderLine.objects.all()]

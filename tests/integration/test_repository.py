@@ -132,3 +132,17 @@ def test_repository_gets_a_fake_allocation_coil():
 
     assert output_coil.reference == 'fake'
     assert output_coil.product_id == 'fake'
+
+
+@pytest.mark.django_db
+def test_repository_delete_a_line():
+    # создание экземпляра репозитория
+    repo = repository.DjangoOrderLineRepository()
+    # Создание orderline и добавление ее в базу данных
+    line = OrderLine('Заказ-036', 'Позиция-005', 'АВВГ_4х16', 25)
+    repo.add(line)
+
+    # Удаление orderline
+    repo.delete(order_id=line.order_id, line_item=line.line_item)
+
+    assert repo.list() == []
