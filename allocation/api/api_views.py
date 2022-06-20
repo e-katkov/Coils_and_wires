@@ -49,6 +49,23 @@ def serialize_order_line_domain_instance_to_json(domain_instance: OrderLine) -> 
 
 
 class Coil(APIView):
+    def get(self, request, **kwargs):
+        reference = self.kwargs['reference']
+        try:
+            coil = services.get_a_coil(
+                reference,
+                unit_of_work.DjangoCoilUnitOfWork()
+            )
+        except exceptions.DBCoilRecordDoesNotExist as error:
+            output_data = json.dumps({"message": str(error)}, ensure_ascii=False)
+            return Response(data=output_data, status=404)
+        try:
+            output_data = serialize_coil_domain_instance_to_json(coil)
+        except ValidationError as error:
+            output_data = json.dumps({"message": str(error)}, ensure_ascii=False)
+            return Response(data=output_data, status=500)
+        return Response(data=output_data, status=200)
+
     def post(self, request):
         try:
             input_data = CoilBaseModel.parse_raw(request.data)
@@ -69,47 +86,6 @@ class Coil(APIView):
             return Response(data=output_data, status=400)
         output_data = json.dumps({"message": "Created"})
         return Response(data=output_data, status=201)
-
-
-class OrderLine(APIView):
-    def post(self, request):
-        try:
-            input_data = OrderLineBaseModel.parse_raw(request.data)
-        except ValidationError as error:
-            output_data = json.dumps({"message": str(error)}, ensure_ascii=False)
-            return Response(data=output_data, status=400)
-        try:
-            services.add_a_line(
-                input_data.order_id,
-                input_data.line_item,
-                input_data.product_id,
-                input_data.quantity,
-                unit_of_work.DjangoOrderLineUnitOfWork(),
-            )
-        except exceptions.DBOrderLineRecordAlreadyExist as error:
-            output_data = json.dumps({"message": str(error)}, ensure_ascii=False)
-            return Response(data=output_data, status=400)
-        output_data = json.dumps({"message": "Created"})
-        return Response(data=output_data, status=201)
-
-
-class CoilDetail(APIView):
-    def get(self, request, **kwargs):
-        reference = self.kwargs['reference']
-        try:
-            coil = services.get_a_coil(
-                reference,
-                unit_of_work.DjangoCoilUnitOfWork()
-            )
-        except exceptions.DBCoilRecordDoesNotExist as error:
-            output_data = json.dumps({"message": str(error)}, ensure_ascii=False)
-            return Response(data=output_data, status=404)
-        try:
-            output_data = serialize_coil_domain_instance_to_json(coil)
-        except ValidationError as error:
-            output_data = json.dumps({"message": str(error)}, ensure_ascii=False)
-            return Response(data=output_data, status=500)
-        return Response(data=output_data, status=200)
 
     def put(self, request, **kwargs):
         reference = self.kwargs['reference']
@@ -151,7 +127,7 @@ class CoilDetail(APIView):
         return Response(data=output_data, status=200)
 
 
-class OrderLineDetail(APIView):
+class OrderLine(APIView):
     def get(self, request, **kwargs):
         order_id = self.kwargs['order_id']
         line_item = self.kwargs['line_item']
@@ -170,6 +146,26 @@ class OrderLineDetail(APIView):
             output_data = json.dumps({"message": str(error)}, ensure_ascii=False)
             return Response(data=output_data, status=500)
         return Response(data=output_data, status=200)
+
+    def post(self, request):
+        try:
+            input_data = OrderLineBaseModel.parse_raw(request.data)
+        except ValidationError as error:
+            output_data = json.dumps({"message": str(error)}, ensure_ascii=False)
+            return Response(data=output_data, status=400)
+        try:
+            services.add_a_line(
+                input_data.order_id,
+                input_data.line_item,
+                input_data.product_id,
+                input_data.quantity,
+                unit_of_work.DjangoOrderLineUnitOfWork(),
+            )
+        except exceptions.DBOrderLineRecordAlreadyExist as error:
+            output_data = json.dumps({"message": str(error)}, ensure_ascii=False)
+            return Response(data=output_data, status=400)
+        output_data = json.dumps({"message": "Created"})
+        return Response(data=output_data, status=201)
 
     def put(self, request, **kwargs):
         order_id = self.kwargs['order_id']
