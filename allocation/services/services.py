@@ -143,6 +143,19 @@ def delete_a_line(
         return allocation_coil
 
 
+def get_an_allocation_coil(
+        order_id: str,
+        line_item: str,
+        uow: unit_of_work.AbstractOrderLineUnitOfWork,
+) -> domain_logic.Coil:
+    with uow:
+        # Получение orderline
+        line = uow.line_repo.get(order_id=order_id, line_item=line_item)
+        # Получение allocation_coil, куда размещена line
+        allocation_coil = uow.line_repo.get_an_allocation_coil(line)
+        return allocation_coil
+
+
 def allocate(
         order_id: str,
         line_item: str,
