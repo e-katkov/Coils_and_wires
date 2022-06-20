@@ -49,7 +49,7 @@ def delete_a_coil(
         uow: unit_of_work.AbstractCoilUnitOfWork,
 ) -> set[domain_logic.OrderLine]:
     with uow:
-        # Определение coil, которую необходимо удалить
+        # Получение coil, который необходимо удалить
         coil = uow.coil_repo.get(reference)
         # Получение множества orderlines, которые перестанут быть размещенными после удаления coil
         deallocated_lines = coil.allocations
@@ -91,7 +91,7 @@ def update_a_line(
         uow_coil: unit_of_work.AbstractCoilUnitOfWork
 ) -> domain_logic.Coil:
     # db_line - это orderline, которую необходимо обновить
-    # Определение allocation_coil, куда размещена db_line
+    # Получение allocation_coil, куда размещена db_line
     with uow_line:
         db_line = uow_line.line_repo.get(order_id=order_id, line_item=line_item)
         allocation_coil = uow_line.line_repo.get_an_allocation_coil(db_line)
