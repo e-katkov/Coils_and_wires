@@ -150,4 +150,4 @@ def test_allocate_a_line_raise_not_exist_exception(three_coils_and_lines):
     assert output_data['message'] == \
            f"Запись с order_id={line_data['order_id']} и line_item={line_data['line_item']}"\
            f" отсутствует в таблице OrderLine базы данных"
-    assert response.status_code == 400
+    assert response.status_code == 404

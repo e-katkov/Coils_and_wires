@@ -19,8 +19,8 @@ def test_add_a_line():
     response = client.post('/v1/orderlines', data=input_line_data, format='json')
     output_data = json.loads(response.data)
 
-    assert output_data['message'] == 'OK'
-    assert response.status_code == 200
+    assert output_data['message'] == 'Created'
+    assert response.status_code == 201
 
 
 @pytest.mark.django_db(transaction=True)
@@ -107,7 +107,7 @@ def test_get_a_line_raise_not_exist_exception():
     assert output_data['message'] == \
            f"Запись с order_id={line_data['order_id']} и line_item={wrong_line_item}" \
            f" отсутствует в таблице OrderLine базы данных"
-    assert response.status_code == 400
+    assert response.status_code == 404
 
 
 @pytest.mark.django_db(transaction=True)
@@ -240,7 +240,7 @@ def test_put_a_line_raise_not_exist_exception():
     assert output_data['message'] == \
            f"Запись с order_id={line_data_1['order_id']} и line_item={wrong_line_item}" \
            f" отсутствует в таблице OrderLine базы данных"
-    assert response.status_code == 400
+    assert response.status_code == 404
 
 
 @pytest.mark.django_db(transaction=True)
@@ -339,7 +339,7 @@ def test_delete_a_line_raise_not_exist_exception():
     assert output_data['message'] == \
            f"Запись с order_id={wrong_order_id} и line_item={line_data['line_item']}" \
            f" отсутствует в таблице OrderLine базы данных"
-    assert response.status_code == 400
+    assert response.status_code == 404
 
 
 @pytest.mark.django_db(transaction=True)

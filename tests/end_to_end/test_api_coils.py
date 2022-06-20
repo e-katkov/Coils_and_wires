@@ -17,8 +17,8 @@ def test_add_a_coil():
     response = client.post('/v1/coils', data=input_coil_data, format='json')
     output_data = json.loads(response.data)
 
-    assert output_data['message'] == 'OK'
-    assert response.status_code == 200
+    assert output_data['message'] == 'Created'
+    assert response.status_code == 201
 
 
 @pytest.mark.django_db(transaction=True)
@@ -98,7 +98,7 @@ def test_get_a_coil_raise_not_exist_exception():
 
     assert output_data['message'] == \
            f"Запись с reference={wrong_reference} отсутствует в таблице Coil базы данных"
-    assert response.status_code == 400
+    assert response.status_code == 404
 
 
 @pytest.mark.django_db(transaction=True)
@@ -187,7 +187,7 @@ def test_update_a_coil_raise_not_exist_exception():
 
     assert output_data['message'] == \
            f"Запись с reference={incorrect_coil_data['reference']} отсутствует в таблице Coil базы данных"
-    assert response.status_code == 400
+    assert response.status_code == 404
 
 
 @pytest.mark.django_db(transaction=True)
@@ -233,4 +233,4 @@ def test_delete_a_coil_raise_not_exist_exception():
 
     assert output_data['message'] == \
            f"Запись с reference={wrong_reference} отсутствует в таблице Coil базы данных"
-    assert response.status_code == 400
+    assert response.status_code == 404
