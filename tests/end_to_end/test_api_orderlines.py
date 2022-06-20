@@ -35,7 +35,7 @@ def test_add_a_line_is_idempotent():
     input_line_data_1 = json.dumps(line_data_1, ensure_ascii=False)
     input_line_data_2 = json.dumps(line_data_2, ensure_ascii=False)
 
-    # Добавление orderlines в базу данных с помощью POST запроса
+    # Добавление orderlines в базу данных с помощью POST запросов
     client.post('/v1/orderlines', data=input_line_data_1, format='json')
     response = client.post('/v1/orderlines', data=input_line_data_2, format='json')
     output_data = json.loads(response.data)
@@ -51,7 +51,7 @@ def test_add_a_line_is_idempotent():
 def test_add_a_line_raise_validation_error():
     client = APIClient()
     # Создание orderline
-    # order_id имеет неверное имя, quantity имеет отрицательные значение
+    # order_id имеет неверное значение, quantity имеет отрицательные значение
     # Итого два несоответствия OrderLineBaseModel
     line_data = {"order_id": 'Закз-025', "line_item": "Позиция-001",
                  "product_id": 'АВВГ_2х6', "quantity": -15}
@@ -194,7 +194,7 @@ def test_update_a_line_returns_fake_coil(three_coils_and_lines):
 
 
 @pytest.mark.django_db(transaction=True)
-def test_put_a_line_raise_input_validation_error():
+def test_update_a_line_raise_input_validation_error():
     client = APIClient()
     # Добавление orderline в базу данных с помощью POST запроса
     line_data_1 = {"order_id": 'Заказ-017', "line_item": "Позиция-002",
@@ -203,7 +203,7 @@ def test_put_a_line_raise_input_validation_error():
     client.post('/v1/orderlines', data=input_coil_data_1, format='json')
 
     # Обновление orderline в базе данных с помощью PUT запроса
-    # line_item имеет неверное имя, quantity имеет отрицательные значение.
+    # line_item имеет неверное значение, quantity имеет отрицательные значение.
     # Итого два несоответствия OrderLineBaseModel
     line_data_2 = {"order_id": 'Заказ-017', "line_item": "Пазиция-004",
                    "product_id": 'АВВГ_2х2,5', "quantity": -24}
@@ -218,13 +218,13 @@ def test_put_a_line_raise_input_validation_error():
 
 
 @pytest.mark.django_db(transaction=True)
-def test_put_a_line_raise_not_exist_exception():
+def test_update_a_line_raise_not_exist_exception():
     client = APIClient()
     # Добавление orderline в базу данных с помощью POST запроса
     line_data_1 = {"order_id": 'Заказ-018', "line_item": "Позиция-003",
                    "product_id": 'АВВГ_2х2,5', "quantity": 15}
-    input_coil_data_1 = json.dumps(line_data_1, ensure_ascii=False)
-    client.post('/v1/orderlines', data=input_coil_data_1, format='json')
+    input_line_data_1 = json.dumps(line_data_1, ensure_ascii=False)
+    client.post('/v1/orderlines', data=input_line_data_1, format='json')
     # wrong_line_item - это line_item несуществующей в базе данных orderline
     wrong_line_item = "Позиция-004"
 
@@ -244,7 +244,7 @@ def test_put_a_line_raise_not_exist_exception():
 
 
 @pytest.mark.django_db(transaction=True)
-def test_put_a_line_raise_output_validation_error():
+def test_update_a_line_raise_output_validation_error():
     client = APIClient()
     # Добавление coil в базу данных с помощью UnitOfWork
     # recommended_balance имеет неверное значение
