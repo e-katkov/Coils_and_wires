@@ -170,3 +170,27 @@ def allocate(
         uow_coil.coil_repo.update(allocation_coil)
         uow_coil.commit()
     return allocation_coil
+
+
+def deallocate(
+        order_id: str,
+        line_item: str,
+        uow_line: unit_of_work.AbstractOrderLineUnitOfWork,
+        uow_coil: unit_of_work.AbstractCoilUnitOfWork
+) -> domain_logic.Coil:
+    with uow_line:
+        # Получение orderline, для которой необходимо отменить размещение
+        line = uow_line.line_repo.get(order_id=order_id, line_item=line_item)
+        # Получение allocation_coil, куда размещена line
+        allocation_coil = uow_line.line_repo.get_an_allocation_coil(line)
+
+    if allocation_coil.reference == 'fake':
+        return allocation_coil
+    else:
+        with uow_coil:
+            # Отмена размещения line
+            allocation_coil.deallocate(line)
+            # Обновление allocation_coil в базе данных
+            uow_coil.coil_repo.update(allocation_coil)
+            uow_coil.commit()
+        return allocation_coil
