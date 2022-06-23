@@ -4,10 +4,15 @@ from allocation.exceptions.exceptions import OutOfStock
 
 
 class OrderLine:
+    """Абстракция товарной позиции - элемента заказа материалов (проводов, кабелей)."""
     def __init__(self, order_id: str, line_item: str, product_id: str, quantity: int):
+        # Идентификатор заказа материалов
         self.order_id = order_id
+        # Идентификатор товарной позиции
         self.line_item = line_item
+        # Идентификатор материала
         self.product_id = product_id
+        # Количество материала
         self.quantity = quantity
 
     def __eq__(self, other) -> bool:
