@@ -25,39 +25,61 @@ class OrderLine:
 
 
 class Coil:
+    """
+    Абстракция бухты - кольцеобразного мотка провода/кабеля
+    или барабана, на который намотан данный материал.
+    """
     def __init__(self, reference: str, product_id: str, quantity: int,
                  recommended_balance: int, acceptable_loss: int):
+        # Идентификатор бухты с материалом
         self.reference = reference
+        # Идентификатор материала
         self.product_id = product_id
+        # Изначальное количество материала
         self.initial_quantity = quantity
+        # Рекомендуемый остаток материала - количество материала, оставшееся после размещения
+        # товарной позиции, которое наиболее вероятно позволит выполнить следующее размещение
         self.recommended_balance = recommended_balance
+        # Приемлемые потери материала - количество материала, которое маловероятно
+        # сможет быть реализовано при следующем размещении
         self.acceptable_loss = acceptable_loss
+        # Множество экземпляров размещенных товарных позиций
         self.allocations: set[OrderLine] = set()
 
     @property
     def allocated_quantity(self) -> int:
+        """Суммарное количество материала для выполненных размещений товарных позиций."""
         return sum(line.quantity for line in self.allocations)
 
     @property
     def available_quantity(self) -> int:
+        """Доступное количество материала после выполненных размещений товарных позиций."""
         return self.initial_quantity - self.allocated_quantity
 
     def can_allocate(self, line: OrderLine) -> bool:
+        """Принимает экземпляр товарной позиции, определяет возможность ее размещения в бухте."""
         result = (self.product_id == line.product_id) and (
                 ((self.available_quantity - line.quantity) >= self.recommended_balance) or
                 (self.acceptable_loss >= (self.available_quantity - line.quantity) >= 0)
         )
         return result
 
-    def allocate(self, line: OrderLine):
+    def allocate(self, line: OrderLine) -> None:
+        """Принимает экземпляр товарной позиции, размещает ее в бухте."""
         if self.can_allocate(line):
             self.allocations.add(line)
 
-    def deallocate(self, line: OrderLine):
+    def deallocate(self, line: OrderLine) -> None:
+        """Принимает экземпляр товарной позиции, отменяет ее размещение в бухте."""
         if line in self.allocations:
             self.allocations.discard(line)
 
     def reallocate(self, coil: 'Coil') -> set[OrderLine]:
+        """
+        Принимает экземпляр бухты. Среди товарных позиций, размещенных в бухте (self),
+        для которой вызван метод, определяет те, которые могут быть размещены
+        в бухте (coil) - аргументе метода.
+        """
         new_coil = deepcopy(coil)
         sorted_line_list = sorted(self.allocations, key=lambda x: x.quantity)
         for line in sorted_line_list:
