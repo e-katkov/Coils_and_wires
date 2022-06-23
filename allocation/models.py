@@ -67,7 +67,9 @@ class Coil(models.Model):
 
         Определяет запись, соответствующую экземпляру, по идентификатору reference.
         Генерирует исключение, возникающее при отсутствии подходящей записи.
-        Связывает запись с записями таблицы Allocation согласно множеству allocations экземпляра.
+        Связывает обновляемую запись с записями таблицы OrderLine, в соответствии
+        с атрибутом allocations экземпляра класса Coil доменной модели,
+        путем создания записей промежуточной таблицы Allocation.
         """
         coil = Coil.get(reference=domain_coil.reference)
         Coil.objects.filter(reference=domain_coil.reference).update(
@@ -201,7 +203,7 @@ class Allocation(models.Model):
     def get_or_create_from_domain(coil: Coil, domain_line: domain_logic.OrderLine) -> 'Allocation':
         """
         Принимает экземпляры классов Coil и OrderLine доменной модели,
-        возвращает существующую или создает новую запись таблицы Allocation,
+        возвращает существующую или создает новую запись промежуточной таблицы Allocation,
         которая связывает соответствующие экземплярам записи таблиц Coil и OrderLine.
 
         Генерирует исключение, возникающее при отсутствии записи таблицы OrderLine,
