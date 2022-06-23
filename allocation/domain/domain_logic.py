@@ -101,13 +101,21 @@ class Coil:
 
 
 def allocate_to_list_of_coils(line: OrderLine, coils: list[Coil]) -> Coil:
-    for c in coils:
-        for o in c.allocations:
-            if o.order_id == line.order_id and o.line_item == line.line_item:
-                return c
+    """
+    Принимает экземпляр товарной позиции и список экземпляров бухт, возвращает бухту,
+    в которую было выполнено размещение.
+    
+    В случае, если товарная позиции уже была размещена в одной из бухт списка, возвращает эту бухту.
+    Генерирует исключение, возникающее при невозможности разместить товарную позицию
+    в какой-либо бухте списка.
+    """
+    for coil in coils:
+        for orderline in coil.allocations:
+            if orderline.order_id == line.order_id and orderline.line_item == line.line_item:
+                return coil
     try:
-        coil = next(c for c in sorted(coils) if c.can_allocate(line))
-        coil.allocate(line)
-        return coil
+        result_coil = next(coil for coil in sorted(coils) if coil.can_allocate(line))
+        result_coil.allocate(line)
+        return result_coil
     except StopIteration:
         raise OutOfStock(f'Недостаточное количество материала с product_id={line.product_id}')
