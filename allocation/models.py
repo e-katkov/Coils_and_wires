@@ -163,27 +163,6 @@ class OrderLine(models.Model):
         )
 
     @staticmethod
-    def get_an_allocation_coil(domain_line: domain_logic.OrderLine) -> domain_logic.Coil:
-        """
-        Принимает экземпляр класса OrderLine доменной модели,
-        возвращает экземпляр класса Coil доменной модели, соответствующий связанной записи таблицы Coil.
-
-        При отсутствии связи между записью таблицы OrderLine и записью таблицы Coil,
-        которая выполнена с помощью записи промежуточной таблицы Allocation,
-        возвращает "поддельный" экземпляр класса Coil доменной модели.
-        """
-        try:
-            allocation_record = Allocation.objects.get(
-                line__order_id=domain_line.order_id, line__line_item=domain_line.line_item
-            )
-        except Allocation.DoesNotExist:
-            fake_coil = domain_logic.Coil('fake', 'fake', 1, 1, 1)
-            return fake_coil
-        else:
-            real_coil = allocation_record.coil.to_domain()
-            return real_coil
-
-    @staticmethod
     def delete(order_id: str, line_item: str) -> None:
         """
         Принимает идентификаторы экземпляра класса OrderLine доменной модели,
