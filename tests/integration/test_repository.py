@@ -95,46 +95,6 @@ def test_repository_updates_a_line():
 
 
 @pytest.mark.django_db
-def test_repository_gets_a_real_allocation_coil():
-    # Создание экземпляров репозиториев
-    repo_line = repository.DjangoOrderLineRepository()
-    repo_coil = repository.DjangoCoilRepository()
-    # Создание coil, orderline и добавление их в базу данных
-    line = OrderLine('Заказ-034', 'Позиция-002', 'АВВГ_4х16', 35)
-    repo_line.add(line)
-    coil = Coil('Бухта-024', 'АВВГ_4х16', 150, 25, 5)
-    repo_coil.add(coil)
-    # Размещение orderLine
-    coil.allocate(line)
-    repo_coil.update(coil)
-
-    # Получение coil, куда размещена orderline
-    output_coil = repo_line.get_an_allocation_coil(line)
-
-    assert output_coil.reference == coil.reference
-    assert output_coil.available_quantity == coil.initial_quantity - line.quantity
-
-
-@pytest.mark.django_db
-def test_repository_gets_a_fake_allocation_coil():
-    # Создание экземпляров репозиториев
-    repo_line = repository.DjangoOrderLineRepository()
-    repo_coil = repository.DjangoCoilRepository()
-    # Создание coil, orderline и добавление их в базу данных
-    line = OrderLine('Заказ-034', 'Позиция-002', 'АВВГ_4х16', 35)
-    repo_line.add(line)
-    coil = Coil('Бухта-024', 'АВВГ_4х16', 150, 25, 5)
-    repo_coil.add(coil)
-
-    # Получение coil, куда размещена orderline
-    # coil "поддельный", т.к. orderline не была размещена
-    output_coil = repo_line.get_an_allocation_coil(line)
-
-    assert output_coil.reference == 'fake'
-    assert output_coil.product_id == 'fake'
-
-
-@pytest.mark.django_db
 def test_repository_delete_a_line():
     # создание экземпляра репозитория
     repo = repository.DjangoOrderLineRepository()
