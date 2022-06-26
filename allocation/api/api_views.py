@@ -202,6 +202,7 @@ class OrderLine(APIView):
                 order_id,
                 line_item,
                 unit_of_work.DjangoOrderLineUnitOfWork(),
+                unit_of_work.DjangoCoilUnitOfWork(),
             )
         except exceptions.DBOrderLineRecordDoesNotExist as error:
             output_data = json.dumps({"message": str(error)}, ensure_ascii=False)
@@ -222,7 +223,8 @@ class Allocate(APIView):
             allocation_coil = services.get_an_allocation_coil(
                 order_id,
                 line_item,
-                unit_of_work.DjangoOrderLineUnitOfWork()
+                unit_of_work.DjangoOrderLineUnitOfWork(),
+                unit_of_work.DjangoCoilUnitOfWork(),
             )
         except exceptions.DBOrderLineRecordDoesNotExist as error:
             output_data = json.dumps({"message": str(error)}, ensure_ascii=False)
