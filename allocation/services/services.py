@@ -185,10 +185,23 @@ def delete_a_line(
     # Получение бухты, в которой размещена удаляемая товарная позиция
     allocation_coil = get_an_allocation_coil(order_id, line_item, uow_line, uow_coil)
     with uow_line:
+        # Получение товарной позиции, которую необходимо удалить
+        line = uow_line.line_repo.get(order_id=order_id, line_item=line_item)
         # Удаление товарной позиции из базы данных
         uow_line.line_repo.delete(order_id=order_id, line_item=line_item)
         uow_line.commit()
-    return allocation_coil
+    # Отмена размещения товарной позиции и возврат бухты, в которой она была размещена
+    if allocation_coil.reference == 'fake':
+        # Возврат allocation_coil, при условии, что он "поддельный"
+        return allocation_coil
+    else:
+        with uow_coil:
+            # Отмена размещения line в allocation_coil
+            allocation_coil.deallocate(line)
+            # Обновление allocation_coil в базе данных
+            uow_coil.coil_repo.update(allocation_coil)
+            uow_coil.commit()
+        return allocation_coil
 
 
 def get_an_allocation_coil(
