@@ -68,7 +68,7 @@ class Coil(APIView):
 
     def post(self, request):
         try:
-            input_data = CoilBaseModel.parse_raw(request.data)
+            input_data = CoilBaseModel.parse_obj(request.data)
         except ValidationError as error:
             output_data = json.dumps({"message": str(error)}, ensure_ascii=False)
             return Response(data=output_data, status=400)
@@ -90,7 +90,7 @@ class Coil(APIView):
     def put(self, request, **kwargs):
         reference = self.kwargs['reference']
         try:
-            input_data = CoilBaseModel.parse_raw(request.data)
+            input_data = CoilBaseModel.parse_obj(request.data)
         except ValidationError as error:
             output_data = json.dumps({"message": str(error)}, ensure_ascii=False)
             return Response(data=output_data, status=400)
@@ -149,7 +149,7 @@ class OrderLine(APIView):
 
     def post(self, request):
         try:
-            input_data = OrderLineBaseModel.parse_raw(request.data)
+            input_data = OrderLineBaseModel.parse_obj(request.data)
         except ValidationError as error:
             output_data = json.dumps({"message": str(error)}, ensure_ascii=False)
             return Response(data=output_data, status=400)
@@ -171,7 +171,7 @@ class OrderLine(APIView):
         order_id = self.kwargs['order_id']
         line_item = self.kwargs['line_item']
         try:
-            input_data = OrderLineBaseModel.parse_raw(request.data)
+            input_data = OrderLineBaseModel.parse_obj(request.data)
         except ValidationError as error:
             output_data = json.dumps({"message": str(error)}, ensure_ascii=False)
             return Response(data=output_data, status=400)
@@ -238,7 +238,7 @@ class Allocate(APIView):
 
     def post(self, request):
         try:
-            input_data = OrderLineBaseModel.parse_raw(request.data)
+            input_data = OrderLineBaseModel.parse_obj(request.data)
         except ValidationError as error:
             output_data = json.dumps({"message": str(error)}, ensure_ascii=False)
             return Response(data=output_data, status=400)

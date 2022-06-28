@@ -8,17 +8,15 @@ from allocation.services import unit_of_work
 
 
 @pytest.mark.django_db(transaction=True)
-def test_allocate_a_line(three_coils_and_lines):
+def test_api_allocate_a_line(three_coils_and_lines):
     client = APIClient()
     # Добавление бухт в базу данных с помощью POST запросов
     for coil_data in three_coils_and_lines['three_coils']:
-        input_coil_data = json.dumps(coil_data, ensure_ascii=False)
-        client.post('/v1/coils', data=input_coil_data, format='json')
+        client.post('/v1/coils', data=coil_data, format='json')
     # Добавление товарных позиций в базу данных и дальнейшее размещение с помощью POST запросов
     for line_data in three_coils_and_lines['three_lines']:
-        input_line_data = json.dumps(line_data, ensure_ascii=False)
-        client.post('/v1/orderlines', data=input_line_data, format='json')
-        client.post('/v1/allocate', data=input_line_data, format='json')
+        client.post('/v1/orderlines', data=line_data, format='json')
+        client.post('/v1/allocate', data=line_data, format='json')
 
     # Получение бухты с идентификатором reference='Бухта-031',
     # куда должны быть размещены все товарные позиции
@@ -35,21 +33,18 @@ def test_allocate_a_line(three_coils_and_lines):
 
 
 @pytest.mark.django_db(transaction=True)
-def test_allocate_a_line_is_idempotent(three_coils_and_lines):
+def test_api_allocate_a_line_is_idempotent(three_coils_and_lines):
     client = APIClient()
     # Добавление бухт в базу данных с помощью POST запросов
     for coil_data in three_coils_and_lines['three_coils']:
-        input_coil_data = json.dumps(coil_data, ensure_ascii=False)
-        client.post('/v1/coils', data=input_coil_data, format='json')
+        client.post('/v1/coils', data=coil_data, format='json')
     # Добавление товарных позиций в базу данных и дальнейшее размещение с помощью POST запросов
     for line_data in three_coils_and_lines['three_lines']:
-        input_line_data = json.dumps(line_data, ensure_ascii=False)
-        client.post('/v1/orderlines', data=input_line_data, format='json')
-        client.post('/v1/allocate', data=input_line_data, format='json')
+        client.post('/v1/orderlines', data=line_data, format='json')
+        client.post('/v1/allocate', data=line_data, format='json')
     # Повторное размещение одной товарной позиции с помощью POST запроса
     line_data = three_coils_and_lines['three_lines'][1]
-    input_line_data = json.dumps(line_data, ensure_ascii=False)
-    client.post('/v1/allocate', data=input_line_data, format='json')
+    client.post('/v1/allocate', data=line_data, format='json')
 
     # Получение бухты с идентификатором reference='Бухта-031',
     # куда должны быть размещены все товарные позиции
@@ -73,17 +68,16 @@ def test_allocate_a_line_is_idempotent(three_coils_and_lines):
 
 
 @pytest.mark.django_db(transaction=True)
-def test_allocate_a_line_raise_input_validation_error():
+def test_api_allocate_a_line_raise_input_validation_error():
     client = APIClient()
     # Создание товарной позиции
     # order_id имеет неверное значение, quantity имеет отрицательное значение
     # Итого два несоответствия OrderLineBaseModel
-    line = {"order_id": "Закfз-034", "line_item": "Позиция-002",
-            "product_id": 'АВВГ_2х6', "quantity": -20}
-    input_data = json.dumps(line, ensure_ascii=False)
+    line_data = {"order_id": "Закfз-034", "line_item": "Позиция-002",
+                 "product_id": 'АВВГ_2х6', "quantity": -20}
 
     # Размещение товарной позиции с помощью POST запроса
-    response = client.post('/v1/allocate', data=input_data, format='json')
+    response = client.post('/v1/allocate', data=line_data, format='json')
     output_data = json.loads(response.data)
 
     # Товарная позиция не соответствует OrderLineBaseModel, что вызовет ошибку ValidationError
@@ -92,7 +86,7 @@ def test_allocate_a_line_raise_input_validation_error():
 
 
 @pytest.mark.django_db(transaction=True)
-def test_allocate_a_line_raise_output_validation_error():
+def test_api_allocate_a_line_raise_output_validation_error():
     client = APIClient()
     # Добавление бухты в базу данных с помощью UnitOfWork
     # reference имеет неверное значение, recommended_balance имеет отрицательное значение
@@ -106,11 +100,10 @@ def test_allocate_a_line_raise_output_validation_error():
     # Добавление товарной позиции в базу данных с помощью POST запроса
     line_data = {"order_id": "Заказ-036", "line_item": "Позиция-001",
                  "product_id": "АВВГ_2х6", "quantity": 85}
-    input_line_data = json.dumps(line_data, ensure_ascii=False)
-    client.post('/v1/orderlines', data=input_line_data, format='json')
+    client.post('/v1/orderlines', data=line_data, format='json')
 
     # Размещение товарной позиции с помощью POST запроса
-    response = client.post('/v1/allocate', data=input_line_data, format='json')
+    response = client.post('/v1/allocate', data=line_data, format='json')
     output_data = json.loads(response.data)
 
     # Размещение товарной позиции вернет allocation_coil, который не соответствует CoilBaseModel,
@@ -120,20 +113,18 @@ def test_allocate_a_line_raise_output_validation_error():
 
 
 @pytest.mark.django_db(transaction=True)
-def test_allocate_a_line_raise_out_of_stock_exception(three_coils_and_lines):
+def test_api_allocate_a_line_raise_out_of_stock_exception(three_coils_and_lines):
     client = APIClient()
     # Добавление бухт в базу данных с помощью POST запросов
     for coil_data in three_coils_and_lines['three_coils']:
-        input_coil_data = json.dumps(coil_data, ensure_ascii=False)
-        client.post('/v1/coils', data=input_coil_data, format='json')
+        client.post('/v1/coils', data=coil_data, format='json')
     # Добавление товарной позиции в базу данных с помощью POST запроса
     line_data = {"order_id": "Заказ-035", "line_item": "Позиция-002",
                  "product_id": "АВВГ_2х6", "quantity": 600}
-    input_line_data = json.dumps(line_data, ensure_ascii=False)
-    client.post('/v1/orderlines', data=input_line_data, format='json')
+    client.post('/v1/orderlines', data=line_data, format='json')
 
     # Размещение товарной позиции с помощью POST запроса
-    response = client.post('/v1/allocate', data=input_line_data, format='json')
+    response = client.post('/v1/allocate', data=line_data, format='json')
     output_data = json.loads(response.data)
 
     # Товарная позиция имеет величину quantity большую, чем у бухт,
@@ -143,19 +134,17 @@ def test_allocate_a_line_raise_out_of_stock_exception(three_coils_and_lines):
 
 
 @pytest.mark.django_db(transaction=True)
-def test_allocate_a_line_raise_not_exist_exception(three_coils_and_lines):
+def test_api_allocate_a_line_raise_not_exist_exception(three_coils_and_lines):
     client = APIClient()
     # Добавление бухт в базу данных с помощью POST запросов
     for coil_data in three_coils_and_lines['three_coils']:
-        input_coil_data = json.dumps(coil_data, ensure_ascii=False)
-        client.post('/v1/coils', data=input_coil_data, format='json')
+        client.post('/v1/coils', data=coil_data, format='json')
     # Создание товарной позиции
     line_data = {"order_id": "Заказ-036", "line_item": "Позиция-004",
                  "product_id": "АВВГ_2х6", "quantity": 20}
-    input_line_data = json.dumps(line_data, ensure_ascii=False)
 
     # Размещение товарной позиции с помощью POST запроса
-    response = client.post('/v1/allocate', data=input_line_data, format='json')
+    response = client.post('/v1/allocate', data=line_data, format='json')
     output_data = json.loads(response.data)
 
     # Товарная позиция не была сохранена в базе данных,
@@ -167,19 +156,17 @@ def test_allocate_a_line_raise_not_exist_exception(three_coils_and_lines):
 
 
 @pytest.mark.django_db(transaction=True)
-def test_get_an_allocation_coil_returns_not_fake_coil(three_coils_and_lines):
+def test_api_get_an_allocation_coil_returns_real_coil(three_coils_and_lines):
     client = APIClient()
     # Добавление бухт в базу данных с помощью POST запросов
     for coil_data in three_coils_and_lines['three_coils']:
-        input_coil_data = json.dumps(coil_data, ensure_ascii=False)
-        client.post('/v1/coils', data=input_coil_data, format='json')
+        client.post('/v1/coils', data=coil_data, format='json')
     # Добавление товарной позиции в базу данных и дальнейшее размещение с помощью POST запросов
     # Размещение будет выполнено в smaller_coil
     line_data = {"order_id": "Заказ-037", "line_item": "Позиция-002",
                  "product_id": "АВВГ_2х6", "quantity": 45}
-    input_line_data = json.dumps(line_data, ensure_ascii=False)
-    client.post('/v1/orderlines', data=input_line_data, format='json')
-    client.post('/v1/allocate', data=input_line_data, format='json')
+    client.post('/v1/orderlines', data=line_data, format='json')
+    client.post('/v1/allocate', data=line_data, format='json')
 
     # Получение allocation_coil, в которую размещена товарная позиция
     response = client.get(f"/v1/allocate/{line_data['order_id']}/{line_data['line_item']}")
@@ -190,18 +177,16 @@ def test_get_an_allocation_coil_returns_not_fake_coil(three_coils_and_lines):
 
 
 @pytest.mark.django_db(transaction=True)
-def test_get_an_allocation_coil_returns_fake_coil(three_coils_and_lines):
+def test_api_get_an_allocation_coil_returns_fake_coil(three_coils_and_lines):
     client = APIClient()
     # Добавление бухт в базу данных с помощью POST запросов
     for coil_data in three_coils_and_lines['three_coils']:
-        input_coil_data = json.dumps(coil_data, ensure_ascii=False)
-        client.post('/v1/coils', data=input_coil_data, format='json')
+        client.post('/v1/coils', data=coil_data, format='json')
     # Добавление товарной позиции в базу данных и дальнейшее размещение с помощью POST запросов
     # Размещение не выполняется
     line_data = {"order_id": "Заказ-037", "line_item": "Позиция-002",
                  "product_id": "АВВГ_2х6", "quantity": 45}
-    input_line_data = json.dumps(line_data, ensure_ascii=False)
-    client.post('/v1/orderlines', data=input_line_data, format='json')
+    client.post('/v1/orderlines', data=line_data, format='json')
 
     # Получение allocation_coil, в которую размещена товарная позиция, с помощью GET запроса
     response = client.get(f"/v1/allocate/{line_data['order_id']}/{line_data['line_item']}")
@@ -214,13 +199,12 @@ def test_get_an_allocation_coil_returns_fake_coil(three_coils_and_lines):
 
 
 @pytest.mark.django_db(transaction=True)
-def test_get_an_allocation_coil_raise_not_exist_exception():
+def test_api_get_an_allocation_coil_raise_not_exist_exception():
     client = APIClient()
     # Добавление товарной позиции в базу данных с помощью POST запроса
     line_data = {"order_id": 'Заказ-038', "line_item": "Позиция-003",
                  "product_id": 'АВВГ_2х6', "quantity": 70}
-    input_line_data = json.dumps(line_data, ensure_ascii=False)
-    client.post('/v1/orderlines', data=input_line_data, format='json')
+    client.post('/v1/orderlines', data=line_data, format='json')
     # wrong_line_item - это line_item несуществующей в базе данных товарной позиции
     wrong_line_item = 'Позиция-005'
 
@@ -237,7 +221,7 @@ def test_get_an_allocation_coil_raise_not_exist_exception():
 
 
 @pytest.mark.django_db(transaction=True)
-def test_get_an_allocation_coil_raise_validation_error():
+def test_api_get_an_allocation_coil_raise_validation_error():
     client = APIClient()
     # Добавление бухты в базу данных с помощью UnitOfWork
     # acceptable_loss имеет отрицательное значение
@@ -251,9 +235,8 @@ def test_get_an_allocation_coil_raise_validation_error():
     # Добавление товарной позиции в базу данных и дальнейшее размещение с помощью POST запросов
     line_data = {"order_id": "Заказ-039", "line_item": "Позиция-002",
                  "product_id": "АВВГ_2х2,5", "quantity": 45}
-    input_line_data = json.dumps(line_data, ensure_ascii=False)
-    client.post('/v1/orderlines', data=input_line_data, format='json')
-    client.post('/v1/allocate', data=input_line_data, format='json')
+    client.post('/v1/orderlines', data=line_data, format='json')
+    client.post('/v1/allocate', data=line_data, format='json')
 
     # Получение allocation_coil, в которую размещена товарная позиция, с помощью GET запроса
     response = client.get(f"/v1/allocate/{line_data['order_id']}/{line_data['line_item']}")
@@ -265,19 +248,17 @@ def test_get_an_allocation_coil_raise_validation_error():
 
 
 @pytest.mark.django_db(transaction=True)
-def test_deallocate_a_line_returns_not_fake_coil(three_coils_and_lines):
+def test_api_deallocate_a_line_returns_real_coil(three_coils_and_lines):
     client = APIClient()
     # Добавление бухт в базу данных с помощью POST запросов
     for coil_data in three_coils_and_lines['three_coils']:
-        input_coil_data = json.dumps(coil_data, ensure_ascii=False)
-        client.post('/v1/coils', data=input_coil_data, format='json')
+        client.post('/v1/coils', data=coil_data, format='json')
     # Добавление товарной позиции в базу данных и дальнейшее размещение с помощью POST запросов
     # Размещение будет выполнено в smaller_coil
     line_data = {"order_id": "Заказ-040", "line_item": "Позиция-004",
                  "product_id": "АВВГ_2х6", "quantity": 32}
-    input_line_data = json.dumps(line_data, ensure_ascii=False)
-    client.post('/v1/orderlines', data=input_line_data, format='json')
-    client.post('/v1/allocate', data=input_line_data, format='json')
+    client.post('/v1/orderlines', data=line_data, format='json')
+    client.post('/v1/allocate', data=line_data, format='json')
 
     # Отмена размещения товарной позиции и получение allocation_coil с помощью DELETE запроса
     response = client.delete(f"/v1/allocate/{line_data['order_id']}/{line_data['line_item']}")
@@ -288,18 +269,16 @@ def test_deallocate_a_line_returns_not_fake_coil(three_coils_and_lines):
 
 
 @pytest.mark.django_db(transaction=True)
-def test_deallocate_a_line_returns_fake_coil(three_coils_and_lines):
+def test_api_deallocate_a_line_returns_fake_coil(three_coils_and_lines):
     client = APIClient()
     # Добавление бухт в базу данных с помощью POST запросов
     for coil_data in three_coils_and_lines['three_coils']:
-        input_coil_data = json.dumps(coil_data, ensure_ascii=False)
-        client.post('/v1/coils', data=input_coil_data, format='json')
+        client.post('/v1/coils', data=coil_data, format='json')
     # Добавление товарной позиции в базу данных и дальнейшее размещение с помощью POST запросов
     # Размещение не выполняется
     line_data = {"order_id": "Заказ-041", "line_item": "Позиция-006",
                  "product_id": "АВВГ_2х6", "quantity": 27}
-    input_line_data = json.dumps(line_data, ensure_ascii=False)
-    client.post('/v1/orderlines', data=input_line_data, format='json')
+    client.post('/v1/orderlines', data=line_data, format='json')
 
     # Отмена размещения товарной позиции и получение allocation_coil с помощью DELETE запроса
     response = client.delete(f"/v1/allocate/{line_data['order_id']}/{line_data['line_item']}")
@@ -312,13 +291,12 @@ def test_deallocate_a_line_returns_fake_coil(three_coils_and_lines):
 
 
 @pytest.mark.django_db(transaction=True)
-def test_deallocate_a_line_raise_not_exist_exception():
+def test_api_deallocate_a_line_raise_not_exist_exception():
     client = APIClient()
     # Добавление товарной позиции в базу данных с помощью POST запроса
     line_data = {"order_id": 'Заказ-042', "line_item": "Позиция-001",
                  "product_id": 'АВВГ_2х6', "quantity": 55}
-    input_line_data = json.dumps(line_data, ensure_ascii=False)
-    client.post('/v1/orderlines', data=input_line_data, format='json')
+    client.post('/v1/orderlines', data=line_data, format='json')
     # wrong_line_item - это line_item несуществующей в базе данных товарной позиции
     wrong_line_item = 'Позиция-012'
 
@@ -335,7 +313,7 @@ def test_deallocate_a_line_raise_not_exist_exception():
 
 
 @pytest.mark.django_db(transaction=True)
-def test_deallocate_a_line_raise_validation_error():
+def test_api_deallocate_a_line_raise_validation_error():
     client = APIClient()
     # Добавление бухты в базу данных с помощью UnitOfWork
     # acceptable_loss имеет отрицательное значение
@@ -349,9 +327,8 @@ def test_deallocate_a_line_raise_validation_error():
     # Добавление товарной позиции в базу данных и дальнейшее размещение с помощью POST запросов
     line_data = {"order_id": "Заказ-043", "line_item": "Позиция-005",
                  "product_id": "АВВГ_2х2,5", "quantity": 37}
-    input_line_data = json.dumps(line_data, ensure_ascii=False)
-    client.post('/v1/orderlines', data=input_line_data, format='json')
-    client.post('/v1/allocate', data=input_line_data, format='json')
+    client.post('/v1/orderlines', data=line_data, format='json')
+    client.post('/v1/allocate', data=line_data, format='json')
 
     # Отмена размещения товарной позиции и получение allocation_coil с помощью DELETE запроса
     response = client.delete(f"/v1/allocate/{line_data['order_id']}/{line_data['line_item']}")
