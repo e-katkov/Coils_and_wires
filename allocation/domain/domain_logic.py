@@ -8,7 +8,7 @@ class OrderLine:
     def __init__(self, order_id: str, line_item: str, product_id: str, quantity: int):
         # Идентификатор заказа материалов
         self.order_id = order_id
-        # Идентификатор товарной позиции
+        # Номер товарной позиции в заказе
         self.line_item = line_item
         # Идентификатор материала
         self.product_id = product_id
