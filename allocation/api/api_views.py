@@ -10,6 +10,11 @@ from allocation.services import services, unit_of_work
 
 
 class CoilBaseModel(BaseModel):
+    """
+    Принимает данные для инициализации экземпляра класса, выполняет их синтаксический анализ и проверку.
+    Возвращает экземпляр класса, поля которого соответствуют типам полей, определенных в классе.
+    Генерирует ошибку ValidationError, возникающую в случае указанного несоответствия.
+    """
     reference: str = Field(regex='^(Бухта|fake)')
     product_id: str
     quantity: int = Field(gt=0)
@@ -19,6 +24,11 @@ class CoilBaseModel(BaseModel):
 
 
 class OrderLineBaseModel(BaseModel):
+    """
+    Принимает данные для инициализации экземпляра класса, выполняет их синтаксический анализ и проверку.
+    Возвращает экземпляр класса, поля которого соответствуют типам полей, определенных в классе.
+    Генерирует ошибку ValidationError, возникающую в случае указанного несоответствия.
+    """
     order_id: str = Field(regex='^Заказ')
     line_item: str = Field(regex='^Позиция')
     product_id: str
@@ -26,6 +36,13 @@ class OrderLineBaseModel(BaseModel):
 
 
 def serialize_coil_domain_instance_to_json(domain_instance: Coil) -> str:
+    """
+    Принимает бухту - экземпляр класса Coil доменной модели, создает соответствующий ей
+    экземпляр класса CoilBaseModel, выполняя тем самым синтаксический анализ и проверку.
+    Сериализует экземпляр класса в объект JSON и возвращает его.
+    Экземпляры класса OrderLine доменной модели, находящиеся в allocations, также
+    проверяются и сериализуются в объекты JSON.
+    """
     model_instance = CoilBaseModel(
         reference=domain_instance.reference,
         product_id=domain_instance.product_id,
@@ -39,6 +56,12 @@ def serialize_coil_domain_instance_to_json(domain_instance: Coil) -> str:
 
 
 def serialize_order_line_domain_instance_to_json(domain_instance: OrderLine) -> str:
+    """
+    Принимает товарную позицию - экземпляр класса OrderLine доменной модели,
+    создает соответствующий ей экземпляр класса OrderLineBaseModel,
+    выполняя тем самым синтаксический анализ и проверку.
+    Сериализует экземпляр класса в объект JSON и возвращает его.
+    """
     model_instance = OrderLineBaseModel(
         order_id=domain_instance.order_id,
         line_item=domain_instance.line_item,
