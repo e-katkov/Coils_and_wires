@@ -122,7 +122,7 @@ def test_api_get_a_coil_raise_validation_error():
         uow.commit()
 
     # Получение бухты с помощью GET запроса
-    response = client.get("/v1/coils/Бухта-025")
+    response = client.get(f"/v1/coils/{coil.reference}")
     output_data = json.loads(response.data)
 
     # Бухта не соответствует CoilBaseModel, что вызовет ошибку ValidationError
@@ -151,7 +151,7 @@ def test_api_update_a_coil(three_coils_and_lines):
     deallocated_lines_order_id_and_line_item = \
         {(json.loads(line)['order_id'], json.loads(line)['line_item']) for line in output_data}
     # Получение обновленной бухты с помощью GET запроса
-    response_2 = client.get('/v1/coils/Бухта-031')
+    response_2 = client.get(f"/v1/coils/{coil_data_1['reference']}")
     output_coil = json.loads(response_2.data)
     # Получение множества из кортежей (order_id, line_item) размещенных товарных позиций
     # для полученного output_coil

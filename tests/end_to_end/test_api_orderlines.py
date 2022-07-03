@@ -75,7 +75,7 @@ def test_api_get_a_line():
     client.post('/v1/orderlines', data=line_data_2, format='json')
 
     # Получение товарной позиции №2 с помощью GET запроса
-    response = client.get("/v1/orderlines/Заказ-007/Позиция-002")
+    response = client.get(f"/v1/orderlines/{line_data_2['order_id']}/{line_data_2['line_item']}")
     output_data = json.loads(response.data)
 
     assert output_data['line_item'] == 'Позиция-002'
@@ -110,17 +110,15 @@ def test_api_get_a_line_raise_validation_error():
     # Добавление товарной позиции в базу данных с помощью UnitOfWork
     # quantity имеет неверное значение
     # Итого одно несоответствие OrderLineBaseModel
-    line_data = {"order_id": 'Заказ-011', "line_item": "Позиция-001",
-                 "product_id": 'АВВГ_2х6', "quantity": -12}
     uow = unit_of_work.DjangoOrderLineUnitOfWork()
     with uow:
-        line = domain_logic.OrderLine(line_data['order_id'], line_data['line_item'],
-                                      line_data['product_id'], line_data['quantity'])
+        line = domain_logic.OrderLine(order_id="Заказ-011", line_item="Позиция-001", product_id="АВВГ_2х6",
+                                      quantity=-12)
         uow.line_repo.add(line)
         uow.commit()
 
     # Получение товарной позиции с помощью GET запроса
-    response = client.get(f"/v1/orderlines/{line_data['order_id']}/{line_data['line_item']}")
+    response = client.get(f"/v1/orderlines/{line.order_id}/{line.line_item}")
     output_data = json.loads(response.data)
 
     # Товарная позиция не соответствует OrderLineBaseModel, что вызовет ошибку ValidationError
@@ -132,8 +130,8 @@ def test_api_get_a_line_raise_validation_error():
 @pytest.mark.parametrize('line_2_quantity, coil_reference, coil_quantity',
                          [(30, "Бухта-031", 95), (90, "Бухта-032", 105)],
                          ids=["smaller_coil", "medium_coil"])
-def test_api_update_a_line_returns_real_coil(three_coils_and_lines, line_2_quantity,
-                                                 coil_reference, coil_quantity):
+def test_api_update_a_line_returns_real_coil(three_coils_and_lines, line_2_quantity, coil_reference,
+                                             coil_quantity):
     client = APIClient()
     # Добавление бухт в базу данных с помощью POST запросов
     for coil_data in three_coils_and_lines['three_coils']:
