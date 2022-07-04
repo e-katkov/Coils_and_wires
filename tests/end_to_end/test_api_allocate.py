@@ -68,24 +68,6 @@ def test_api_allocate_a_line_is_idempotent(three_coils_and_lines):
 
 
 @pytest.mark.django_db(transaction=True)
-def test_api_allocate_a_line_raise_input_validation_error():
-    client = APIClient()
-    # Создание товарной позиции
-    # order_id имеет неверное значение, quantity имеет отрицательное значение
-    # Итого два несоответствия OrderLineBaseModel
-    line_data = {"order_id": "Закfз-034", "line_item": "Позиция-002",
-                 "product_id": 'АВВГ_2х6', "quantity": -20}
-
-    # Размещение товарной позиции с помощью POST запроса
-    response = client.post('/v1/allocate', data=line_data, format='json')
-    output_data = json.loads(response.data)
-
-    # Товарная позиция не соответствует OrderLineBaseModel, что вызовет ошибку ValidationError
-    assert '2 validation errors for OrderLineBaseModel' in output_data['message']
-    assert response.status_code == 400
-
-
-@pytest.mark.django_db(transaction=True)
 def test_api_allocate_a_line_raise_output_validation_error():
     client = APIClient()
     # Добавление бухты в базу данных с помощью UnitOfWork
@@ -130,7 +112,7 @@ def test_api_allocate_a_line_raise_out_of_stock_exception(three_coils_and_lines)
     # Товарная позиция имеет величину quantity большую, чем у бухт,
     # поэтому размещение товарной позиции вызовет исключение OutOfStock
     assert output_data['message'] == 'Недостаточное количество материала с product_id=АВВГ_2х6'
-    assert response.status_code == 400
+    assert response.status_code == 422
 
 
 @pytest.mark.django_db(transaction=True)

@@ -16,9 +16,12 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
-from allocation.api import urls
+from allocation.api import urls as allocation_urls
+from coils_and_wires.drf_spectacular import urlpatterns as drf_spectacular_urls
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('v1/', include(urls))
+    path('v1/', include(allocation_urls)),
+    path('v1/', include(drf_spectacular_urls)),
 ]

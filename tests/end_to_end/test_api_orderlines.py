@@ -42,7 +42,7 @@ def test_api_add_a_line_is_idempotent():
     assert output_data['message'] == \
            f'Запись с order_id={line_data_2["order_id"]} и line_item={line_data_2["line_item"]}' \
            f' уже существует в таблице OrderLine базы данных'
-    assert response.status_code == 400
+    assert response.status_code == 409
 
 
 @pytest.mark.django_db(transaction=True)

@@ -40,7 +40,7 @@ def test_api_add_a_coil_is_idempotent():
     # Добавление бухты с уже существующим reference вызовет исключение DBCoilRecordAlreadyExist
     assert output_data['message'] == \
            f'Запись с reference={coil_data_2["reference"]} уже существует в таблице Coil базы данных'
-    assert response.status_code == 400
+    assert response.status_code == 409
 
 
 @pytest.mark.django_db(transaction=True)

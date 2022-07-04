@@ -40,7 +40,24 @@ INSTALLED_APPS = [
 
     'allocation.apps.AllocationConfig',
     'rest_framework',
+    'drf_spectacular',
 ]
+
+REST_FRAMEWORK = {
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+}
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Coils and wires',
+    'DESCRIPTION': '- Для бухт (coils) и товарных позиций (order lines) '
+                   'поддерживаются стандартные CRUD операции.\n'
+                   '- Товарные позиции размещаются (allocate) в бухтах, т.е. '
+                   'для товарной позиции определяется бухта, от которой '
+                   'будет отрезан провод/кабель, соответствующий товарной позиции.',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+    'COMPONENT_SPLIT_REQUEST': True,
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
