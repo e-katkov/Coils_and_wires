@@ -1,6 +1,6 @@
 import json
 
-from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiExample
+from drf_spectacular.utils import extend_schema, OpenApiParameter
 from pydantic import BaseModel, ValidationError, Field
 from rest_framework.response import Response
 from rest_framework.views import APIView
