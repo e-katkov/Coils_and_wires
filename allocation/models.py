@@ -1,8 +1,7 @@
 from django.db import models
 
 from allocation.domain import domain_logic
-from allocation.exceptions.exceptions import DBCoilRecordAlreadyExist, DBCoilRecordDoesNotExist, \
-    DBOrderLineRecordDoesNotExist, DBOrderLineRecordAlreadyExist
+from allocation.exceptions import exceptions
 
 
 class Coil(models.Model):
@@ -33,7 +32,7 @@ class Coil(models.Model):
         try:
             coil = Coil.objects.get(reference=reference)
         except Coil.DoesNotExist:
-            raise DBCoilRecordDoesNotExist(
+            raise exceptions.DBCoilRecordDoesNotExist(
                 f'Запись с reference={reference} отсутствует в таблице Coil базы данных'
             )
         else:
@@ -49,7 +48,7 @@ class Coil(models.Model):
         у экземпляра и одной из существующих записей.
         """
         if Coil.objects.filter(reference=domain_coil.reference):
-            raise DBCoilRecordAlreadyExist(
+            raise exceptions.DBCoilRecordAlreadyExist(
                 f'Запись с reference={domain_coil.reference} уже существует в таблице Coil базы данных'
             )
         else:
@@ -119,7 +118,7 @@ class OrderLine(models.Model):
         try:
             line = OrderLine.objects.get(order_id=order_id, line_item=line_item)
         except OrderLine.DoesNotExist:
-            raise DBOrderLineRecordDoesNotExist(
+            raise exceptions.DBOrderLineRecordDoesNotExist(
                 f'Запись с order_id={order_id} и line_item={line_item}'
                 f' отсутствует в таблице OrderLine базы данных'
             )
@@ -137,7 +136,7 @@ class OrderLine(models.Model):
         """
         if OrderLine.objects.filter(order_id=domain_line.order_id,
                                     line_item=domain_line.line_item):
-            raise DBOrderLineRecordAlreadyExist(
+            raise exceptions.DBOrderLineRecordAlreadyExist(
                 f'Запись с order_id={domain_line.order_id} и line_item={domain_line.line_item}'
                 f' уже существует в таблице OrderLine базы данных'
             )
