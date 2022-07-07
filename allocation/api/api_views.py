@@ -1,13 +1,16 @@
 import json
 
-from drf_spectacular.utils import extend_schema, OpenApiParameter
-from pydantic import BaseModel, ValidationError, Field
+from drf_spectacular.utils import OpenApiParameter, extend_schema
+
+from pydantic import BaseModel, Field, ValidationError
+
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from allocation.domain.domain_logic import Coil, OrderLine
 from allocation.exceptions import exceptions
 from allocation.services import services, unit_of_work
+
 from coils_and_wires import drf_spectacular
 
 

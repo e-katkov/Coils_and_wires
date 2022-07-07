@@ -1,6 +1,6 @@
 from django.urls import path
-from drf_spectacular.utils import OpenApiExample, OpenApiResponse
 
+from drf_spectacular.utils import OpenApiExample, OpenApiResponse
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
 

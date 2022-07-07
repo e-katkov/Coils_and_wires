@@ -1,6 +1,6 @@
 import pytest
 
-from allocation.domain.domain_logic import Coil, OrderLine, allocate_to_list_of_coils, OutOfStock
+from allocation.domain.domain_logic import Coil, OrderLine, OutOfStock, allocate_to_list_of_coils
 
 
 def test_prefers_smaller_coil():

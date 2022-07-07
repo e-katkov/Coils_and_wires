@@ -1,7 +1,7 @@
 from typing import Protocol
 
-from allocation.domain import domain_logic
 from allocation import models as django_models
+from allocation.domain import domain_logic
 
 
 class AbstractCoilRepository(Protocol):
