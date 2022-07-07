@@ -163,7 +163,7 @@ def update_a_line(
                 return allocation_coil
             # Если попытка неудачная, то выполнение обычного размещения товарной позиции
             else:
-                list_of_coils = uow_coil.coil_repo.list()
+                list_of_coils = uow_coil.coil_repo.coils_list()
                 allocation_coil = domain_logic.allocate_to_list_of_coils(line=input_line, coils=list_of_coils)
                 uow_coil.coil_repo.update(allocation_coil)
                 uow_coil.commit()
@@ -223,7 +223,7 @@ def get_an_allocation_coil(
         # Получение allocation_coil - бухты, в которой размещена товарная позиция.
         # Если бухта не будет найдена, то allocation_coil будет "поддельной" бухтой
         allocation_coil = domain_logic.Coil('fake', 'fake', 1, 1, 1)
-        coils_list = uow_coil.coil_repo.list()
+        coils_list = uow_coil.coil_repo.coils_list()
         for coil in coils_list:
             for line in coil.allocations:
                 if line.order_id == order_id and line.line_item == line_item:
@@ -248,7 +248,7 @@ def allocate(
         line = uow_line.line_repo.get(order_id, line_item)
     with uow_coil:
         # Размещение товарной позиции в бухте ее и возврат
-        list_of_coils = uow_coil.coil_repo.list()
+        list_of_coils = uow_coil.coil_repo.coils_list()
         allocation_coil = domain_logic.allocate_to_list_of_coils(line=line, coils=list_of_coils)
         # Обновление allocation_coil в базе данных
         uow_coil.coil_repo.update(allocation_coil)

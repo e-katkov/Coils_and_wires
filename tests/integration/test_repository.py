@@ -67,7 +67,7 @@ def test_repository_delete_a_coil():
     repo.delete(reference=coil.reference)
 
     # Список сохраненных в базе данных бухт будет пустым
-    assert repo.list() == []
+    assert repo.coils_list() == []
 
 
 @pytest.mark.django_db
@@ -80,7 +80,7 @@ def test_repository_get_a_list_of_coils():
     repo.add(coil_2)
 
     # Получение списка имеющихся в базе данных бухт
-    list_of_coils = repo.list()
+    list_of_coils = repo.coils_list()
 
     assert list_of_coils == [coil_1, coil_2]
 
@@ -142,7 +142,7 @@ def test_repository_delete_a_line():
     repo.delete(order_id=line.order_id, line_item=line.line_item)
 
     # Список сохраненных в базе данных товарных позиций будет пустым
-    assert repo.list() == []
+    assert repo.order_lines_list() == []
 
 
 @pytest.mark.django_db
@@ -155,6 +155,6 @@ def test_repository_get_a_list_of_lines():
     repo.add(line_2)
 
     # Получение списка имеющихся в базе данных товарных позиций
-    list_of_lines = repo.list()
+    list_of_lines = repo.order_lines_list()
 
     assert list_of_lines == [line_1, line_2]

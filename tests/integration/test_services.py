@@ -29,7 +29,7 @@ class FakeCoilRepository:
         self.coils.discard(discarded_coil)
         return deallocated_lines
 
-    def list(self) -> list[domain_logic.Coil]:
+    def coils_list(self) -> list[domain_logic.Coil]:
         return list(self.coils)
 
 
@@ -83,7 +83,7 @@ class FakeOrderLineRepository:
                               o_line.line_item == line_item)
         self.lines.discard(discarded_line)
 
-    def list(self) -> list[domain_logic.OrderLine]:
+    def order_lines_list(self) -> list[domain_logic.OrderLine]:
         return list(self.lines)
 
 

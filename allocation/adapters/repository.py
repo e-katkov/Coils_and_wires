@@ -13,7 +13,7 @@ class AbstractCoilRepository(Protocol):
 
     def delete(self, reference: str) -> None: ...
 
-    def list(self) -> list[domain_logic.Coil]: ...
+    def coils_list(self) -> list[domain_logic.Coil]: ...
 
 
 class AbstractOrderLineRepository(Protocol):
@@ -25,7 +25,7 @@ class AbstractOrderLineRepository(Protocol):
 
     def delete(self, order_id: str, line_item: str) -> None: ...
 
-    def list(self) -> list[domain_logic.OrderLine]: ...
+    def order_lines_list(self) -> list[domain_logic.OrderLine]: ...
 
 
 class DjangoCoilRepository:
@@ -41,7 +41,7 @@ class DjangoCoilRepository:
     def delete(self, reference: str) -> None:
         django_models.Coil.delete(reference)
 
-    def list(self) -> list[domain_logic.Coil]:
+    def coils_list(self) -> list[domain_logic.Coil]:
         return [coil.to_domain() for coil in django_models.Coil.objects.all()]
 
 
@@ -58,5 +58,5 @@ class DjangoOrderLineRepository:
     def delete(self, order_id: str, line_item: str) -> None:
         django_models.OrderLine.delete(order_id=order_id, line_item=line_item)
 
-    def list(self) -> list[domain_logic.OrderLine]:
+    def order_lines_list(self) -> list[domain_logic.OrderLine]:
         return [line.to_domain() for line in django_models.OrderLine.objects.all()]

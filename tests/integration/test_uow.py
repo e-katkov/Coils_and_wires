@@ -31,7 +31,7 @@ def test_uow_roll_back_uncommitted_coil():
 
     with uow:
         uow.coil_repo.add(coil)
-    coils_list = uow.coil_repo.list()
+    coils_list = uow.coil_repo.coils_list()
 
     assert coils_list == []
 
@@ -62,6 +62,6 @@ def test_uow_roll_back_uncommitted_line():
 
     with uow:
         uow.line_repo.add(line)
-    lines_list = uow.line_repo.list()
+    lines_list = uow.line_repo.order_lines_list()
 
     assert lines_list == []
