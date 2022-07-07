@@ -73,7 +73,7 @@ def serialize_order_line_domain_instance_to_json(domain_instance: OrderLine) -> 
     return model_instance.json(ensure_ascii=False)
 
 
-class Coil(APIView):
+class CoilView(APIView):
     @extend_schema(
         tags=['Бухты'],
         description=drf_spectacular.coils_descriptions['post'],
@@ -103,7 +103,7 @@ class Coil(APIView):
         return Response(data=output_data, status=201)
 
 
-class CoilDetail(APIView):
+class CoilDetailView(APIView):
     @extend_schema(
         tags=['Бухты'],
         description=drf_spectacular.coils_descriptions['get'],
@@ -201,7 +201,7 @@ class CoilDetail(APIView):
         return Response(data=output_data, status=200)
 
 
-class OrderLine(APIView):
+class OrderLineView(APIView):
     @extend_schema(
         tags=['Товарные позиции'],
         description=drf_spectacular.lines_descriptions['post'],
@@ -230,7 +230,7 @@ class OrderLine(APIView):
         return Response(data=output_data, status=201)
 
 
-class OrderLineDetail(APIView):
+class OrderLineDetailView(APIView):
     @extend_schema(
         tags=['Товарные позиции'],
         description=drf_spectacular.lines_descriptions['get'],
@@ -342,7 +342,7 @@ class OrderLineDetail(APIView):
         return Response(data=output_data, status=200)
 
 
-class Allocate(APIView):
+class AllocateView(APIView):
     @extend_schema(
         tags=['Размещение товарных позиций'],
         description=drf_spectacular.allocate_descriptions['post'],
@@ -374,7 +374,7 @@ class Allocate(APIView):
         return Response(data=output_data, status=200)
 
 
-class AllocateDetail(APIView):
+class AllocateDetailView(APIView):
     @extend_schema(
         tags=['Размещение товарных позиций'],
         description=drf_spectacular.allocate_descriptions['get'],
