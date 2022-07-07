@@ -29,7 +29,7 @@ allocate_descriptions = {
            'с заданными идентификаторами order_id и line_item',
     'post': 'Разместить товарную позицию в бухте',
     'delete': 'Отменить размещение в бухте товарной позиции '
-              'с заданными идентификаторами order_id и line_item'
+              'с заданными идентификаторами order_id и line_item',
 }
 
 
@@ -274,7 +274,7 @@ lines_responses = {
         404: OpenApiResponse(description="Товарная позиция с заданными идентификаторами "
                                          "order_id и line_item отсутствует в базе данных"),
         500: OpenApiResponse(description="Возвращаемая товарная позиция с заданными идентификаторами "
-                                         "order_id и line_item не прошла валидацию")
+                                         "order_id и line_item не прошла валидацию"),
     },
     'post': {
         201: OpenApiResponse(description="Товарная позиция создана в соответствии с телом запроса"),

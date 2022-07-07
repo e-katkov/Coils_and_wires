@@ -33,7 +33,7 @@ class Coil(models.Model):
             coil = Coil.objects.get(reference=reference)
         except Coil.DoesNotExist:
             raise exceptions.DBCoilRecordDoesNotExist(
-                f'Запись с reference={reference} отсутствует в таблице Coil базы данных'
+                f'Запись с reference={reference} отсутствует в таблице Coil базы данных',
             )
         else:
             return coil
@@ -49,7 +49,7 @@ class Coil(models.Model):
         """
         if Coil.objects.filter(reference=domain_coil.reference):
             raise exceptions.DBCoilRecordAlreadyExist(
-                f'Запись с reference={domain_coil.reference} уже существует в таблице Coil базы данных'
+                f'Запись с reference={domain_coil.reference} уже существует в таблице Coil базы данных',
             )
         else:
             Coil.objects.create(reference=domain_coil.reference,
@@ -75,7 +75,7 @@ class Coil(models.Model):
             product_id=domain_coil.product_id,
             quantity=domain_coil.initial_quantity,
             recommended_balance=domain_coil.recommended_balance,
-            acceptable_loss=domain_coil.acceptable_loss
+            acceptable_loss=domain_coil.acceptable_loss,
         )
         Allocation.objects.filter(coil=coil).delete()
         coil.allocation_set.set(Allocation.get_or_create_from_domain(coil, domain_line)
@@ -120,7 +120,7 @@ class OrderLine(models.Model):
         except OrderLine.DoesNotExist:
             raise exceptions.DBOrderLineRecordDoesNotExist(
                 f'Запись с order_id={order_id} и line_item={line_item}'
-                f' отсутствует в таблице OrderLine базы данных'
+                f' отсутствует в таблице OrderLine базы данных',
             )
         else:
             return line
@@ -138,7 +138,7 @@ class OrderLine(models.Model):
                                     line_item=domain_line.line_item):
             raise exceptions.DBOrderLineRecordAlreadyExist(
                 f'Запись с order_id={domain_line.order_id} и line_item={domain_line.line_item}'
-                f' уже существует в таблице OrderLine базы данных'
+                f' уже существует в таблице OrderLine базы данных',
             )
         else:
             OrderLine.objects.create(order_id=domain_line.order_id,

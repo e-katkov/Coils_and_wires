@@ -7,7 +7,7 @@ def test_can_reallocate_enough_orderlines(dict_of_orderlines):
     размещенных товарных позиций после их переразмещения.
     """
     coil = Coil('Бухта-001', 'АВВГ_3х1,5', 60, 15, 3)
-    coil.allocations = dict_of_orderlines['set_0'] |dict_of_orderlines['set_1'] | dict_of_orderlines['set_2']
+    coil.allocations = dict_of_orderlines['set_0'] | dict_of_orderlines['set_1'] | dict_of_orderlines['set_2']
     coil_allocations_quantities = {line.quantity for line in coil.allocations}
 
     new_coil = Coil('Бухта-001', 'АВВГ_3х1,5', 80, 15, 3)

@@ -68,7 +68,7 @@ def serialize_order_line_domain_instance_to_json(domain_instance: OrderLine) -> 
         order_id=domain_instance.order_id,
         line_item=domain_instance.line_item,
         product_id=domain_instance.product_id,
-        quantity=domain_instance.quantity
+        quantity=domain_instance.quantity,
     )
     return model_instance.json(ensure_ascii=False)
 
@@ -79,7 +79,7 @@ class CoilView(APIView):
         description=drf_spectacular.coils_descriptions['post'],
         responses=drf_spectacular.coils_responses['post'],
         request=CoilBaseModel,
-        examples=drf_spectacular.coils_request_examples
+        examples=drf_spectacular.coils_request_examples,
     )
     def post(self, request):
         try:
@@ -114,7 +114,7 @@ class CoilDetailView(APIView):
                 location='path',
                 description='Идентификатор бухты',
                 examples=drf_spectacular.coils_reference_request_examples,
-            )
+            ),
         ],
     )
     def get(self, request, **kwargs):
@@ -122,7 +122,7 @@ class CoilDetailView(APIView):
         try:
             coil = services.get_a_coil(
                 reference,
-                unit_of_work.DjangoCoilUnitOfWork()
+                unit_of_work.DjangoCoilUnitOfWork(),
             )
         except exceptions.DBCoilRecordDoesNotExist as error:
             output_data = json.dumps({"message": str(error)}, ensure_ascii=False)
@@ -145,8 +145,8 @@ class CoilDetailView(APIView):
             location='path',
             description='Идентификатор бухты',
             examples=drf_spectacular.coils_reference_request_examples,
-        )
-        ]
+        ),
+        ],
     )
     def put(self, request, **kwargs):
         reference = self.kwargs['reference']
@@ -182,7 +182,7 @@ class CoilDetailView(APIView):
                 location='path',
                 description='Идентификатор бухты',
                 examples=drf_spectacular.coils_reference_request_examples,
-            )
+            ),
         ],
     )
     def delete(self, request, **kwargs):
@@ -207,7 +207,7 @@ class OrderLineView(APIView):
         description=drf_spectacular.lines_descriptions['post'],
         responses=drf_spectacular.lines_responses['post'],
         request=OrderLineBaseModel,
-        examples=drf_spectacular.lines_request_examples
+        examples=drf_spectacular.lines_request_examples,
     )
     def post(self, request):
         try:
@@ -242,7 +242,7 @@ class OrderLineDetailView(APIView):
                     OpenApiParameter(name='line_item',
                                      location='path',
                                      description='Номер товарной позиции в заказе',
-                                     examples=drf_spectacular.lines_line_item_request_examples)
+                                     examples=drf_spectacular.lines_line_item_request_examples),
                     ],
     )
     def get(self, request, **kwargs):
@@ -252,7 +252,7 @@ class OrderLineDetailView(APIView):
             line = services.get_a_line(
                 order_id,
                 line_item,
-                unit_of_work.DjangoOrderLineUnitOfWork()
+                unit_of_work.DjangoOrderLineUnitOfWork(),
             )
         except exceptions.DBOrderLineRecordDoesNotExist as error:
             output_data = json.dumps({"message": str(error)}, ensure_ascii=False)
@@ -277,7 +277,7 @@ class OrderLineDetailView(APIView):
                     OpenApiParameter(name='line_item',
                                      location='path',
                                      description='Номер товарной позиции в заказе',
-                                     examples=drf_spectacular.lines_line_item_request_examples)
+                                     examples=drf_spectacular.lines_line_item_request_examples),
                     ],
     )
     def put(self, request, **kwargs):
@@ -318,7 +318,7 @@ class OrderLineDetailView(APIView):
                     OpenApiParameter(name='line_item',
                                      location='path',
                                      description='Номер товарной позиции в заказе',
-                                     examples=drf_spectacular.lines_line_item_request_examples)
+                                     examples=drf_spectacular.lines_line_item_request_examples),
                     ],
     )
     def delete(self, request, **kwargs):
@@ -348,7 +348,7 @@ class AllocateView(APIView):
         description=drf_spectacular.allocate_descriptions['post'],
         responses=drf_spectacular.allocate_responses['post'],
         request=CoilBaseModel,
-        examples=drf_spectacular.lines_request_examples
+        examples=drf_spectacular.lines_request_examples,
     )
     def post(self, request):
         order_id = request.data['order_id']
@@ -386,7 +386,7 @@ class AllocateDetailView(APIView):
                     OpenApiParameter(name='line_item',
                                      location='path',
                                      description='Номер товарной позиции в заказе',
-                                     examples=drf_spectacular.lines_line_item_request_examples)
+                                     examples=drf_spectacular.lines_line_item_request_examples),
                     ],
     )
     def get(self, request, **kwargs):
@@ -420,7 +420,7 @@ class AllocateDetailView(APIView):
                     OpenApiParameter(name='line_item',
                                      location='path',
                                      description='Номер товарной позиции в заказе',
-                                     examples=drf_spectacular.lines_line_item_request_examples)
+                                     examples=drf_spectacular.lines_line_item_request_examples),
                     ],
     )
     def delete(self, request, **kwargs):
