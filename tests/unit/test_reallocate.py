@@ -24,8 +24,7 @@ def test_cannot_reallocate_one_orderline(dict_of_orderlines):
     """
     coil = Coil('Бухта-001', 'АВВГ_3х1,5', 60, 15, 3)
     coil.allocations = dict_of_orderlines['set_0'] | dict_of_orderlines['set_1'] | dict_of_orderlines['set_2']
-    quantities_of_set_0_set_1 = {line.quantity for line in (dict_of_orderlines['set_0'] |
-                                                            dict_of_orderlines['set_1'])}
+    quantities_of_set_0_set_1 = {line.quantity for line in (dict_of_orderlines['set_0'] | dict_of_orderlines['set_1'])}
 
     new_coil = Coil('Бухта-001', 'АВВГ_3х1,5', 60, 15, 2)
     reallocated_lines = coil.reallocate(new_coil)

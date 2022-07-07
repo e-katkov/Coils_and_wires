@@ -73,14 +73,14 @@ class FakeOrderLineRepository:
         self.lines.add(line)
 
     def update(self, line: domain_logic.OrderLine) -> None:
-        discarded_line = next(o_line for o_line in self.lines if o_line.order_id == line.order_id and
-                              o_line.line_item == line.line_item)
+        discarded_line = next(o_line for o_line in self.lines if o_line.order_id == line.order_id
+                              and o_line.line_item == line.line_item)
         self.lines.discard(discarded_line)
         self.lines.add(line)
 
     def delete(self, order_id: str, line_item: str) -> None:
-        discarded_line = next(o_line for o_line in self.lines if o_line.order_id == order_id and
-                              o_line.line_item == line_item)
+        discarded_line = next(o_line for o_line in self.lines if o_line.order_id == order_id
+                              and o_line.line_item == line_item)
         self.lines.discard(discarded_line)
 
     def order_lines_list(self) -> list[domain_logic.OrderLine]:
