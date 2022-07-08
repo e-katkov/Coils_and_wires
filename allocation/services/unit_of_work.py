@@ -1,4 +1,4 @@
-from typing import Protocol
+from typing import Any, Protocol
 from django.db import transaction
 
 from allocation.adapters import repository
@@ -9,11 +9,11 @@ class AbstractCoilUnitOfWork(Protocol):
 
     def __enter__(self) -> 'AbstractCoilUnitOfWork': ...
 
-    def __exit__(self, *args): ...
+    def __exit__(self, *args: tuple[Any]) -> None: ...
 
-    def commit(self): ...
+    def commit(self) -> None: ...
 
-    def rollback(self): ...
+    def rollback(self) -> None: ...
 
 
 class AbstractOrderLineUnitOfWork(Protocol):
@@ -21,11 +21,11 @@ class AbstractOrderLineUnitOfWork(Protocol):
 
     def __enter__(self) -> 'AbstractOrderLineUnitOfWork': ...
 
-    def __exit__(self, *args): ...
+    def __exit__(self, *args: tuple[Any]) -> None: ...
 
-    def commit(self): ...
+    def commit(self) -> None: ...
 
-    def rollback(self): ...
+    def rollback(self) -> None: ...
 
 
 class DjangoCoilUnitOfWork:
@@ -44,7 +44,7 @@ class DjangoCoilUnitOfWork:
         transaction.set_autocommit(False)
         return self
 
-    def __exit__(self, *args):
+    def __exit__(self, *args: tuple[Any]) -> None:
         """
         Выполняется после выхода из блока with.
         Запускает метод rollback(), который сработает, если в блоке with не был запущен метод commit().
@@ -53,14 +53,14 @@ class DjangoCoilUnitOfWork:
         self.rollback()
         transaction.set_autocommit(True)
 
-    def commit(self):
+    def commit(self) -> None:
         """
         Обеспечивает фиксацию изменений, выполненных в базе данных,
         при выполнении операций в блоке with.
         """
         transaction.commit()
 
-    def rollback(self):
+    def rollback(self) -> None:
         """
         Обеспечивает отмену изменений, выполненных в базе данных,
         при выполнении операций в блоке with.
@@ -84,7 +84,7 @@ class DjangoOrderLineUnitOfWork:
         transaction.set_autocommit(False)
         return self
 
-    def __exit__(self, *args):
+    def __exit__(self, *args: tuple[Any]) -> None:
         """
         Выполняется после выхода из блока with.
         Запускает метод rollback(), который сработает, если в блоке with не был запущен метод commit().
@@ -93,14 +93,14 @@ class DjangoOrderLineUnitOfWork:
         self.rollback()
         transaction.set_autocommit(True)
 
-    def commit(self):
+    def commit(self) -> None:
         """
         Обеспечивает фиксацию изменений, выполненных в базе данных,
         при выполнении операций в блоке with.
         """
         transaction.commit()
 
-    def rollback(self):
+    def rollback(self) -> None:
         """
         Обеспечивает отмену изменений, выполненных в базе данных,
         при выполнении операций в блоке with.

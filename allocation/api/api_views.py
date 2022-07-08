@@ -1,7 +1,9 @@
 import json
+from typing import Any
 
 from drf_spectacular.utils import OpenApiParameter, extend_schema
 from pydantic import BaseModel, Field, ValidationError
+from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -81,7 +83,7 @@ class CoilView(APIView):
         request=CoilBaseModel,
         examples=drf_spectacular.coils_request_examples,
     )
-    def post(self, request):
+    def post(self, request: Request) -> Response:
         try:
             input_data = CoilBaseModel.parse_obj(request.data)
         except ValidationError as error:
@@ -117,7 +119,7 @@ class CoilDetailView(APIView):
             ),
         ],
     )
-    def get(self, request, **kwargs):
+    def get(self, request: Request, **kwargs: dict[str, Any]) -> Response:
         reference = self.kwargs['reference']
         try:
             coil = services.get_a_coil(
@@ -148,7 +150,7 @@ class CoilDetailView(APIView):
         ),
         ],
     )
-    def put(self, request, **kwargs):
+    def put(self, request: Request, **kwargs: dict[str, Any]) -> Response:
         reference = self.kwargs['reference']
         try:
             input_data = CoilBaseModel.parse_obj(request.data)
@@ -185,7 +187,7 @@ class CoilDetailView(APIView):
             ),
         ],
     )
-    def delete(self, request, **kwargs):
+    def delete(self, request: Request, **kwargs: dict[str, Any]) -> Response:
         reference = self.kwargs['reference']
         try:
             deallocated_lines = services.delete_a_coil(
@@ -209,7 +211,7 @@ class OrderLineView(APIView):
         request=OrderLineBaseModel,
         examples=drf_spectacular.lines_request_examples,
     )
-    def post(self, request):
+    def post(self, request: Request) -> Response:
         try:
             input_data = OrderLineBaseModel.parse_obj(request.data)
         except ValidationError as error:
@@ -245,7 +247,7 @@ class OrderLineDetailView(APIView):
                                      examples=drf_spectacular.lines_line_item_request_examples),
                     ],
     )
-    def get(self, request, **kwargs):
+    def get(self, request: Request, **kwargs: dict[str, Any]) -> Response:
         order_id = self.kwargs['order_id']
         line_item = self.kwargs['line_item']
         try:
@@ -280,7 +282,7 @@ class OrderLineDetailView(APIView):
                                      examples=drf_spectacular.lines_line_item_request_examples),
                     ],
     )
-    def put(self, request, **kwargs):
+    def put(self, request: Request, **kwargs: dict[str, Any]) -> Response:
         order_id = self.kwargs['order_id']
         line_item = self.kwargs['line_item']
         try:
@@ -321,7 +323,7 @@ class OrderLineDetailView(APIView):
                                      examples=drf_spectacular.lines_line_item_request_examples),
                     ],
     )
-    def delete(self, request, **kwargs):
+    def delete(self, request: Request, **kwargs: dict[str, Any]) -> Response:
         order_id = self.kwargs['order_id']
         line_item = self.kwargs['line_item']
         try:
@@ -350,7 +352,7 @@ class AllocateView(APIView):
         request=CoilBaseModel,
         examples=drf_spectacular.lines_request_examples,
     )
-    def post(self, request):
+    def post(self, request: Request) -> Response:
         order_id = request.data['order_id']
         line_item = request.data['line_item']
         try:
@@ -389,7 +391,7 @@ class AllocateDetailView(APIView):
                                      examples=drf_spectacular.lines_line_item_request_examples),
                     ],
     )
-    def get(self, request, **kwargs):
+    def get(self, request: Request, **kwargs: dict[str, Any]) -> Response:
         order_id = self.kwargs['order_id']
         line_item = self.kwargs['line_item']
         try:
@@ -423,7 +425,7 @@ class AllocateDetailView(APIView):
                                      examples=drf_spectacular.lines_line_item_request_examples),
                     ],
     )
-    def delete(self, request, **kwargs):
+    def delete(self, request: Request, **kwargs: dict[str, Any]) -> Response:
         order_id = self.kwargs['order_id']
         line_item = self.kwargs['line_item']
         try:

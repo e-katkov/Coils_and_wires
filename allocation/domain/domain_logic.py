@@ -1,4 +1,5 @@
 from copy import deepcopy
+from typing import Any
 
 from allocation.exceptions.exceptions import OutOfStock
 
@@ -15,12 +16,12 @@ class OrderLine:
         # Количество материала
         self.quantity = quantity
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: Any) -> bool:
         if not isinstance(other, OrderLine):
             return False
         return self.order_id == other.order_id and self.line_item == other.line_item
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash(self.order_id + self.line_item)
 
 
@@ -85,17 +86,17 @@ class Coil:
             new_coil.allocate(line)
         return new_coil.allocations
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: Any) -> bool:
         if not isinstance(other, Coil):
             return False
         return self.reference == other.reference
 
-    def __lt__(self, other) -> bool:
+    def __lt__(self, other: Any) -> bool:
         if not isinstance(other, Coil):
             return False
         return self.available_quantity < other.available_quantity
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash(self.reference)
 
 
