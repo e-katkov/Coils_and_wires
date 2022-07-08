@@ -17,7 +17,6 @@ from django.contrib import admin
 from django.urls import include, path
 
 from allocation.api import urls as allocation_urls
-
 from coils_and_wires.drf_spectacular import urlpatterns as drf_spectacular_urls
 
 

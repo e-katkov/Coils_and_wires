@@ -1,8 +1,7 @@
 from typing import Protocol
+from django.db import transaction
 
 from allocation.adapters import repository
-
-from django.db import transaction
 
 
 class AbstractCoilUnitOfWork(Protocol):

@@ -1,7 +1,6 @@
 import json
 
 import pytest
-
 from rest_framework.test import APIClient
 
 from allocation.domain import domain_logic

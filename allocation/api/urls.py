@@ -2,6 +2,7 @@ from django.urls import path
 
 from allocation.api import api_views
 
+
 urlpatterns = [
     path('coils', api_views.CoilView.as_view()),
     path('coils/<str:reference>', api_views.CoilDetailView.as_view()),
