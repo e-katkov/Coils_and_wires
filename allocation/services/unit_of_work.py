@@ -28,7 +28,7 @@ class AbstractOrderLineUnitOfWork(Protocol):
     def rollback(self) -> None: ...
 
 
-class DjangoCoilUnitOfWork:
+class DjangoCoilUnitOfWork(AbstractCoilUnitOfWork):
     """
     Поддерживает протокол менеджера контекста в целях реализации паттерна «Unit of Work».
     При использовании экземпляра класса с инструкцией with создается экземпляр
@@ -68,7 +68,7 @@ class DjangoCoilUnitOfWork:
         transaction.rollback()
 
 
-class DjangoOrderLineUnitOfWork:
+class DjangoOrderLineUnitOfWork(AbstractOrderLineUnitOfWork):
     """
     Поддерживает протокол менеджера контекста в целях реализации паттерна «Unit of Work».
     При использовании экземпляра класса с инструкцией with создается экземпляр
