@@ -1,0 +1,28 @@
+version: "3.9"
+
+services:
+  web:
+    build: .
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/code
+    ports:
+      - "8000:8000"
+
+  test:
+    build: .
+    command: pytest tests/
+    volumes:
+      - .:/code
+
+  flake8:
+    build: .
+    command: bash -c 'pip install --upgrade pip && pip install -r requirements-dev.txt && flake8'
+    volumes:
+      - .:/code
+
+  mypy:
+    build: .
+    command: bash -c 'pip install --upgrade pip && pip install -r requirements-dev.txt && mypy .'
+    volumes:
+      - .:/code
