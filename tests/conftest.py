@@ -32,3 +32,28 @@ def three_coils_and_lines():
               "product_id": "АВВГ_2х6", "quantity": 10}
     return {'three_coils': [medium_coil, smaller_coil, bigger_coil],
             'three_lines': [line_1, line_3, line_2]}
+
+
+@pytest.fixture
+def not_a_coil():
+    class NotACoil:
+        def __init__(self, reference: str, product_id: str, quantity: int,
+                     recommended_balance: int, acceptable_loss: int):
+            self.reference = reference
+            self.product_id = product_id
+            self.initial_quantity = quantity
+            self.recommended_balance = recommended_balance
+            self.acceptable_loss = acceptable_loss
+            self.allocations: set[OrderLine] = set()
+    return NotACoil
+
+
+@pytest.fixture
+def not_an_orderline():
+    class NotAnOrderLine:
+        def __init__(self, order_id: str, line_item: str, product_id: str, quantity: int):
+            self.order_id = order_id
+            self.line_item = line_item
+            self.product_id = product_id
+            self.quantity = quantity
+    return NotAnOrderLine

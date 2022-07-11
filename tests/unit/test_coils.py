@@ -85,3 +85,51 @@ def test_deallocate_not_allocated_line():
     current_quantity = coil.available_quantity
 
     assert current_quantity == 110
+
+
+def test_coils_equivalence(not_a_coil):
+    """
+    При сравнении на равенство экземпляров двух классов:
+    класса Coil доменной модели и класса NotACoil,
+    которые имеют одинаковые атрибуты и их значения, будет возвращен False.
+    """
+    # Создание бухты
+    coil_1 = Coil('Бухта-005', 'АВВГ_3х1,5', 90, 4, 1)
+    # Создание "не бухты"
+    coil_2 = not_a_coil('Бухта-005', 'АВВГ_3х1,5', 90, 4, 1)
+
+    result = (coil_1 == coil_2)
+
+    assert result is False
+
+
+def test_coils_comparison(not_a_coil):
+    """
+    При сравнении экземпляров двух классов:
+    класса Coil доменной модели и класса NotACoil,
+    которые имеют одинаковые атрибуты, будет возвращен False.
+    """
+    # Создание бухты
+    coil_1 = Coil('Бухта-005', 'АВВГ_3х1,5', 70, 2, 1)
+    # Создание "не бухты"
+    coil_2 = not_a_coil('Бухта-005', 'АВВГ_3х1,5', 90, 4, 1)
+
+    result = (coil_1 < coil_2)
+
+    assert result is False
+
+
+def test_orderlines_equivalence(not_an_orderline):
+    """
+    При сравнении на равенство экземпляров двух классов:
+    класса OrderLine доменной модели и класса NotAnOrderLine,
+    которые имеют одинаковые атрибуты и их значения, будет возвращен False.
+    """
+    # Создание товарной позиции
+    line_1 = OrderLine('Заказ-005', 'Позиция-002', 'АВВГ_3х1,5', 70)
+    # Создание "не товарной позиции"
+    line_2 = not_an_orderline('Заказ-005', 'Позиция-002', 'АВВГ_3х1,5', 70)
+
+    result = (line_1 == line_2)
+
+    assert result is False
