@@ -12,3 +12,4 @@ pep8-naming==0.13.0
 pycodestyle==2.8.0
 pyflakes==2.4.0
 pytest-cov==3.0.0
+
