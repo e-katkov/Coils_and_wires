@@ -26,3 +26,9 @@ services:
     command: bash -c 'pip install --upgrade pip && pip install -r requirements-dev.txt && mypy .'
     volumes:
       - .:/code
+
+  fill_db:
+    build: .
+    command: bash -c 'python manage.py migrate && python manage.py loaddata output.json'
+    volumes:
+      - .:/code

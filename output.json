@@ -1,0 +1,102 @@
+[
+{
+  "model": "allocation.coil",
+  "pk": 3,
+  "fields": {
+    "reference": "Бухта-001",
+    "product_id": "АВВГ_2х2,5",
+    "quantity": 200,
+    "recommended_balance": 12,
+    "acceptable_loss": 2
+  }
+},
+{
+  "model": "allocation.coil",
+  "pk": 4,
+  "fields": {
+    "reference": "Бухта-002",
+    "product_id": "АВВГ_4х16",
+    "quantity": 150,
+    "recommended_balance": 20,
+    "acceptable_loss": 5
+  }
+},
+{
+  "model": "allocation.coil",
+  "pk": 5,
+  "fields": {
+    "reference": "Бухта-003",
+    "product_id": "АВВГ_2х2,5",
+    "quantity": 100,
+    "recommended_balance": 12,
+    "acceptable_loss": 2
+  }
+},
+{
+  "model": "allocation.coil",
+  "pk": 6,
+  "fields": {
+    "reference": "Бухта-004",
+    "product_id": "АВВГ_4х16",
+    "quantity": 70,
+    "recommended_balance": 15,
+    "acceptable_loss": 5
+  }
+},
+{
+  "model": "allocation.orderline",
+  "pk": 1,
+  "fields": {
+    "order_id": "Заказ-001",
+    "line_item": "Позиция-001",
+    "product_id": "АВВГ_2х2,5",
+    "quantity": 24
+  }
+},
+{
+  "model": "allocation.orderline",
+  "pk": 2,
+  "fields": {
+    "order_id": "Заказ-002",
+    "line_item": "Позиция-003",
+    "product_id": "АВВГ_4х16",
+    "quantity": 50
+  }
+},
+{
+  "model": "allocation.orderline",
+  "pk": 3,
+  "fields": {
+    "order_id": "Заказ-003",
+    "line_item": "Позиция-002",
+    "product_id": "АВВГ_2х2,5",
+    "quantity": 17
+  }
+},
+{
+  "model": "allocation.orderline",
+  "pk": 4,
+  "fields": {
+    "order_id": "Заказ-004",
+    "line_item": "Позиция-004",
+    "product_id": "АВВГ_4х16",
+    "quantity": 45
+  }
+},
+{
+  "model": "allocation.allocation",
+  "pk": 1,
+  "fields": {
+    "coil": 5,
+    "line": 3
+  }
+},
+{
+  "model": "allocation.allocation",
+  "pk": 2,
+  "fields": {
+    "coil": 6,
+    "line": 4
+  }
+}
+]
