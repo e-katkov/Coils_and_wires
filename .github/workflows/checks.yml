@@ -12,14 +12,14 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Run tests
-        run: docker-compose up --exit-code-from test test
+        run: docker-compose up --exit-code-from tests tests
 
-  flake8:
+  linters:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Run flake8
-        run: docker-compose up --exit-code-from flake8 flake8
+      - name: Run linters
+        run: docker-compose up --exit-code-from linters linters
 
   mypy:
     runs-on: ubuntu-latest

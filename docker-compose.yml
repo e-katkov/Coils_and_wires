@@ -9,13 +9,13 @@ services:
     ports:
       - "8000:8000"
 
-  test:
+  tests:
     build: .
     command: pytest tests/
     volumes:
       - .:/code
 
-  flake8:
+  linters:
     build: .
     command: bash -c 'pip install --upgrade pip && pip install -r requirements-dev.txt && flake8'
     volumes:
