@@ -110,7 +110,7 @@ def test_api_get_a_line_raise_validation_error():
     # Добавление товарной позиции в базу данных с помощью UnitOfWork
     # quantity имеет неверное значение
     # Итого одно несоответствие OrderLineBaseModel
-    uow = unit_of_work.DjangoOrderLineUnitOfWork()
+    uow = unit_of_work.DjangoUnitOfWork()
     with uow:
         line = domain_logic.OrderLine(order_id="Заказ-011", line_item="Позиция-001", product_id="АВВГ_2х6",
                                       quantity=-12)
@@ -232,7 +232,7 @@ def test_api_update_a_line_raise_output_validation_error():
     # Добавление бухты в базу данных с помощью UnitOfWork
     # recommended_balance имеет неверное значение
     # Итого одно несоответствие CoilBaseModel
-    uow = unit_of_work.DjangoCoilUnitOfWork()
+    uow = unit_of_work.DjangoUnitOfWork()
     with uow:
         coil = domain_logic.Coil(reference='Бухта-025', product_id='АВВГ_2х2,5', quantity=200,
                                  recommended_balance=-10, acceptable_loss=3)
@@ -325,7 +325,7 @@ def test_api_delete_a_line_raise_validation_error():
     # Добавление бухты в базу данных с помощью UnitOfWork
     # acceptable_loss имеет неверное значение
     # Итого одно несоответствие CoilBaseModel
-    uow = unit_of_work.DjangoCoilUnitOfWork()
+    uow = unit_of_work.DjangoUnitOfWork()
     with uow:
         coil = domain_logic.Coil(reference='Бухта-027', product_id='АВВГ_2х2,5', quantity=150,
                                  recommended_balance=12, acceptable_loss=-4)

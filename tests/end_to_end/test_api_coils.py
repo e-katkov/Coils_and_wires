@@ -114,7 +114,7 @@ def test_api_get_a_coil_raise_validation_error():
     # Добавление бухты в базу данных с помощью UnitOfWork
     # quantity и recommended_balance имеют отрицательные значения
     # Итого два несоответствия CoilBaseModel
-    uow = unit_of_work.DjangoCoilUnitOfWork()
+    uow = unit_of_work.DjangoUnitOfWork()
     with uow:
         coil = domain_logic.Coil(reference='Бухта-025', product_id='АВВГ_2х2,5', quantity=-150,
                                  recommended_balance=-10, acceptable_loss=2)

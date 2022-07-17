@@ -73,7 +73,7 @@ def test_api_allocate_a_line_raise_output_validation_error():
     # Добавление бухты в базу данных с помощью UnitOfWork
     # reference имеет неверное значение, recommended_balance имеет отрицательное значение
     # Итого два несоответствия CoilBaseModel
-    uow = unit_of_work.DjangoCoilUnitOfWork()
+    uow = unit_of_work.DjangoUnitOfWork()
     with uow:
         coil = domain_logic.Coil(reference='Бухт-035', product_id='АВВГ_2х6', quantity=150,
                                  recommended_balance=-10, acceptable_loss=2)
@@ -208,7 +208,7 @@ def test_api_get_an_allocation_coil_raise_validation_error():
     # Добавление бухты в базу данных с помощью UnitOfWork
     # acceptable_loss имеет отрицательное значение
     # Итого одно несоответствие CoilBaseModel
-    uow = unit_of_work.DjangoCoilUnitOfWork()
+    uow = unit_of_work.DjangoUnitOfWork()
     with uow:
         coil = domain_logic.Coil(reference='Бухта-027', product_id='АВВГ_2х2,5', quantity=180,
                                  recommended_balance=20, acceptable_loss=-4)
@@ -300,7 +300,7 @@ def test_api_deallocate_a_line_raise_validation_error():
     # Добавление бухты в базу данных с помощью UnitOfWork
     # acceptable_loss имеет отрицательное значение
     # Итого одно несоответствие CoilBaseModel
-    uow = unit_of_work.DjangoCoilUnitOfWork()
+    uow = unit_of_work.DjangoUnitOfWork()
     with uow:
         coil = domain_logic.Coil(reference='Бухта-028', product_id='АВВГ_2х2,5', quantity=180,
                                  recommended_balance=20, acceptable_loss=-4)

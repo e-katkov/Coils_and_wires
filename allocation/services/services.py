@@ -4,7 +4,7 @@ from allocation.services import unit_of_work
 
 def get_a_coil(
         reference: str,
-        uow: unit_of_work.AbstractCoilUnitOfWork,
+        uow: unit_of_work.AbstractUnitOfWork,
 ) -> domain_logic.Coil:
     """
     Принимает идентификатор бухты - экземпляра класса Coil доменной модели,
@@ -12,7 +12,7 @@ def get_a_coil(
     """
     with uow:
         coil = uow.coil_repo.get(reference)
-    return coil
+        return coil
 
 
 def add_a_coil(
@@ -21,7 +21,7 @@ def add_a_coil(
         quantity: int,
         recommended_balance: int,
         acceptable_loss: int,
-        uow: unit_of_work.AbstractCoilUnitOfWork,
+        uow: unit_of_work.AbstractUnitOfWork,
 ) -> None:
     """
     Принимает атрибуты бухты - экземпляра класса Coil доменной модели,
@@ -39,7 +39,7 @@ def update_a_coil(
         quantity: int,
         recommended_balance: int,
         acceptable_loss: int,
-        uow: unit_of_work.AbstractCoilUnitOfWork,
+        uow: unit_of_work.AbstractUnitOfWork,
 ) -> set[domain_logic.OrderLine]:
     """
     Принимает атрибуты бухты - экземпляра класса Coil доменной модели,
@@ -62,12 +62,12 @@ def update_a_coil(
         # Получение множества товарных позиций, которые перестанут быть размещенными после обновления db_coil
         deallocated_lines = db_coil.allocations - reallocated_lines
         uow.commit()
-    return deallocated_lines
+        return deallocated_lines
 
 
 def delete_a_coil(
         reference: str,
-        uow: unit_of_work.AbstractCoilUnitOfWork,
+        uow: unit_of_work.AbstractUnitOfWork,
 ) -> set[domain_logic.OrderLine]:
     """
     Принимает идентификатор бухты - экземпляра класса Coil доменной модели,
@@ -83,13 +83,13 @@ def delete_a_coil(
         # Удаление coil из базы данных
         uow.coil_repo.delete(reference)
         uow.commit()
-    return deallocated_lines
+        return deallocated_lines
 
 
 def get_a_line(
         order_id: str,
         line_item: str,
-        uow: unit_of_work.AbstractOrderLineUnitOfWork,
+        uow: unit_of_work.AbstractUnitOfWork,
 ) -> domain_logic.OrderLine:
     """
     Принимает идентификаторы товарной позиции - экземпляра класса OrderLine доменной модели,
@@ -97,7 +97,7 @@ def get_a_line(
     """
     with uow:
         line = uow.line_repo.get(order_id, line_item)
-    return line
+        return line
 
 
 def add_a_line(
@@ -105,7 +105,7 @@ def add_a_line(
         line_item: str,
         product_id: str,
         quantity: int,
-        uow: unit_of_work.AbstractOrderLineUnitOfWork,
+        uow: unit_of_work.AbstractUnitOfWork,
 ) -> None:
     """
     Принимает атрибуты товарной позиции - экземпляра класса OrderLine доменной модели,
@@ -122,8 +122,7 @@ def update_a_line(
         line_item: str,
         product_id: str,
         quantity: int,
-        uow_line: unit_of_work.AbstractOrderLineUnitOfWork,
-        uow_coil: unit_of_work.AbstractCoilUnitOfWork,
+        uow: unit_of_work.AbstractUnitOfWork,
 ) -> domain_logic.Coil:
     """
     Принимает атрибуты товарной позиции - экземпляра класса OrderLine доменной модели,
@@ -131,26 +130,26 @@ def update_a_line(
     Возвращает бухту - экземпляр класса Coil, полученный из записи в базе данных,
     в которой будет размещена товарная позиция после ее обновления.
     """
-    with uow_line:
+    with uow:
         # Получение товарной позиции, которую необходимо обновить
-        db_line = uow_line.line_repo.get(order_id=order_id, line_item=line_item)
-    # Получение бухты, в которой размещена обновляемая товарная позиция
-    allocation_coil = get_an_allocation_coil(order_id, line_item, uow_line, uow_coil)
-    # Отмена размещения db_line в allocation_coil, если она не "поддельная"
-    with uow_coil:
+        db_line = uow.line_repo.get(order_id=order_id, line_item=line_item)
+        # Получение бухты, в которой размещена обновляемая товарная позиция
+        allocation_coil = get_an_allocation_coil(order_id, line_item, uow)
+
+        # Отмена размещения db_line в allocation_coil, если она не "поддельная"
         if not allocation_coil.reference == 'fake':
             allocation_coil.deallocate(db_line)
-            uow_coil.coil_repo.update(allocation_coil)
-            uow_coil.commit()
-    # Обновление db_line до input_line
-    with uow_line:
+            uow.coil_repo.update(allocation_coil)
+            uow.commit()
+
+        # Обновление db_line до input_line
         # Создание товарной позиции, которая обновит db_line
         input_line = domain_logic.OrderLine(order_id, line_item, product_id, quantity)
         # Обновление input_line в базе данных
-        uow_line.line_repo.update(input_line)
-        uow_line.commit()
-    # Размещение обновленной товарной позиции и возврат бухты, в которой она будет размещена
-    with uow_coil:
+        uow.line_repo.update(input_line)
+        uow.commit()
+
+        # Размещение обновленной товарной позиции и возврат бухты, в которой она будет размещена
         if allocation_coil.reference == 'fake':
             # Возврат "поддельной" бухты, если изначально товарная позиция не была размещена
             return allocation_coil
@@ -158,23 +157,22 @@ def update_a_line(
             # Попытка разместить input_line в найденной allocation_coil
             if allocation_coil.can_allocate(input_line):
                 allocation_coil.allocate(input_line)
-                uow_coil.coil_repo.update(allocation_coil)
-                uow_coil.commit()
+                uow.coil_repo.update(allocation_coil)
+                uow.commit()
                 return allocation_coil
             # Если попытка неудачная, то выполнение обычного размещения товарной позиции
             else:
-                list_of_coils = uow_coil.coil_repo.coils_list()
+                list_of_coils = uow.coil_repo.coils_list()
                 allocation_coil = domain_logic.allocate_to_list_of_coils(line=input_line, coils=list_of_coils)
-                uow_coil.coil_repo.update(allocation_coil)
-                uow_coil.commit()
+                uow.coil_repo.update(allocation_coil)
+                uow.commit()
                 return allocation_coil
 
 
 def delete_a_line(
         order_id: str,
         line_item: str,
-        uow_line: unit_of_work.AbstractOrderLineUnitOfWork,
-        uow_coil: unit_of_work.AbstractCoilUnitOfWork,
+        uow: unit_of_work.AbstractUnitOfWork,
 ) -> domain_logic.Coil:
     """
     Принимает идентификаторы товарной позиции - экземпляра класса OrderLine доменной модели,
@@ -183,47 +181,46 @@ def delete_a_line(
     в которой была размещена удаленная товарная позиция.
     """
     # Получение бухты, в которой размещена удаляемая товарная позиция
-    allocation_coil = get_an_allocation_coil(order_id, line_item, uow_line, uow_coil)
-    with uow_line:
+    allocation_coil = get_an_allocation_coil(order_id, line_item, uow)
+    with uow:
         # Получение товарной позиции, которую необходимо удалить
-        line = uow_line.line_repo.get(order_id=order_id, line_item=line_item)
+        line = uow.line_repo.get(order_id=order_id, line_item=line_item)
         # Удаление товарной позиции из базы данных
-        uow_line.line_repo.delete(order_id=order_id, line_item=line_item)
-        uow_line.commit()
-    # Отмена размещения товарной позиции и возврат бухты, в которой она была размещена
-    if allocation_coil.reference == 'fake':
-        # Возврат allocation_coil, при условии, что он "поддельный"
-        return allocation_coil
-    else:
-        with uow_coil:
+        uow.line_repo.delete(order_id=order_id, line_item=line_item)
+        uow.commit()
+
+        # Отмена размещения товарной позиции и возврат бухты, в которой она была размещена
+        if allocation_coil.reference == 'fake':
+            # Возврат allocation_coil, при условии, что он "поддельный"
+            return allocation_coil
+        else:
             # Отмена размещения line в allocation_coil
             allocation_coil.deallocate(line)
             # Обновление allocation_coil в базе данных
-            uow_coil.coil_repo.update(allocation_coil)
-            uow_coil.commit()
-        return allocation_coil
+            uow.coil_repo.update(allocation_coil)
+            uow.commit()
+            return allocation_coil
 
 
 def get_an_allocation_coil(
         order_id: str,
         line_item: str,
-        uow_line: unit_of_work.AbstractOrderLineUnitOfWork,
-        uow_coil: unit_of_work.AbstractCoilUnitOfWork,
+        uow: unit_of_work.AbstractUnitOfWork,
 ) -> domain_logic.Coil:
     """
     Принимает идентификаторы товарной позиции - экземпляра класса OrderLine доменной модели.
     Возвращает бухту - экземпляр класса Coil, полученный из записи в базе данных или "поддельный",
     в которой размещена товарная позиция.
     """
-    with uow_line:
+    with uow:
         # Получение товарной позиции, для которой необходимо найти бухту, где она размещена.
         # Получение необходимо для проверки существования товарной позиции
-        uow_line.line_repo.get(order_id=order_id, line_item=line_item)
-    with uow_coil:
+        uow.line_repo.get(order_id=order_id, line_item=line_item)
+
         # Получение allocation_coil - бухты, в которой размещена товарная позиция.
         # Если бухта не будет найдена, то allocation_coil будет "поддельной" бухтой
         allocation_coil = domain_logic.Coil('fake', 'fake', 1, 1, 1)
-        coils_list = uow_coil.coil_repo.coils_list()
+        coils_list = uow.coil_repo.coils_list()
         for coil in coils_list:
             for line in coil.allocations:
                 if line.order_id == order_id and line.line_item == line_item:
@@ -234,8 +231,7 @@ def get_an_allocation_coil(
 def allocate(
         order_id: str,
         line_item: str,
-        uow_line: unit_of_work.AbstractOrderLineUnitOfWork,
-        uow_coil: unit_of_work.AbstractCoilUnitOfWork,
+        uow: unit_of_work.AbstractUnitOfWork,
 ) -> domain_logic.Coil:
     """
     Принимает идентификаторы товарной позиции - экземпляра класса OrderLine доменной модели,
@@ -243,24 +239,23 @@ def allocate(
     Возвращает бухту - экземпляр класса Coil, полученный из записи в базе данных,
     в которой размещена товарная позиция.
     """
-    with uow_line:
+    with uow:
         # Получение товарной позиции, которую необходимо разместить
-        line = uow_line.line_repo.get(order_id, line_item)
-    with uow_coil:
+        line = uow.line_repo.get(order_id, line_item)
+
         # Размещение товарной позиции в бухте ее и возврат
-        list_of_coils = uow_coil.coil_repo.coils_list()
+        list_of_coils = uow.coil_repo.coils_list()
         allocation_coil = domain_logic.allocate_to_list_of_coils(line=line, coils=list_of_coils)
         # Обновление allocation_coil в базе данных
-        uow_coil.coil_repo.update(allocation_coil)
-        uow_coil.commit()
-    return allocation_coil
+        uow.coil_repo.update(allocation_coil)
+        uow.commit()
+        return allocation_coil
 
 
 def deallocate(
         order_id: str,
         line_item: str,
-        uow_line: unit_of_work.AbstractOrderLineUnitOfWork,
-        uow_coil: unit_of_work.AbstractCoilUnitOfWork,
+        uow: unit_of_work.AbstractUnitOfWork,
 ) -> domain_logic.Coil:
     """
     Принимает идентификаторы товарной позиции - экземпляра класса OrderLine доменной модели,
@@ -268,20 +263,20 @@ def deallocate(
     Возвращает бухту - экземпляр класса Coil, полученный из записи в базе данных,
     в которой ранее была размещена товарная позиция.
     """
-    with uow_line:
+    with uow:
         # Получение товарной позиции, для которой необходимо отменить размещение
-        line = uow_line.line_repo.get(order_id=order_id, line_item=line_item)
-    # Получение бухты, в которой размещена line
-    allocation_coil = get_an_allocation_coil(order_id, line_item, uow_line, uow_coil)
-    # Отмена размещения товарной позиции и возврат бухты, в которой она была размещена
-    if allocation_coil.reference == 'fake':
-        # Возврат allocation_coil, при условии, что он "поддельный"
-        return allocation_coil
-    else:
-        with uow_coil:
+        line = uow.line_repo.get(order_id=order_id, line_item=line_item)
+
+        # Получение бухты, в которой размещена line
+        allocation_coil = get_an_allocation_coil(order_id, line_item, uow)
+        # Отмена размещения товарной позиции и возврат бухты, в которой она была размещена
+        if allocation_coil.reference == 'fake':
+            # Возврат allocation_coil, при условии, что он "поддельный"
+            return allocation_coil
+        else:
             # Отмена размещения line в allocation_coil
             allocation_coil.deallocate(line)
             # Обновление allocation_coil в базе данных
-            uow_coil.coil_repo.update(allocation_coil)
-            uow_coil.commit()
-        return allocation_coil
+            uow.coil_repo.update(allocation_coil)
+            uow.commit()
+            return allocation_coil

@@ -33,28 +33,6 @@ class FakeCoilRepository:
         return list(self.coils)
 
 
-class FakeCoilUnitOfWork:
-    """
-    "Поддельная" версия класса, реализующего паттерн "Unit of Work",
-    которая создает "поддельную" версию репозитория для бухт при тестировании.
-    """
-    def __init__(self):
-        self.coil_repo = FakeCoilRepository()
-        self.committed = False
-
-    def __enter__(self):
-        pass
-
-    def __exit__(self, *args):
-        pass
-
-    def commit(self):
-        self.committed = True
-
-    def rollback(self):
-        pass
-
-
 class FakeOrderLineRepository:
     """
     "Поддельная" версия репозитория для товарных позиций,
@@ -87,12 +65,13 @@ class FakeOrderLineRepository:
         return list(self.lines)
 
 
-class FakeOrderLineUnitOfWork:
+class FakeUnitOfWork:
     """
     "Поддельная" версия класса, реализующего паттерн "Unit of Work",
-    которая создает "поддельную" версию репозитория для товарных позиций при тестировании.
+    которая создает "поддельные" версии репозиториев для бухт и товарных позиций при тестировании.
     """
     def __init__(self):
+        self.coil_repo = FakeCoilRepository()
         self.line_repo = FakeOrderLineRepository()
         self.committed = False
 
@@ -110,7 +89,7 @@ class FakeOrderLineUnitOfWork:
 
 
 def test_service_get_a_coil():
-    uow = FakeCoilUnitOfWork()
+    uow = FakeUnitOfWork()
     # Добавление бухты в хранилище
     services.add_a_coil('Бухта-015', 'АВВГ_3х1,5', 70, 10, 2, uow)
     services.add_a_coil('Бухта-016', 'АВВГ_2х2,5', 200, 15, 3, uow)
@@ -123,7 +102,7 @@ def test_service_get_a_coil():
 
 
 def test_service_add_a_coil():
-    uow = FakeCoilUnitOfWork()
+    uow = FakeUnitOfWork()
 
     # Добавление бухты в хранилище
     services.add_a_coil('Бухта-040', 'АВВГ_2х2,5', 200, 15, 3, uow)
@@ -139,54 +118,52 @@ def test_service_update_a_coil():
     Уменьшение изначального количества материала в бухте при ее обновлении
     изменит состав размещенных товарных позиций.
     """
-    uow_coil = FakeCoilUnitOfWork()
-    uow_line = FakeOrderLineUnitOfWork()
+    uow = FakeUnitOfWork()
     # Добавление бухты в хранилище
-    services.add_a_coil('Бухта-051', 'АВВГ_2х2,5', 100, 20, 3, uow_coil)
+    services.add_a_coil('Бухта-051', 'АВВГ_2х2,5', 100, 20, 3, uow)
     # Добавление товарных позиций в хранилище и их размещение в бухте
-    services.add_a_line('Заказ-052', 'Позиция-002', 'АВВГ_2х2,5', 40, uow_line)
-    services.add_a_line('Заказ-053', 'Позиция-001', 'АВВГ_2х2,5', 35, uow_line)
-    services.allocate('Заказ-052', 'Позиция-002', uow_line, uow_coil)
-    services.allocate('Заказ-053', 'Позиция-001', uow_line, uow_coil)
+    services.add_a_line('Заказ-052', 'Позиция-002', 'АВВГ_2х2,5', 40, uow)
+    services.add_a_line('Заказ-053', 'Позиция-001', 'АВВГ_2х2,5', 35, uow)
+    services.allocate('Заказ-052', 'Позиция-002', uow)
+    services.allocate('Заказ-053', 'Позиция-001', uow)
 
     # Обновление бухты возвращает множество товарных позиций,
     # которые перестанут быть размещенными после обновления
-    deallocated_lines = services.update_a_coil('Бухта-051', 'АВВГ_2х2,5', 80, 20, 3, uow_coil)
+    deallocated_lines = services.update_a_coil('Бухта-051', 'АВВГ_2х2,5', 80, 20, 3, uow)
     deallocated_lines_ids_and_line_items = {(line.order_id, line.line_item) for line in deallocated_lines}
 
     # Обновление бухты приведет к тому, что товарная позиция ('Заказ-052', 'Позиция-002')
     # перестанет быть размещенной
-    assert services.get_a_coil('Бухта-051', uow_coil).available_quantity == 45
+    assert services.get_a_coil('Бухта-051', uow).available_quantity == 45
     assert deallocated_lines_ids_and_line_items == {('Заказ-052', 'Позиция-002')}
-    assert uow_coil.committed
+    assert uow.committed
 
 
 def test_service_delete_a_coil():
     """Удаление бухты возвращает множество товарных позиций, которые перестанут быть размещенными"""
-    uow_coil = FakeCoilUnitOfWork()
-    uow_line = FakeOrderLineUnitOfWork()
+    uow = FakeUnitOfWork()
     # Добавление бухты в хранилище
-    services.add_a_coil('Бухта-052', 'АВВГ_2х6', 150, 20, 5, uow_coil)
+    services.add_a_coil('Бухта-052', 'АВВГ_2х6', 150, 20, 5, uow)
     # Добавление товарных позиций в хранилище и их размещение в бухте
-    services.add_a_line('Заказ-054', 'Позиция-002', 'АВВГ_2х6', 50, uow_line)
-    services.add_a_line('Заказ-055', 'Позиция-003', 'АВВГ_2х6', 64, uow_line)
-    services.allocate('Заказ-054', 'Позиция-002', uow_line, uow_coil)
-    services.allocate('Заказ-055', 'Позиция-003', uow_line, uow_coil)
+    services.add_a_line('Заказ-054', 'Позиция-002', 'АВВГ_2х6', 50, uow)
+    services.add_a_line('Заказ-055', 'Позиция-003', 'АВВГ_2х6', 64, uow)
+    services.allocate('Заказ-054', 'Позиция-002', uow)
+    services.allocate('Заказ-055', 'Позиция-003', uow)
 
     # Удаление бухты возвращает множество товарных позиций,
     # которые перестанут быть размещенными
-    deallocated_lines = services.delete_a_coil('Бухта-052', uow_coil)
+    deallocated_lines = services.delete_a_coil('Бухта-052', uow)
     deallocated_lines_ids_and_line_items = {(line.order_id, line.line_item) for line in deallocated_lines}
 
     # Удаление бухты приведет к тому, что обе товарных позиции
     # перестанут быть размещенными
     assert deallocated_lines_ids_and_line_items == {('Заказ-054', 'Позиция-002'),
                                                     ('Заказ-055', 'Позиция-003')}
-    assert uow_coil.committed
+    assert uow.committed
 
 
 def test_service_get_a_line():
-    uow = FakeOrderLineUnitOfWork()
+    uow = FakeUnitOfWork()
     # Добавление товарных позиций в хранилище
     services.add_a_line('Заказ-061', 'Позиция-001', 'АВВГ_2х6', 20, uow)
     services.add_a_line('Заказ-061', 'Позиция-002', 'АВВГ_2х2,5', 25, uow)
@@ -199,7 +176,7 @@ def test_service_get_a_line():
 
 
 def test_service_add_a_line():
-    uow = FakeOrderLineUnitOfWork()
+    uow = FakeUnitOfWork()
 
     # Добавление товарной позиции в хранилище
     services.add_a_line('Заказ-050', 'Позиция-001', 'АВВГ_2х6', 16, uow)
@@ -215,61 +192,55 @@ def test_service_update_a_line():
     Увеличение количества материала в товарной позиции при обновлении
     приведет к ее переразмещению.
     """
-    uow_coil = FakeCoilUnitOfWork()
-    uow_line = FakeOrderLineUnitOfWork()
+    uow = FakeUnitOfWork()
     # Добавление бухт в хранилище
-    services.add_a_coil('Бухта-055', 'АВВГ_2х2,5', 80, 15, 2, uow_coil)
-    services.add_a_coil('Бухта-056', 'АВВГ_2х2,5', 120, 15, 2, uow_coil)
+    services.add_a_coil('Бухта-055', 'АВВГ_2х2,5', 80, 15, 2, uow)
+    services.add_a_coil('Бухта-056', 'АВВГ_2х2,5', 120, 15, 2, uow)
     # Добавление товарной позиции в хранилище и ее размещение в бухте
-    services.add_a_line('Заказ-008', 'Позиция-002', 'АВВГ_2х2,5', 24, uow_line)
-    services.allocate('Заказ-008', 'Позиция-002', uow_line, uow_coil)
+    services.add_a_line('Заказ-008', 'Позиция-002', 'АВВГ_2х2,5', 24, uow)
+    services.allocate('Заказ-008', 'Позиция-002', uow)
     # Получение бухты, в которой размещена товарная позиция
-    allocation_coil_1 = services.get_an_allocation_coil('Заказ-008', 'Позиция-002',
-                                                        uow_line, uow_coil)
+    allocation_coil_1 = services.get_an_allocation_coil('Заказ-008', 'Позиция-002', uow)
 
     # Обновление товарной позиции возвращает бухту, в которой она будет размещена
-    allocation_coil_2 = services.update_a_line('Заказ-008', 'Позиция-002', 'АВВГ_2х2,5', 90,
-                                               uow_line, uow_coil)
+    allocation_coil_2 = services.update_a_line('Заказ-008', 'Позиция-002', 'АВВГ_2х2,5', 90, uow)
 
     # Обновление товарной позиции приведет к ее переразмещению
     assert allocation_coil_1.reference == 'Бухта-055'
-    assert services.get_a_coil('Бухта-055', uow_coil).available_quantity == 80
+    assert services.get_a_coil('Бухта-055', uow).available_quantity == 80
     assert allocation_coil_2.reference == 'Бухта-056'
     assert allocation_coil_2.available_quantity == 30
-    assert uow_coil.committed
+    assert uow.committed
 
 
 def test_service_delete_a_line():
     """Удаление товарной позиции возвращает бухту, в которой она была размещена."""
-    uow_coil = FakeCoilUnitOfWork()
-    uow_line = FakeOrderLineUnitOfWork()
+    uow = FakeUnitOfWork()
     # Добавление бухты в хранилище
-    services.add_a_coil('Бухта-056', 'АВВГ_2х2,5', 100, 15, 2, uow_coil)
+    services.add_a_coil('Бухта-056', 'АВВГ_2х2,5', 100, 15, 2, uow)
     # Добавление товарной позиции в хранилище и ее размещение в бухте
-    services.add_a_line('Заказ-007', 'Позиция-004', 'АВВГ_2х2,5', 24, uow_line)
-    services.allocate('Заказ-007', 'Позиция-004', uow_line, uow_coil)
+    services.add_a_line('Заказ-007', 'Позиция-004', 'АВВГ_2х2,5', 24, uow)
+    services.allocate('Заказ-007', 'Позиция-004', uow)
 
     # Удаление товарной позиции возвращает бухту, в которой она была размещена
-    allocation_coil = services.delete_a_line('Заказ-007', 'Позиция-004', uow_line, uow_coil)
+    allocation_coil = services.delete_a_line('Заказ-007', 'Позиция-004', uow)
 
     assert allocation_coil.reference == 'Бухта-056'
-    assert services.get_a_coil('Бухта-056', uow_coil).available_quantity == 100
-    assert uow_coil.committed
+    assert services.get_a_coil('Бухта-056', uow).available_quantity == 100
+    assert uow.committed
 
 
 def test_service_get_a_real_allocation_coil():
     """Получение бухты, в которой размещена товарная позиция."""
-    uow_coil = FakeCoilUnitOfWork()
-    uow_line = FakeOrderLineUnitOfWork()
+    uow = FakeUnitOfWork()
     # Добавление бухты в хранилище
-    services.add_a_coil('Бухта-058', 'АВВГ_2х6', 170, 20, 3, uow_coil)
+    services.add_a_coil('Бухта-058', 'АВВГ_2х6', 170, 20, 3, uow)
     # Добавление товарной позиции в хранилище и ее размещение в бухте
-    services.add_a_line('Заказ-012', 'Позиция-002', 'АВВГ_2х6', 52, uow_line)
-    services.allocate('Заказ-012', 'Позиция-002', uow_line, uow_coil)
+    services.add_a_line('Заказ-012', 'Позиция-002', 'АВВГ_2х6', 52, uow)
+    services.allocate('Заказ-012', 'Позиция-002', uow)
 
     # Получение бухты, в которой размещена товарная позиция
-    allocation_coil = services.get_an_allocation_coil('Заказ-012', 'Позиция-002',
-                                                      uow_line, uow_coil)
+    allocation_coil = services.get_an_allocation_coil('Заказ-012', 'Позиция-002', uow)
 
     assert allocation_coil.reference == 'Бухта-058'
     assert allocation_coil.available_quantity == 118
@@ -277,16 +248,14 @@ def test_service_get_a_real_allocation_coil():
 
 def test_service_get_a_fake_allocation_coil():
     """Получение "поддельной" бухты, в которой размещена неразмещенная товарная позиция."""
-    uow_coil = FakeCoilUnitOfWork()
-    uow_line = FakeOrderLineUnitOfWork()
+    uow = FakeUnitOfWork()
     # Добавление бухты в хранилище
-    services.add_a_coil('Бухта-058', 'АВВГ_2х6', 170, 20, 3, uow_coil)
+    services.add_a_coil('Бухта-058', 'АВВГ_2х6', 170, 20, 3, uow)
     # Добавление товарной позиции в хранилище
-    services.add_a_line('Заказ-012', 'Позиция-002', 'АВВГ_2х6', 52, uow_line)
+    services.add_a_line('Заказ-012', 'Позиция-002', 'АВВГ_2х6', 52, uow)
 
     # Получение "поддельной" бухты, в которой размещена неразмещенная товарная позиция
-    allocation_coil = services.get_an_allocation_coil('Заказ-012', 'Позиция-002',
-                                                      uow_line, uow_coil)
+    allocation_coil = services.get_an_allocation_coil('Заказ-012', 'Позиция-002', uow)
 
     assert allocation_coil.reference == 'fake'
     assert allocation_coil.available_quantity == 1
@@ -294,41 +263,39 @@ def test_service_get_a_fake_allocation_coil():
 
 def test_service_allocate_a_line_and_return_allocation_coil():
     """Размещение товарной позиции возвращает бухту, в которой она размещена."""
-    uow_coil = FakeCoilUnitOfWork()
-    uow_line = FakeOrderLineUnitOfWork()
+    uow = FakeUnitOfWork()
     # Добавление бухт в хранилище
-    services.add_a_coil('Бухта-041', 'АВВГ_2х6', 70, 15, 3, uow_coil)
-    services.add_a_coil('Бухта-042', 'АВВГ_2х6', 50, 15, 3, uow_coil)
+    services.add_a_coil('Бухта-041', 'АВВГ_2х6', 70, 15, 3, uow)
+    services.add_a_coil('Бухта-042', 'АВВГ_2х6', 50, 15, 3, uow)
     # Добавление товарных позиции в хранилище
-    services.add_a_line('Заказ-050', 'Позиция-002', 'АВВГ_2х6', 16, uow_line)
-    services.add_a_line('Заказ-051', 'Позиция-005', 'АВВГ_2х6', 10, uow_line)
+    services.add_a_line('Заказ-050', 'Позиция-002', 'АВВГ_2х6', 16, uow)
+    services.add_a_line('Заказ-051', 'Позиция-005', 'АВВГ_2х6', 10, uow)
 
     # Размещение товарной позиции возвращает бухту, в которой она размещена
-    result_coil_1 = services.allocate('Заказ-050', 'Позиция-002', uow_line, uow_coil)
-    result_coil_2 = services.allocate('Заказ-051', 'Позиция-005', uow_line, uow_coil)
+    result_coil_1 = services.allocate('Заказ-050', 'Позиция-002', uow)
+    result_coil_2 = services.allocate('Заказ-051', 'Позиция-005', uow)
 
     assert result_coil_1.reference == 'Бухта-042'
     assert result_coil_2.reference == 'Бухта-042'
-    assert services.get_a_coil('Бухта-042', uow_coil).available_quantity == 24
+    assert services.get_a_coil('Бухта-042', uow).available_quantity == 24
 
 
 def test_service_deallocate_a_line_and_return_allocation_coil():
     """Отмена размещения товарной позиции возвращает бухту, в которой она была размещена."""
-    uow_coil = FakeCoilUnitOfWork()
-    uow_line = FakeOrderLineUnitOfWork()
+    uow = FakeUnitOfWork()
     # Добавление бухт в хранилище
-    services.add_a_coil('Бухта-041', 'АВВГ_2х6', 70, 15, 3, uow_coil)
-    services.add_a_coil('Бухта-042', 'АВВГ_2х6', 50, 15, 3, uow_coil)
+    services.add_a_coil('Бухта-041', 'АВВГ_2х6', 70, 15, 3, uow)
+    services.add_a_coil('Бухта-042', 'АВВГ_2х6', 50, 15, 3, uow)
     # Добавление товарных позиций в хранилище и их размещение в бухтах
-    services.add_a_line('Заказ-050', 'Позиция-002', 'АВВГ_2х6', 16, uow_line)
-    services.add_a_line('Заказ-051', 'Позиция-005', 'АВВГ_2х6', 10, uow_line)
-    services.allocate('Заказ-050', 'Позиция-002', uow_line, uow_coil)
-    services.allocate('Заказ-051', 'Позиция-005', uow_line, uow_coil)
+    services.add_a_line('Заказ-050', 'Позиция-002', 'АВВГ_2х6', 16, uow)
+    services.add_a_line('Заказ-051', 'Позиция-005', 'АВВГ_2х6', 10, uow)
+    services.allocate('Заказ-050', 'Позиция-002', uow)
+    services.allocate('Заказ-051', 'Позиция-005', uow)
 
     # Отмена размещения товарной позиции возвращает бухту, в которой она была размещена
-    result_coil_1 = services.deallocate('Заказ-050', 'Позиция-002', uow_line, uow_coil)
-    result_coil_2 = services.deallocate('Заказ-051', 'Позиция-005', uow_line, uow_coil)
+    result_coil_1 = services.deallocate('Заказ-050', 'Позиция-002', uow)
+    result_coil_2 = services.deallocate('Заказ-051', 'Позиция-005', uow)
 
     assert result_coil_1.reference == 'Бухта-042'
     assert result_coil_2.reference == 'Бухта-042'
-    assert services.get_a_coil('Бухта-042', uow_coil).available_quantity == 50
+    assert services.get_a_coil('Бухта-042', uow).available_quantity == 50
