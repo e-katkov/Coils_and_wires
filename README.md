@@ -1,7 +1,7 @@
 # Coils_and_wires
 
 ![example workflow](https://github.com/e-katkov/Coils_and_wires/actions/workflows/checks.yml/badge.svg)
-![Lines of code](https://img.shields.io/tokei/lines/github/e-katkov/Coils_and_wires)
+[![codecov](https://codecov.io/gh/e-katkov/Coils_and_wires/branch/master/graph/badge.svg?token=IFGBHVQ78D)](https://codecov.io/gh/e-katkov/Coils_and_wires)
 
 ## Описание
 1. Проект “Coils and wires” (“Бухты и провода”) упрощенно реализует складской учет и распределение материалов – проводов, кабелей и т.п. Такой материал поставляется и хранится на складе в виде бухт – кольцеобразных мотков провода/кабеля или барабанов, на который намотан материал.
