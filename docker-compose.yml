@@ -11,7 +11,7 @@ services:
 
   tests:
     build: .
-    command: bash -c 'pytest tests/ && pytest --cov=allocation --cov-report=xml'
+    command: pytest tests/ --cov=allocation --cov-report=xml
     volumes:
       - .:/code
 
