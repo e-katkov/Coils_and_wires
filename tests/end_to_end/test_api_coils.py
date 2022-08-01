@@ -39,7 +39,7 @@ def test_api_add_a_coil_is_idempotent():
 
     # Добавление бухты с уже существующим reference вызовет исключение DBCoilRecordAlreadyExist
     assert output_data['message'] == \
-           f'Запись с reference={coil_data_2["reference"]} уже существует в таблице Coil базы данных'
+           f'Запись с reference={coil_data_2["reference"]} уже существует в таблице CoilDB базы данных'
     assert response.status_code == 409
 
 
@@ -104,7 +104,7 @@ def test_api_get_a_coil_raise_not_exist_exception():
 
     # Получение бухты по несуществующему route вызовет исключение DBCoilRecordDoesNotExist
     assert output_data['message'] == \
-           f"Запись с reference={wrong_reference} отсутствует в таблице Coil базы данных"
+           f"Запись с reference={wrong_reference} отсутствует в таблице CoilDB базы данных"
     assert response.status_code == 404
 
 
@@ -202,7 +202,7 @@ def test_api_update_a_coil_raise_not_exist_exception():
 
     # Обновление бухты по несуществующему route вызовет исключение DBCoilRecordDoesNotExist
     assert output_data['message'] == \
-           f"Запись с reference={wrong_reference} отсутствует в таблице Coil базы данных"
+           f"Запись с reference={wrong_reference} отсутствует в таблице CoilDB базы данных"
     assert response.status_code == 404
 
 
@@ -248,5 +248,5 @@ def test_api_delete_a_coil_raise_not_exist_exception():
 
     # Удаление бухты по несуществующему route вызовет исключение DBCoilRecordDoesNotExist
     assert output_data['message'] == \
-           f"Запись с reference={wrong_reference} отсутствует в таблице Coil базы данных"
+           f"Запись с reference={wrong_reference} отсутствует в таблице CoilDB базы данных"
     assert response.status_code == 404

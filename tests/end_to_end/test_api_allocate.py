@@ -133,7 +133,7 @@ def test_api_allocate_a_line_raise_not_exist_exception(three_coils_and_lines):
     # поэтому ее размещение вызовет исключение DBOrderLineRecordDoesNotExist
     assert output_data['message'] == \
            f"Запись с order_id={line_data['order_id']} и line_item={line_data['line_item']}"\
-           f" отсутствует в таблице OrderLine базы данных"
+           f" отсутствует в таблице OrderLineDB базы данных"
     assert response.status_code == 404
 
 
@@ -198,7 +198,7 @@ def test_api_get_an_allocation_coil_raise_not_exist_exception():
     # вызовет исключение DBOrderLineRecordDoesNotExist
     assert output_data['message'] == \
            f"Запись с order_id={line_data['order_id']} и line_item={wrong_line_item}" \
-           f" отсутствует в таблице OrderLine базы данных"
+           f" отсутствует в таблице OrderLineDB базы данных"
     assert response.status_code == 404
 
 
@@ -290,7 +290,7 @@ def test_api_deallocate_a_line_raise_not_exist_exception():
     # вызовет исключение DBOrderLineRecordDoesNotExist
     assert output_data['message'] == \
            f"Запись с order_id={line_data['order_id']} и line_item={wrong_line_item}" \
-           f" отсутствует в таблице OrderLine базы данных"
+           f" отсутствует в таблице OrderLineDB базы данных"
     assert response.status_code == 404
 
 

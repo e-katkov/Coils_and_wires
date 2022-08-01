@@ -41,7 +41,7 @@ def test_api_add_a_line_is_idempotent():
     # вызовет исключение DBOrderLineRecordAlreadyExist
     assert output_data['message'] == \
            f'Запись с order_id={line_data_2["order_id"]} и line_item={line_data_2["line_item"]}' \
-           f' уже существует в таблице OrderLine базы данных'
+           f' уже существует в таблице OrderLineDB базы данных'
     assert response.status_code == 409
 
 
@@ -100,7 +100,7 @@ def test_api_get_a_line_raise_not_exist_exception():
     # Получение товарной позиции по несуществующему route вызовет исключение DBOrderLineRecordDoesNotExist
     assert output_data['message'] == \
            f"Запись с order_id={line_data['order_id']} и line_item={wrong_line_item}" \
-           f" отсутствует в таблице OrderLine базы данных"
+           f" отсутствует в таблице OrderLineDB базы данных"
     assert response.status_code == 404
 
 
@@ -222,7 +222,7 @@ def test_api_update_a_line_raise_not_exist_exception():
     # Обновление товарной позиции по несуществующему route вызовет исключение DBOrderLineRecordDoesNotExist
     assert output_data['message'] == \
            f"Запись с order_id={line_data_1['order_id']} и line_item={wrong_line_item}" \
-           f" отсутствует в таблице OrderLine базы данных"
+           f" отсутствует в таблице OrderLineDB базы данных"
     assert response.status_code == 404
 
 
@@ -315,7 +315,7 @@ def test_api_delete_a_line_raise_not_exist_exception():
     # Удаление товарной позиции по несуществующему route вызовет исключение DBOrderLineRecordDoesNotExist
     assert output_data['message'] == \
            f"Запись с order_id={wrong_order_id} и line_item={line_data['line_item']}" \
-           f" отсутствует в таблице OrderLine базы данных"
+           f" отсутствует в таблице OrderLineDB базы данных"
     assert response.status_code == 404
 
 
