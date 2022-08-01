@@ -4,6 +4,7 @@ import pytest
 from rest_framework.test import APIClient
 
 from allocation.domain import domain_logic
+from allocation.exceptions import exceptions
 from allocation.services import unit_of_work
 
 
@@ -111,7 +112,7 @@ def test_api_allocate_a_line_raise_out_of_stock_exception(three_coils_and_lines)
 
     # Товарная позиция имеет величину quantity большую, чем у бухт,
     # поэтому размещение товарной позиции вызовет исключение OutOfStock
-    assert output_data['message'] == 'Недостаточное количество материала с product_id=АВВГ_2х6'
+    assert output_data['message'] == exceptions.OutOfStock(line_data["product_id"]).message
     assert response.status_code == 422
 
 
@@ -131,9 +132,8 @@ def test_api_allocate_a_line_raise_not_exist_exception(three_coils_and_lines):
 
     # Товарная позиция не была сохранена в базе данных,
     # поэтому ее размещение вызовет исключение DBOrderLineRecordDoesNotExist
-    assert output_data['message'] == \
-           f"Запись с order_id={line_data['order_id']} и line_item={line_data['line_item']}"\
-           f" отсутствует в таблице OrderLineDB базы данных"
+    assert output_data['message'] == exceptions.DBOrderLineRecordDoesNotExist(line_data['order_id'],
+                                                                              line_data['line_item']).message
     assert response.status_code == 404
 
 
@@ -196,9 +196,8 @@ def test_api_get_an_allocation_coil_raise_not_exist_exception():
 
     # Получение allocation_coil по несуществующему для товарной позиции route
     # вызовет исключение DBOrderLineRecordDoesNotExist
-    assert output_data['message'] == \
-           f"Запись с order_id={line_data['order_id']} и line_item={wrong_line_item}" \
-           f" отсутствует в таблице OrderLineDB базы данных"
+    assert output_data['message'] == exceptions.DBOrderLineRecordDoesNotExist(line_data['order_id'],
+                                                                              wrong_line_item).message
     assert response.status_code == 404
 
 
@@ -288,9 +287,8 @@ def test_api_deallocate_a_line_raise_not_exist_exception():
 
     # Получение allocation_coil по несуществующему для товарной позиции route
     # вызовет исключение DBOrderLineRecordDoesNotExist
-    assert output_data['message'] == \
-           f"Запись с order_id={line_data['order_id']} и line_item={wrong_line_item}" \
-           f" отсутствует в таблице OrderLineDB базы данных"
+    assert output_data['message'] == exceptions.DBOrderLineRecordDoesNotExist(line_data['order_id'],
+                                                                              wrong_line_item).message
     assert response.status_code == 404
 
 

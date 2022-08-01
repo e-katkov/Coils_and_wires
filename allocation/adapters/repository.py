@@ -53,9 +53,7 @@ class DjangoCoilRepository:
         у экземпляра и одной из существующих записей.
         """
         if django_models.CoilDB.objects.filter(reference=coil_domain.reference):
-            raise exceptions.DBCoilRecordAlreadyExist(
-                f'Запись с reference={coil_domain.reference} уже существует в таблице CoilDB базы данных',
-            )
+            raise exceptions.DBCoilRecordAlreadyExist(coil_domain.reference)
         else:
             django_models.CoilDB.objects.create(reference=coil_domain.reference,
                                                 product_id=coil_domain.product_id,
@@ -111,9 +109,7 @@ class DjangoCoilRepository:
         try:
             coil_record = django_models.CoilDB.objects.get(reference=reference)
         except django_models.CoilDB.DoesNotExist:
-            raise exceptions.DBCoilRecordDoesNotExist(
-                f'Запись с reference={reference} отсутствует в таблице CoilDB базы данных',
-            )
+            raise exceptions.DBCoilRecordDoesNotExist(reference)
         return coil_record
 
     @staticmethod
@@ -161,10 +157,7 @@ class DjangoOrderLineRepository:
         """
         if django_models.OrderLineDB.objects.filter(order_id=orderline_domain.order_id,
                                                     line_item=orderline_domain.line_item):
-            raise exceptions.DBOrderLineRecordAlreadyExist(
-                f'Запись с order_id={orderline_domain.order_id} и line_item={orderline_domain.line_item}'
-                f' уже существует в таблице OrderLineDB базы данных',
-            )
+            raise exceptions.DBOrderLineRecordAlreadyExist(orderline_domain.order_id, orderline_domain.line_item)
         else:
             django_models.OrderLineDB.objects.create(order_id=orderline_domain.order_id,
                                                      line_item=orderline_domain.line_item,
@@ -212,8 +205,5 @@ class DjangoOrderLineRepository:
         try:
             orderline_record = django_models.OrderLineDB.objects.get(order_id=order_id, line_item=line_item)
         except django_models.OrderLineDB.DoesNotExist:
-            raise exceptions.DBOrderLineRecordDoesNotExist(
-                f'Запись с order_id={order_id} и line_item={line_item}'
-                f' отсутствует в таблице OrderLineDB базы данных',
-            )
+            raise exceptions.DBOrderLineRecordDoesNotExist(order_id, line_item)
         return orderline_record

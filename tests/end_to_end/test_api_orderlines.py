@@ -4,6 +4,7 @@ import pytest
 from rest_framework.test import APIClient
 
 from allocation.domain import domain_logic
+from allocation.exceptions import exceptions
 from allocation.services import unit_of_work
 
 
@@ -39,9 +40,8 @@ def test_api_add_a_line_is_idempotent():
 
     # Добавление товарной позиции с уже существующими order_id и line_item
     # вызовет исключение DBOrderLineRecordAlreadyExist
-    assert output_data['message'] == \
-           f'Запись с order_id={line_data_2["order_id"]} и line_item={line_data_2["line_item"]}' \
-           f' уже существует в таблице OrderLineDB базы данных'
+    assert output_data['message'] == exceptions.DBOrderLineRecordAlreadyExist(line_data_2["order_id"],
+                                                                              line_data_2["line_item"]).message
     assert response.status_code == 409
 
 
@@ -98,9 +98,8 @@ def test_api_get_a_line_raise_not_exist_exception():
     output_data = json.loads(response.data)
 
     # Получение товарной позиции по несуществующему route вызовет исключение DBOrderLineRecordDoesNotExist
-    assert output_data['message'] == \
-           f"Запись с order_id={line_data['order_id']} и line_item={wrong_line_item}" \
-           f" отсутствует в таблице OrderLineDB базы данных"
+    assert output_data['message'] == exceptions.DBOrderLineRecordDoesNotExist(line_data['order_id'],
+                                                                              wrong_line_item).message
     assert response.status_code == 404
 
 
@@ -220,9 +219,8 @@ def test_api_update_a_line_raise_not_exist_exception():
     output_data = json.loads(response.data)
 
     # Обновление товарной позиции по несуществующему route вызовет исключение DBOrderLineRecordDoesNotExist
-    assert output_data['message'] == \
-           f"Запись с order_id={line_data_1['order_id']} и line_item={wrong_line_item}" \
-           f" отсутствует в таблице OrderLineDB базы данных"
+    assert output_data['message'] == exceptions.DBOrderLineRecordDoesNotExist(line_data_1['order_id'],
+                                                                              wrong_line_item).message
     assert response.status_code == 404
 
 
@@ -313,9 +311,8 @@ def test_api_delete_a_line_raise_not_exist_exception():
     output_data = json.loads(response.data)
 
     # Удаление товарной позиции по несуществующему route вызовет исключение DBOrderLineRecordDoesNotExist
-    assert output_data['message'] == \
-           f"Запись с order_id={wrong_order_id} и line_item={line_data['line_item']}" \
-           f" отсутствует в таблице OrderLineDB базы данных"
+    assert output_data['message'] == exceptions.DBOrderLineRecordDoesNotExist(wrong_order_id,
+                                                                              line_data['line_item']).message
     assert response.status_code == 404
 
 

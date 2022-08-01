@@ -4,6 +4,7 @@ import pytest
 from rest_framework.test import APIClient
 
 from allocation.domain import domain_logic
+from allocation.exceptions import exceptions
 from allocation.services import unit_of_work
 
 
@@ -38,8 +39,7 @@ def test_api_add_a_coil_is_idempotent():
     output_data = json.loads(response.data)
 
     # Добавление бухты с уже существующим reference вызовет исключение DBCoilRecordAlreadyExist
-    assert output_data['message'] == \
-           f'Запись с reference={coil_data_2["reference"]} уже существует в таблице CoilDB базы данных'
+    assert output_data['message'] == exceptions.DBCoilRecordAlreadyExist(coil_data_2["reference"]).message
     assert response.status_code == 409
 
 
@@ -103,8 +103,7 @@ def test_api_get_a_coil_raise_not_exist_exception():
     output_data = json.loads(response.data)
 
     # Получение бухты по несуществующему route вызовет исключение DBCoilRecordDoesNotExist
-    assert output_data['message'] == \
-           f"Запись с reference={wrong_reference} отсутствует в таблице CoilDB базы данных"
+    assert output_data['message'] == exceptions.DBCoilRecordDoesNotExist(wrong_reference).message
     assert response.status_code == 404
 
 
@@ -201,8 +200,7 @@ def test_api_update_a_coil_raise_not_exist_exception():
     output_data = json.loads(response.data)
 
     # Обновление бухты по несуществующему route вызовет исключение DBCoilRecordDoesNotExist
-    assert output_data['message'] == \
-           f"Запись с reference={wrong_reference} отсутствует в таблице CoilDB базы данных"
+    assert output_data['message'] == exceptions.DBCoilRecordDoesNotExist(wrong_reference).message
     assert response.status_code == 404
 
 
@@ -247,6 +245,5 @@ def test_api_delete_a_coil_raise_not_exist_exception():
     output_data = json.loads(response.data)
 
     # Удаление бухты по несуществующему route вызовет исключение DBCoilRecordDoesNotExist
-    assert output_data['message'] == \
-           f"Запись с reference={wrong_reference} отсутствует в таблице CoilDB базы данных"
+    assert output_data['message'] == exceptions.DBCoilRecordDoesNotExist(wrong_reference).message
     assert response.status_code == 404

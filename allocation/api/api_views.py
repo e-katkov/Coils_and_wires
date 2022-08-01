@@ -99,7 +99,7 @@ class CoilView(APIView):
                 unit_of_work.DjangoUnitOfWork(),
             )
         except exceptions.DBCoilRecordAlreadyExist as error:
-            output_data = json.dumps({"message": str(error)}, ensure_ascii=False)
+            output_data = json.dumps({"message": error.message}, ensure_ascii=False)
             return Response(data=output_data, status=409)
         output_data = json.dumps({"message": "Created"})
         return Response(data=output_data, status=201)
@@ -127,7 +127,7 @@ class CoilDetailView(APIView):
                 unit_of_work.DjangoUnitOfWork(),
             )
         except exceptions.DBCoilRecordDoesNotExist as error:
-            output_data = json.dumps({"message": str(error)}, ensure_ascii=False)
+            output_data = json.dumps({"message": error.message}, ensure_ascii=False)
             return Response(data=output_data, status=404)
         try:
             output_data = serialize_coil_domain_instance_to_json(coil)
@@ -167,7 +167,7 @@ class CoilDetailView(APIView):
                 unit_of_work.DjangoUnitOfWork(),
             )
         except exceptions.DBCoilRecordDoesNotExist as error:
-            output_data = json.dumps({"message": str(error)}, ensure_ascii=False)
+            output_data = json.dumps({"message": error.message}, ensure_ascii=False)
             return Response(data=output_data, status=404)
         serialized_deallocated_lines = \
             [serialize_order_line_domain_instance_to_json(line) for line in deallocated_lines]
@@ -195,7 +195,7 @@ class CoilDetailView(APIView):
                 unit_of_work.DjangoUnitOfWork(),
             )
         except exceptions.DBCoilRecordDoesNotExist as error:
-            output_data = json.dumps({"message": str(error)}, ensure_ascii=False)
+            output_data = json.dumps({"message": error.message}, ensure_ascii=False)
             return Response(data=output_data, status=404)
         serialized_deallocated_lines = \
             [serialize_order_line_domain_instance_to_json(line) for line in deallocated_lines]
@@ -226,7 +226,7 @@ class OrderLineView(APIView):
                 unit_of_work.DjangoUnitOfWork(),
             )
         except exceptions.DBOrderLineRecordAlreadyExist as error:
-            output_data = json.dumps({"message": str(error)}, ensure_ascii=False)
+            output_data = json.dumps({"message": error.message}, ensure_ascii=False)
             return Response(data=output_data, status=409)
         output_data = json.dumps({"message": "Created"})
         return Response(data=output_data, status=201)
@@ -257,7 +257,7 @@ class OrderLineDetailView(APIView):
                 unit_of_work.DjangoUnitOfWork(),
             )
         except exceptions.DBOrderLineRecordDoesNotExist as error:
-            output_data = json.dumps({"message": str(error)}, ensure_ascii=False)
+            output_data = json.dumps({"message": error.message}, ensure_ascii=False)
             return Response(data=output_data, status=404)
         try:
             output_data = serialize_order_line_domain_instance_to_json(line)
@@ -299,7 +299,7 @@ class OrderLineDetailView(APIView):
                 unit_of_work.DjangoUnitOfWork(),
             )
         except exceptions.DBOrderLineRecordDoesNotExist as error:
-            output_data = json.dumps({"message": str(error)}, ensure_ascii=False)
+            output_data = json.dumps({"message": error.message}, ensure_ascii=False)
             return Response(data=output_data, status=404)
         try:
             output_data = serialize_coil_domain_instance_to_json(allocation_coil)
@@ -332,7 +332,7 @@ class OrderLineDetailView(APIView):
                 unit_of_work.DjangoUnitOfWork(),
             )
         except exceptions.DBOrderLineRecordDoesNotExist as error:
-            output_data = json.dumps({"message": str(error)}, ensure_ascii=False)
+            output_data = json.dumps({"message": error.message}, ensure_ascii=False)
             return Response(data=output_data, status=404)
         try:
             output_data = serialize_coil_domain_instance_to_json(allocation_coil)
@@ -360,10 +360,10 @@ class AllocateView(APIView):
                 unit_of_work.DjangoUnitOfWork(),
             )
         except exceptions.DBOrderLineRecordDoesNotExist as error:
-            output_data = json.dumps({"message": str(error)}, ensure_ascii=False)
+            output_data = json.dumps({"message": error.message}, ensure_ascii=False)
             return Response(data=output_data, status=404)
         except exceptions.OutOfStock as error:
-            output_data = json.dumps({"message": str(error)}, ensure_ascii=False)
+            output_data = json.dumps({"message": error.message}, ensure_ascii=False)
             return Response(data=output_data, status=422)
         try:
             output_data = serialize_coil_domain_instance_to_json(coil)
@@ -398,7 +398,7 @@ class AllocateDetailView(APIView):
                 unit_of_work.DjangoUnitOfWork(),
             )
         except exceptions.DBOrderLineRecordDoesNotExist as error:
-            output_data = json.dumps({"message": str(error)}, ensure_ascii=False)
+            output_data = json.dumps({"message": error.message}, ensure_ascii=False)
             return Response(data=output_data, status=404)
         try:
             output_data = serialize_coil_domain_instance_to_json(allocation_coil)
@@ -431,7 +431,7 @@ class AllocateDetailView(APIView):
                 unit_of_work.DjangoUnitOfWork(),
             )
         except exceptions.DBOrderLineRecordDoesNotExist as error:
-            output_data = json.dumps({"message": str(error)}, ensure_ascii=False)
+            output_data = json.dumps({"message": error.message}, ensure_ascii=False)
             return Response(data=output_data, status=404)
         try:
             output_data = serialize_coil_domain_instance_to_json(allocation_coil)

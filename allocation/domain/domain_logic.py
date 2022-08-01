@@ -1,7 +1,7 @@
 from copy import deepcopy
 from typing import Any
 
-from allocation.exceptions.exceptions import OutOfStock
+from allocation.exceptions import exceptions
 
 
 class OrderLine:
@@ -118,4 +118,4 @@ def allocate_to_list_of_coils(line: OrderLine, coils: list[Coil]) -> Coil:
         result_coil.allocate(line)
         return result_coil
     except StopIteration:
-        raise OutOfStock(f'Недостаточное количество материала с product_id={line.product_id}')
+        raise exceptions.OutOfStock(line.product_id)
