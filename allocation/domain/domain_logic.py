@@ -16,6 +16,8 @@ class OrderLine:
         # Количество материала
         self.quantity = quantity
 
+    __slots__ = ['order_id', 'line_item', 'product_id', 'quantity']
+
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, OrderLine):
             return False
@@ -46,6 +48,9 @@ class Coil:
         self.acceptable_loss = acceptable_loss
         # Множество экземпляров размещенных товарных позиций
         self.allocations: set[OrderLine] = set()
+
+    __slots__ = ['reference', 'product_id', 'initial_quantity',
+                 'recommended_balance', 'acceptable_loss', 'allocations']
 
     @property
     def allocated_quantity(self) -> int:
