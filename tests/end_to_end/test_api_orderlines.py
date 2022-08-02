@@ -19,8 +19,8 @@ def test_api_add_a_line():
     response = client.post('/v1/orderlines', data=line_data, format='json')
     output_data = json.loads(response.data)
 
-    assert output_data['message'] == 'Created'
     assert response.status_code == 201
+    assert output_data['message'] == 'Created'
 
 
 @pytest.mark.django_db(transaction=True)
@@ -38,11 +38,11 @@ def test_api_add_a_line_is_idempotent():
     response = client.post('/v1/orderlines', data=line_data_2, format='json')
     output_data = json.loads(response.data)
 
+    assert response.status_code == 409
     # Добавление товарной позиции с уже существующими order_id и line_item
     # вызовет исключение DBOrderLineRecordAlreadyExist
     assert output_data['message'] == exceptions.DBOrderLineRecordAlreadyExist(line_data_2["order_id"],
                                                                               line_data_2["line_item"]).message
-    assert response.status_code == 409
 
 
 @pytest.mark.django_db(transaction=True)
@@ -58,9 +58,9 @@ def test_api_add_a_line_raise_validation_error():
     response = client.post('/v1/orderlines', data=line_data, format='json')
     output_data = json.loads(response.data)
 
+    assert response.status_code == 400
     # Товарная позиция не соответствует OrderLineBaseModel, что вызовет ошибку ValidationError
     assert '2 validation errors for OrderLineBaseModel' in output_data['message']
-    assert response.status_code == 400
 
 
 @pytest.mark.django_db(transaction=True)
@@ -78,9 +78,9 @@ def test_api_get_a_line():
     response = client.get(f"/v1/orderlines/{line_data_2['order_id']}/{line_data_2['line_item']}")
     output_data = json.loads(response.data)
 
+    assert response.status_code == 200
     assert output_data['line_item'] == 'Позиция-002'
     assert output_data['quantity'] == 15
-    assert response.status_code == 200
 
 
 @pytest.mark.django_db(transaction=True)
@@ -97,10 +97,10 @@ def test_api_get_a_line_raise_not_exist_exception():
     response = client.get(f"/v1/orderlines/{line_data['order_id']}/{wrong_line_item}")
     output_data = json.loads(response.data)
 
+    assert response.status_code == 404
     # Получение товарной позиции по несуществующему route вызовет исключение DBOrderLineRecordDoesNotExist
     assert output_data['message'] == exceptions.DBOrderLineRecordDoesNotExist(line_data['order_id'],
                                                                               wrong_line_item).message
-    assert response.status_code == 404
 
 
 @pytest.mark.django_db(transaction=True)
@@ -120,9 +120,9 @@ def test_api_get_a_line_raise_validation_error():
     response = client.get(f"/v1/orderlines/{line.order_id}/{line.line_item}")
     output_data = json.loads(response.data)
 
+    assert response.status_code == 500
     # Товарная позиция не соответствует OrderLineBaseModel, что вызовет ошибку ValidationError
     assert '1 validation error for OrderLineBaseModel' in output_data['message']
-    assert response.status_code == 500
 
 
 @pytest.mark.django_db(transaction=True)
@@ -148,10 +148,10 @@ def test_api_update_a_line_returns_real_coil(three_coils_and_lines, line_2_quant
                           data=line_data_2, format='json')
     output_data = json.loads(response.data)
 
+    assert response.status_code == 200
     # Товарная позиция будет размещена в smaller_coil (1), medium_coil (2)
     assert output_data['reference'] == coil_reference
     assert output_data['quantity'] == coil_quantity
-    assert response.status_code == 200
 
 
 @pytest.mark.django_db(transaction=True)
@@ -173,10 +173,10 @@ def test_api_update_a_line_returns_fake_coil(three_coils_and_lines):
                           data=line_data_2, format='json')
     output_data = json.loads(response.data)
 
+    assert response.status_code == 200
     # Размещение товарной позиции не выполнялось, что приведет к возврату "поддельной" бухты
     assert output_data['reference'] == 'fake'
     assert output_data['quantity'] == 1
-    assert response.status_code == 200
 
 
 @pytest.mark.django_db(transaction=True)
@@ -196,9 +196,9 @@ def test_api_update_a_line_raise_input_validation_error():
                           data=line_data_2, format='json')
     output_data = json.loads(response.data)
 
+    assert response.status_code == 400
     # Товарная позиция не соответствует OrderLineBaseModel, что вызовет ошибку ValidationError
     assert '2 validation errors for OrderLineBaseModel' in output_data['message']
-    assert response.status_code == 400
 
 
 @pytest.mark.django_db(transaction=True)
@@ -218,10 +218,10 @@ def test_api_update_a_line_raise_not_exist_exception():
                           data=line_data_2, format='json')
     output_data = json.loads(response.data)
 
+    assert response.status_code == 404
     # Обновление товарной позиции по несуществующему route вызовет исключение DBOrderLineRecordDoesNotExist
     assert output_data['message'] == exceptions.DBOrderLineRecordDoesNotExist(line_data_1['order_id'],
                                                                               wrong_line_item).message
-    assert response.status_code == 404
 
 
 @pytest.mark.django_db(transaction=True)
@@ -249,10 +249,10 @@ def test_api_update_a_line_raise_output_validation_error():
                           data=line_data_2, format='json')
     output_data = json.loads(response.data)
 
+    assert response.status_code == 500
     # Обновление товарной позиции вернет allocation_coil, в который она была размещена
     # allocation_coil не соответствует CoilBaseModel, что вызовет ошибку ValidationError
     assert '1 validation error for CoilBaseModel' in output_data['message']
-    assert response.status_code == 500
 
 
 @pytest.mark.django_db(transaction=True)
@@ -272,9 +272,9 @@ def test_api_delete_a_line_returns_real_coil(three_coils_and_lines):
     response = client.delete(f"/v1/orderlines/{line_data['order_id']}/{line_data['line_item']}")
     output_data = json.loads(response.data)
 
+    assert response.status_code == 200
     # Удаление товарной позиции вернет allocation_coil, в который она была размещена, т.е. smaller_coil
     assert output_data['reference'] == "Бухта-031"
-    assert response.status_code == 200
 
 
 @pytest.mark.django_db(transaction=True)
@@ -290,10 +290,10 @@ def test_api_delete_a_line_returns_fake_coil(three_coils_and_lines):
     response = client.delete(f"/v1/orderlines/{line_data['order_id']}/{line_data['line_item']}")
     output_data = json.loads(response.data)
 
+    assert response.status_code == 200
     # Удаление товарной позиции вернет allocation_coil, в который она была размещена
     # Размещение товарной позиции не выполнялось, что приведет к возврату "поддельной" бухты
     assert output_data['reference'] == 'fake'
-    assert response.status_code == 200
 
 
 @pytest.mark.django_db(transaction=True)
@@ -310,10 +310,10 @@ def test_api_delete_a_line_raise_not_exist_exception():
     response = client.delete(f"/v1/orderlines/{wrong_order_id}/{line_data['line_item']}")
     output_data = json.loads(response.data)
 
+    assert response.status_code == 404
     # Удаление товарной позиции по несуществующему route вызовет исключение DBOrderLineRecordDoesNotExist
     assert output_data['message'] == exceptions.DBOrderLineRecordDoesNotExist(wrong_order_id,
                                                                               line_data['line_item']).message
-    assert response.status_code == 404
 
 
 @pytest.mark.django_db(transaction=True)
@@ -338,7 +338,7 @@ def test_api_delete_a_line_raise_validation_error():
     response = client.delete(f"/v1/orderlines/{line_data['order_id']}/{line_data['line_item']}")
     output_data = json.loads(response.data)
 
+    assert response.status_code == 500
     # Удаление товарной позиции вернет allocation_coil, в который она была размещена
     # allocation_coil не соответствует CoilBaseModel, что вызовет ошибку ValidationError
     assert '1 validation error for CoilBaseModel' in output_data['message']
-    assert response.status_code == 500

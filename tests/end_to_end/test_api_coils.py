@@ -19,8 +19,8 @@ def test_api_add_a_coil():
     response = client.post('/v1/coils', data=coil_data, format='json')
     output_data = json.loads(response.data)
 
-    assert output_data['message'] == 'Created'
     assert response.status_code == 201
+    assert output_data['message'] == 'Created'
 
 
 @pytest.mark.django_db(transaction=True)
@@ -38,9 +38,9 @@ def test_api_add_a_coil_is_idempotent():
     response = client.post('/v1/coils', data=coil_data_2, format='json')
     output_data = json.loads(response.data)
 
+    assert response.status_code == 409
     # Добавление бухты с уже существующим reference вызовет исключение DBCoilRecordAlreadyExist
     assert output_data['message'] == exceptions.DBCoilRecordAlreadyExist(coil_data_2["reference"]).message
-    assert response.status_code == 409
 
 
 @pytest.mark.django_db(transaction=True)
@@ -56,9 +56,9 @@ def test_api_add_a_coil_raise_validation_error():
     response = client.post('/v1/coils', data=coil_data, format='json')
     output_data = json.loads(response.data)
 
+    assert response.status_code == 400
     # Бухта не соответствует CoilBaseModel, что вызовет ошибку ValidationError
     assert '3 validation errors for CoilBaseModel' in output_data['message']
-    assert response.status_code == 400
 
 
 @pytest.mark.django_db(transaction=True)
@@ -82,10 +82,10 @@ def test_api_get_a_coil():
     allocated_lines_order_id_and_line_item = \
         {(json.loads(line)['order_id'], json.loads(line)['line_item']) for line in output_coil['allocations']}
 
+    assert response.status_code == 200
     assert output_coil['reference'] == 'Бухта-021'
     assert output_coil['quantity'] == 220
     assert allocated_lines_order_id_and_line_item == {(line_data['order_id'], line_data['line_item'])}
-    assert response.status_code == 200
 
 
 @pytest.mark.django_db(transaction=True)
@@ -102,9 +102,9 @@ def test_api_get_a_coil_raise_not_exist_exception():
     response = client.get(f"/v1/coils/{wrong_reference}")
     output_data = json.loads(response.data)
 
+    assert response.status_code == 404
     # Получение бухты по несуществующему route вызовет исключение DBCoilRecordDoesNotExist
     assert output_data['message'] == exceptions.DBCoilRecordDoesNotExist(wrong_reference).message
-    assert response.status_code == 404
 
 
 @pytest.mark.django_db(transaction=True)
@@ -124,9 +124,9 @@ def test_api_get_a_coil_raise_validation_error():
     response = client.get(f"/v1/coils/{coil.reference}")
     output_data = json.loads(response.data)
 
+    assert response.status_code == 500
     # Бухта не соответствует CoilBaseModel, что вызовет ошибку ValidationError
     assert '2 validation errors for CoilBaseModel' in output_data['message']
-    assert response.status_code == 500
 
 
 @pytest.mark.django_db(transaction=True)
@@ -157,12 +157,12 @@ def test_api_update_a_coil(three_coils_and_lines):
     allocated_lines_order_id_and_line_item = \
         {(json.loads(line)['order_id'], json.loads(line)['line_item']) for line in output_coil['allocations']}
 
+    assert response.status_code == 200
     # Обновление бухты приведет к тому, что товарная позиция ("Заказ-031", "Позиция-005")
     # перестанет быть размещенной
     assert deallocated_lines_order_id_and_line_item == {("Заказ-031", "Позиция-005")}
     assert allocated_lines_order_id_and_line_item == {("Заказ-032", "Позиция-004"),
                                                       ("Заказ-033", "Позиция-002")}
-    assert response.status_code == 200
 
 
 @pytest.mark.django_db(transaction=True)
@@ -178,9 +178,9 @@ def test_api_update_a_coil_raise_validation_error():
     response = client.put(f"/v1/coils/{coil_data['reference']}", data=coil_data, format='json')
     output_data = json.loads(response.data)
 
+    assert response.status_code == 400
     # Бухта не соответствует CoilBaseModel, что вызовет ошибку ValidationError
     assert '3 validation errors for CoilBaseModel' in output_data['message']
-    assert response.status_code == 400
 
 
 @pytest.mark.django_db(transaction=True)
@@ -199,9 +199,9 @@ def test_api_update_a_coil_raise_not_exist_exception():
     response = client.put(f"/v1/coils/{wrong_reference}", data=coil_data_2, format='json')
     output_data = json.loads(response.data)
 
+    assert response.status_code == 404
     # Обновление бухты по несуществующему route вызовет исключение DBCoilRecordDoesNotExist
     assert output_data['message'] == exceptions.DBCoilRecordDoesNotExist(wrong_reference).message
-    assert response.status_code == 404
 
 
 @pytest.mark.django_db(transaction=True)
@@ -224,10 +224,10 @@ def test_api_delete_a_coil(three_coils_and_lines):
     deallocated_lines_order_id_and_line_item = \
         {(json.loads(line)['order_id'], json.loads(line)['line_item']) for line in output_data}
 
+    assert response.status_code == 200
     # Удаление бухты вернет множество переставших быть размещенными товарных позиций
     assert deallocated_lines_order_id_and_line_item == \
            {("Заказ-031", "Позиция-005"), ("Заказ-032", "Позиция-004"), ("Заказ-033", "Позиция-002")}
-    assert response.status_code == 200
 
 
 @pytest.mark.django_db(transaction=True)
@@ -244,6 +244,6 @@ def test_api_delete_a_coil_raise_not_exist_exception():
     response = client.delete(f"/v1/coils/{wrong_reference}")
     output_data = json.loads(response.data)
 
+    assert response.status_code == 404
     # Удаление бухты по несуществующему route вызовет исключение DBCoilRecordDoesNotExist
     assert output_data['message'] == exceptions.DBCoilRecordDoesNotExist(wrong_reference).message
-    assert response.status_code == 404

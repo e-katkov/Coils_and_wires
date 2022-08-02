@@ -28,9 +28,9 @@ def test_api_allocate_a_line(three_coils_and_lines):
     allocated_lines_order_id_and_line_item = \
         {(json.loads(line)['order_id'], json.loads(line)['line_item']) for line in output_coil['allocations']}
 
+    assert response.status_code == 200
     assert allocated_lines_order_id_and_line_item == \
            {(line['order_id'], line['line_item']) for line in three_coils_and_lines['three_lines']}
-    assert response.status_code == 200
 
 
 @pytest.mark.django_db(transaction=True)
@@ -61,9 +61,9 @@ def test_api_allocate_a_line_is_idempotent(three_coils_and_lines):
     response_bigger_coil = client.get('/v1/coils/Бухта-033')
     output_bigger_coil = json.loads(response_bigger_coil.data)
 
+    assert response.status_code == 200
     assert allocated_lines_order_id_and_line_item == \
            {(line['order_id'], line['line_item']) for line in three_coils_and_lines['three_lines']}
-    assert response.status_code == 200
     assert output_medium_coil['allocations'] == []
     assert output_bigger_coil['allocations'] == []
 
@@ -89,10 +89,10 @@ def test_api_allocate_a_line_raise_output_validation_error():
     response = client.post('/v1/allocate', data=line_data, format='json')
     output_data = json.loads(response.data)
 
+    assert response.status_code == 500
     # Размещение товарной позиции вернет allocation_coil, который не соответствует CoilBaseModel,
     # что вызовет ошибку ValidationError
     assert '2 validation errors for CoilBaseModel' in output_data['message']
-    assert response.status_code == 500
 
 
 @pytest.mark.django_db(transaction=True)
@@ -110,10 +110,10 @@ def test_api_allocate_a_line_raise_out_of_stock_exception(three_coils_and_lines)
     response = client.post('/v1/allocate', data=line_data, format='json')
     output_data = json.loads(response.data)
 
+    assert response.status_code == 422
     # Товарная позиция имеет величину quantity большую, чем у бухт,
     # поэтому размещение товарной позиции вызовет исключение OutOfStock
     assert output_data['message'] == exceptions.OutOfStock(line_data["product_id"]).message
-    assert response.status_code == 422
 
 
 @pytest.mark.django_db(transaction=True)
@@ -130,11 +130,11 @@ def test_api_allocate_a_line_raise_not_exist_exception(three_coils_and_lines):
     response = client.post('/v1/allocate', data=line_data, format='json')
     output_data = json.loads(response.data)
 
+    assert response.status_code == 404
     # Товарная позиция не была сохранена в базе данных,
     # поэтому ее размещение вызовет исключение DBOrderLineRecordDoesNotExist
     assert output_data['message'] == exceptions.DBOrderLineRecordDoesNotExist(line_data['order_id'],
                                                                               line_data['line_item']).message
-    assert response.status_code == 404
 
 
 @pytest.mark.django_db(transaction=True)
@@ -154,8 +154,8 @@ def test_api_get_an_allocation_coil_returns_real_coil(three_coils_and_lines):
     response = client.get(f"/v1/allocate/{line_data['order_id']}/{line_data['line_item']}")
     output_data = json.loads(response.data)
 
-    assert output_data['reference'] == "Бухта-031"
     assert response.status_code == 200
+    assert output_data['reference'] == "Бухта-031"
 
 
 @pytest.mark.django_db(transaction=True)
@@ -174,10 +174,10 @@ def test_api_get_an_allocation_coil_returns_fake_coil(three_coils_and_lines):
     response = client.get(f"/v1/allocate/{line_data['order_id']}/{line_data['line_item']}")
     output_data = json.loads(response.data)
 
+    assert response.status_code == 200
     # Размещение товарной позиции не выполнялось, что приведет к возврату "поддельной" бухты
     assert output_data['reference'] == 'fake'
     assert output_data['quantity'] == 1
-    assert response.status_code == 200
 
 
 @pytest.mark.django_db(transaction=True)
@@ -194,11 +194,11 @@ def test_api_get_an_allocation_coil_raise_not_exist_exception():
     response = client.get(f"/v1/allocate/{line_data['order_id']}/{wrong_line_item}")
     output_data = json.loads(response.data)
 
+    assert response.status_code == 404
     # Получение allocation_coil по несуществующему для товарной позиции route
     # вызовет исключение DBOrderLineRecordDoesNotExist
     assert output_data['message'] == exceptions.DBOrderLineRecordDoesNotExist(line_data['order_id'],
                                                                               wrong_line_item).message
-    assert response.status_code == 404
 
 
 @pytest.mark.django_db(transaction=True)
@@ -223,9 +223,9 @@ def test_api_get_an_allocation_coil_raise_validation_error():
     response = client.get(f"/v1/allocate/{line_data['order_id']}/{line_data['line_item']}")
     output_data = json.loads(response.data)
 
+    assert response.status_code == 500
     # allocation_coil не соответствует CoilBaseModel, что вызовет ошибку ValidationError
     assert '1 validation error for CoilBaseModel' in output_data['message']
-    assert response.status_code == 500
 
 
 @pytest.mark.django_db(transaction=True)
@@ -245,8 +245,8 @@ def test_api_deallocate_a_line_returns_real_coil(three_coils_and_lines):
     response = client.delete(f"/v1/allocate/{line_data['order_id']}/{line_data['line_item']}")
     output_data = json.loads(response.data)
 
-    assert output_data['reference'] == "Бухта-031"
     assert response.status_code == 200
+    assert output_data['reference'] == "Бухта-031"
 
 
 @pytest.mark.django_db(transaction=True)
@@ -265,10 +265,10 @@ def test_api_deallocate_a_line_returns_fake_coil(three_coils_and_lines):
     response = client.delete(f"/v1/allocate/{line_data['order_id']}/{line_data['line_item']}")
     output_data = json.loads(response.data)
 
+    assert response.status_code == 200
     # Размещение товарной позиции не выполнялось, что приведет к возврату "поддельной" бухты
     assert output_data['reference'] == 'fake'
     assert output_data['quantity'] == 1
-    assert response.status_code == 200
 
 
 @pytest.mark.django_db(transaction=True)
@@ -285,11 +285,11 @@ def test_api_deallocate_a_line_raise_not_exist_exception():
     response = client.delete(f"/v1/allocate/{line_data['order_id']}/{wrong_line_item}")
     output_data = json.loads(response.data)
 
+    assert response.status_code == 404
     # Получение allocation_coil по несуществующему для товарной позиции route
     # вызовет исключение DBOrderLineRecordDoesNotExist
     assert output_data['message'] == exceptions.DBOrderLineRecordDoesNotExist(line_data['order_id'],
                                                                               wrong_line_item).message
-    assert response.status_code == 404
 
 
 @pytest.mark.django_db(transaction=True)
@@ -314,6 +314,6 @@ def test_api_deallocate_a_line_raise_validation_error():
     response = client.delete(f"/v1/allocate/{line_data['order_id']}/{line_data['line_item']}")
     output_data = json.loads(response.data)
 
+    assert response.status_code == 500
     # allocation_coil не соответствует CoilBaseModel, что вызовет ошибку ValidationError
     assert '1 validation error for CoilBaseModel' in output_data['message']
-    assert response.status_code == 500
