@@ -64,9 +64,12 @@ class Coil:
 
     def can_allocate(self, line: OrderLine) -> bool:
         """Принимает экземпляр товарной позиции, определяет возможность ее размещения в бухте."""
-        result = (self.product_id == line.product_id) and \
-                 (((self.available_quantity - line.quantity) >= self.recommended_balance)
-                  or (self.acceptable_loss >= (self.available_quantity - line.quantity) >= 0))
+        is_product_ids_match = self.product_id == line.product_id
+        is_balance_bigger_recommended_balance = (self.available_quantity - line.quantity) >= self.recommended_balance
+        is_balance_smaller_acceptable_loss_and_bigger_zero = \
+            self.acceptable_loss >= (self.available_quantity - line.quantity) >= 0
+        result = is_product_ids_match and (is_balance_bigger_recommended_balance
+                                           or is_balance_smaller_acceptable_loss_and_bigger_zero)
         return result
 
     def allocate(self, line: OrderLine) -> None:
