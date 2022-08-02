@@ -119,3 +119,9 @@ def allocate_to_list_of_coils(line: OrderLine, coils: list[Coil]) -> Coil:
         return result_coil
     except StopIteration:
         raise exceptions.OutOfStock(line.product_id)
+
+
+# Значения используются для (де)сериализации и валидации данных,
+# которые получены из тела запроса клиента или возвращаются клиенту в ответе
+coil_validation_patterns = {'reference': '^(Бухта|fake)'}
+orderline_validation_patterns = {'order_id': '^Заказ', 'line_item': '^Позиция'}

@@ -7,7 +7,7 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from allocation.domain.domain_logic import Coil, OrderLine
+from allocation.domain.domain_logic import Coil, OrderLine, coil_validation_patterns, orderline_validation_patterns
 from allocation.exceptions import exceptions
 from allocation.services import services, unit_of_work
 from coils_and_wires import drf_spectacular
@@ -19,7 +19,7 @@ class CoilBaseModel(BaseModel):
     Возвращает экземпляр класса, поля которого соответствуют типам полей, определенных в классе.
     Генерирует ошибку ValidationError, возникающую в случае указанного несоответствия.
     """
-    reference: str = Field(regex='^(Бухта|fake)')
+    reference: str = Field(regex=coil_validation_patterns['reference'])
     product_id: str
     quantity: int = Field(gt=0)
     recommended_balance: int = Field(gt=0)
@@ -33,8 +33,8 @@ class OrderLineBaseModel(BaseModel):
     Возвращает экземпляр класса, поля которого соответствуют типам полей, определенных в классе.
     Генерирует ошибку ValidationError, возникающую в случае указанного несоответствия.
     """
-    order_id: str = Field(regex='^Заказ')
-    line_item: str = Field(regex='^Позиция')
+    order_id: str = Field(regex=orderline_validation_patterns['order_id'])
+    line_item: str = Field(regex=orderline_validation_patterns['line_item'])
     product_id: str
     quantity: int = Field(gt=0)
 
