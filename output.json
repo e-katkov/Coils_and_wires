@@ -1,6 +1,6 @@
 [
 {
-  "model": "allocation.coil",
+  "model": "allocation.coildb",
   "pk": 3,
   "fields": {
     "reference": "Бухта-001",
@@ -11,7 +11,7 @@
   }
 },
 {
-  "model": "allocation.coil",
+  "model": "allocation.coildb",
   "pk": 4,
   "fields": {
     "reference": "Бухта-002",
@@ -22,7 +22,7 @@
   }
 },
 {
-  "model": "allocation.coil",
+  "model": "allocation.coildb",
   "pk": 5,
   "fields": {
     "reference": "Бухта-003",
@@ -33,7 +33,7 @@
   }
 },
 {
-  "model": "allocation.coil",
+  "model": "allocation.coildb",
   "pk": 6,
   "fields": {
     "reference": "Бухта-004",
@@ -44,7 +44,7 @@
   }
 },
 {
-  "model": "allocation.orderline",
+  "model": "allocation.orderlinedb",
   "pk": 1,
   "fields": {
     "order_id": "Заказ-001",
@@ -54,7 +54,7 @@
   }
 },
 {
-  "model": "allocation.orderline",
+  "model": "allocation.orderlinedb",
   "pk": 2,
   "fields": {
     "order_id": "Заказ-002",
@@ -64,7 +64,7 @@
   }
 },
 {
-  "model": "allocation.orderline",
+  "model": "allocation.orderlinedb",
   "pk": 3,
   "fields": {
     "order_id": "Заказ-003",
@@ -74,7 +74,7 @@
   }
 },
 {
-  "model": "allocation.orderline",
+  "model": "allocation.orderlinedb",
   "pk": 4,
   "fields": {
     "order_id": "Заказ-004",
@@ -84,19 +84,19 @@
   }
 },
 {
-  "model": "allocation.allocation",
+  "model": "allocation.allocationdb",
   "pk": 1,
   "fields": {
-    "coil": 5,
-    "line": 3
+    "coil_record": 5,
+    "orderline_record": 3
   }
 },
 {
-  "model": "allocation.allocation",
+  "model": "allocation.allocationdb",
   "pk": 2,
   "fields": {
-    "coil": 6,
-    "line": 4
+    "coil_record": 6,
+    "orderline_record": 4
   }
 }
 ]
