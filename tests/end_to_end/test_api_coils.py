@@ -124,7 +124,7 @@ def test_api_get_a_coil_raise_validation_error():
     response = client.get(f"/v1/coils/{coil.reference}")
     output_data = json.loads(response.data)
 
-    assert response.status_code == 500
+    assert response.status_code == 403
     # Бухта не соответствует CoilBaseModel, что вызовет ошибку ValidationError
     assert '2 validation errors for CoilBaseModel' in output_data['message']
 

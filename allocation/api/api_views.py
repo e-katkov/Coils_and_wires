@@ -133,7 +133,7 @@ class CoilDetailView(APIView):
             output_data = serialize_coil_domain_instance_to_json(coil)
         except ValidationError as error:
             output_data = json.dumps({"message": str(error)}, ensure_ascii=False)
-            return Response(data=output_data, status=500)
+            return Response(data=output_data, status=403)
         return Response(data=output_data, status=200)
 
     @extend_schema(
@@ -263,7 +263,7 @@ class OrderLineDetailView(APIView):
             output_data = serialize_order_line_domain_instance_to_json(line)
         except ValidationError as error:
             output_data = json.dumps({"message": str(error)}, ensure_ascii=False)
-            return Response(data=output_data, status=500)
+            return Response(data=output_data, status=403)
         return Response(data=output_data, status=200)
 
     @extend_schema(
@@ -305,7 +305,7 @@ class OrderLineDetailView(APIView):
             output_data = serialize_coil_domain_instance_to_json(allocation_coil)
         except ValidationError as error:
             output_data = json.dumps({"message": str(error)}, ensure_ascii=False)
-            return Response(data=output_data, status=500)
+            return Response(data=output_data, status=403)
         return Response(data=output_data, status=200)
 
     @extend_schema(
@@ -338,7 +338,7 @@ class OrderLineDetailView(APIView):
             output_data = serialize_coil_domain_instance_to_json(allocation_coil)
         except ValidationError as error:
             output_data = json.dumps({"message": str(error)}, ensure_ascii=False)
-            return Response(data=output_data, status=500)
+            return Response(data=output_data, status=403)
         return Response(data=output_data, status=200)
 
 
@@ -369,7 +369,7 @@ class AllocateView(APIView):
             output_data = serialize_coil_domain_instance_to_json(coil)
         except ValidationError as error:
             output_data = json.dumps({"message": str(error)}, ensure_ascii=False)
-            return Response(data=output_data, status=500)
+            return Response(data=output_data, status=403)
         return Response(data=output_data, status=200)
 
 
@@ -404,7 +404,7 @@ class AllocateDetailView(APIView):
             output_data = serialize_coil_domain_instance_to_json(allocation_coil)
         except ValidationError as error:
             output_data = json.dumps({"message": str(error)}, ensure_ascii=False)
-            return Response(data=output_data, status=500)
+            return Response(data=output_data, status=403)
         return Response(data=output_data, status=200)
 
     @extend_schema(
@@ -437,5 +437,5 @@ class AllocateDetailView(APIView):
             output_data = serialize_coil_domain_instance_to_json(allocation_coil)
         except ValidationError as error:
             output_data = json.dumps({"message": str(error)}, ensure_ascii=False)
-            return Response(data=output_data, status=500)
+            return Response(data=output_data, status=403)
         return Response(data=output_data, status=200)

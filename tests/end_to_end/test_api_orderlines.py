@@ -120,7 +120,7 @@ def test_api_get_a_line_raise_validation_error():
     response = client.get(f"/v1/orderlines/{line.order_id}/{line.line_item}")
     output_data = json.loads(response.data)
 
-    assert response.status_code == 500
+    assert response.status_code == 403
     # Товарная позиция не соответствует OrderLineBaseModel, что вызовет ошибку ValidationError
     assert '1 validation error for OrderLineBaseModel' in output_data['message']
 
@@ -249,7 +249,7 @@ def test_api_update_a_line_raise_output_validation_error():
                           data=line_data_2, format='json')
     output_data = json.loads(response.data)
 
-    assert response.status_code == 500
+    assert response.status_code == 403
     # Обновление товарной позиции вернет allocation_coil, в который она была размещена
     # allocation_coil не соответствует CoilBaseModel, что вызовет ошибку ValidationError
     assert '1 validation error for CoilBaseModel' in output_data['message']
@@ -338,7 +338,7 @@ def test_api_delete_a_line_raise_validation_error():
     response = client.delete(f"/v1/orderlines/{line_data['order_id']}/{line_data['line_item']}")
     output_data = json.loads(response.data)
 
-    assert response.status_code == 500
+    assert response.status_code == 403
     # Удаление товарной позиции вернет allocation_coil, в который она была размещена
     # allocation_coil не соответствует CoilBaseModel, что вызовет ошибку ValidationError
     assert '1 validation error for CoilBaseModel' in output_data['message']
